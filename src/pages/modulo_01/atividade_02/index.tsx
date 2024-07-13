@@ -9,7 +9,8 @@ import CustomButton from "../../../components/Button";
 import clickSong from '../../../assets/click-151673.mp3';
 import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
-import { isNumber} from "../../../utils/validations";
+import { isNumber } from "../../../utils/validations";
+import PanelPoints from "../../../components/PanelPoints";
 
 const Atividade02 = () => {
     const [optionsSimbolsAndNumbers, setOptionsSimbolsAndNumbers] = useState<string[]>([]);
@@ -46,7 +47,7 @@ const Atividade02 = () => {
     const numberArrayToStringArray = (numbersArray: number[]): string[] => {
         return numbersArray.map(num => num.toString());
     }
-    
+
     function buildArraySimbols(): string[] {
         const symbols: string[] = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '[', ']', '{', '}', '|', ';', ':', '<', '>', '/', '?', ',', '.', '~'];
         const numbersArray: number[] = generateRandomNumbersArray(33, 1, 33);
@@ -78,7 +79,7 @@ const Atividade02 = () => {
         setClicksCount(clicksCount + 1);
     }
 
-    
+
     const startSelectSound = () => {
         const selectAudio = new Audio(selectSong);
         selectAudio.play();
@@ -135,9 +136,10 @@ const Atividade02 = () => {
     return (
         <main className="page">
             <div className="header-page">
-                <LabelValue
-                    text="ACERTOS"
-                    value={optionsFound.length.toString()}
+                <PanelPoints
+                    hits={optionsFound.length}
+                    errors={clicksCount - optionsFound.length}
+                    rounds={clicksCount}
                 />
                 <h1 className="title-ativity">SELECIONE OS NÚMEROS</h1>
 

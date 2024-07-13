@@ -11,6 +11,7 @@ import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
 import { isLetter } from "../../../utils/validations";
 import { generateAlphabetArray, generateSimbolsArray } from "../../../utils/functions";
+import PanelPoints from "../../../components/PanelPoints";
 
 const Atividade01 = () => {
     const [optionsSimbolsAndLetters, setOptionsSimbolsAndLetters] = useState<string[]>([]);
@@ -117,9 +118,10 @@ const Atividade01 = () => {
     return (
         <main className="page">
             <div className="header-page">
-                <LabelValue
-                    text="ACERTOS"
-                    value={optionsFound.length.toString()}
+                <PanelPoints
+                    hits={optionsFound.length}
+                    errors={clicksCount - optionsFound.length}
+                    rounds={clicksCount}
                 />
                 <h1 className="title-ativity">SELECIONE AS LETRAS</h1>
 

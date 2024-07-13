@@ -9,7 +9,8 @@ import CustomButton from "../../../components/Button";
 import clickSong from '../../../assets/click-151673.mp3';
 import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
-import { isLetter } from "../../../utils/functions";
+import { isLetter } from "../../../utils/validations";
+import { generateAlphabetArray, generateSimbolsArray } from "../../../utils/functions";
 
 const Atividade01 = () => {
     const [optionsSimbolsAndLetters, setOptionsSimbolsAndLetters] = useState<string[]>([]);
@@ -35,9 +36,8 @@ const Atividade01 = () => {
     }, [finish]);
 
     function buildArraySimbols(): string[] {
-        const symbols: string[] = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '[', ']', '{', '}', '|', ';', ':', '<', '>', '/', '?', ',', '.', '~'];
-        const letters: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-
+        const symbols: string[] = generateSimbolsArray();
+        const letters: string[] = generateAlphabetArray();
         const combinedArray: string[] = [...symbols, ...letters];
         combinedArray.sort(() => Math.random() - 0.5);
 

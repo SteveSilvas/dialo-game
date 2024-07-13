@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import './index.css';
 import selectSong from '../../../assets/select-sound-121244.mp3';
 import errorSong from '../../../assets/error-8-206492.mp3';
@@ -9,9 +8,10 @@ import CustomButton from "../../../components/Button";
 import clickSong from '../../../assets/click-151673.mp3';
 import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
-import { isNumber} from "../../../utils/validations";
+import { isVogal } from "../../../utils/validations";
+import { generateAlphabetArray, generateSimbolsArray } from "../../../utils/functions";
 
-const Atividade02 = () => {
+const Atividade03 = () => {
     const [optionsSimbolsAndNumbers, setOptionsSimbolsAndNumbers] = useState<string[]>([]);
     const [optionsFound, setOptionsFound] = useState<string[]>([]);
     const [finish, setFinish] = useState<boolean>(false);
@@ -24,8 +24,7 @@ const Atividade02 = () => {
 
     useEffect(() => {
         let hasFinish = optionsFound.length > 0
-            && optionsSimbolsAndNumbers.every(item => !isNumber(item));
-
+            && optionsSimbolsAndNumbers.every(item => !isVogal(item));
         setFinish(hasFinish);
     }, [optionsFound]);
 
@@ -34,34 +33,21 @@ const Atividade02 = () => {
             startVictorySound();
     }, [finish]);
 
-    const generateRandomNumbersArray = (length: number, min: number, max: number): number[] => {
-        const randomNumbers: number[] = [];
-        for (let i = 0; i < length; i++) {
-            const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-            randomNumbers.push(randomNumber);
-        }
-        return randomNumbers;
-    }
+
 
     const numberArrayToStringArray = (numbersArray: number[]): string[] => {
         return numbersArray.map(num => num.toString());
     }
-    
-    function buildArraySimbols(): string[] {
-        const symbols: string[] = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '[', ']', '{', '}', '|', ';', ':', '<', '>', '/', '?', ',', '.', '~'];
-        const numbersArray: number[] = generateRandomNumbersArray(33, 1, 33);
-        // const numbersArray: number[] =[1,5,5]
-        const numbers = numberArrayToStringArray(numbersArray);
-        const combinedArray: string[] = [...symbols, ...numbers];
-        combinedArray.sort(() => Math.random() - 0.5);
 
+
+    function buildArraySimbols(): string[] {
+        const combinedArray: string[] = [...generateAlphabetArray(), ...generateSimbolsArray()];
+        combinedArray.sort(() => Math.random() - 0.5);
         return combinedArray;
     }
 
     const verifyOptions = (option: string) => {
-        console.log("STEVE")
-        if (isNumber(option)) {
-            console.log("PIETRO")
+        if (isVogal(option)) {
             startSelectSound();
             setRemoving(option);
             setTimeout(() => {
@@ -78,7 +64,6 @@ const Atividade02 = () => {
         setClicksCount(clicksCount + 1);
     }
 
-    
     const startSelectSound = () => {
         const selectAudio = new Audio(selectSong);
         selectAudio.play();
@@ -111,7 +96,7 @@ const Atividade02 = () => {
         return (
             <CustomButton
                 text="PRÓXIMA"
-                href="/modulo-01/atividade-03"
+                href="/modulo-01/atividade-04"
                 rightIcon={
                     <TiArrowRightThick
                         style={{
@@ -139,7 +124,7 @@ const Atividade02 = () => {
                     text="ACERTOS"
                     value={optionsFound.length.toString()}
                 />
-                <h1 className="title-ativity">SELECIONE OS NÚMEROS</h1>
+                <h1 className="title-ativity">SELECIONE AS VOGAIS</h1>
 
                 <CustomButton
                     className="refresh-button"
@@ -178,7 +163,7 @@ const Atividade02 = () => {
 
                 <CustomButton
                     text="VOLTAR"
-                    href="/modulo-01"
+                    href="/modulo-01/atividade-02"
                     leftIcon={
                         <TiArrowLeftThick style={{
                             left: '0.5rem',
@@ -193,4 +178,4 @@ const Atividade02 = () => {
     );
 };
 
-export default Atividade02;
+export default Atividade03;

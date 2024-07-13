@@ -1,30 +1,50 @@
-# React + TypeScript + Vite
+# DIALO - GAME
+## _Jogo de alfabetização infantil_
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+DIALO-GAME é um jogo educativo projetado para auxiliar na alfabetização de crianças através de atividades lúdicas e interativas. O jogo promove o exercício de habilidades como escuta, memória, habilidades motoras, reconhecimento de letras, sílabas e muito mais.
 
-Currently, two official plugins are available:
+![Logo](https://github.com/SteveSilvas/dialo-game/blob/master/src/assets/logo.png?raw=true)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Habilidades desenvolvidas
 
-## Expanding the ESLint configuration
+- **Atividades Lúdicas:** Diversas atividades interativas para tornar a aprendizagem divertida.
+- **Exercícios de Escuta:** Atividades que ajudam as crianças a melhorar suas habilidades auditivas.
+- **Memória:** Jogos que estimulam a memória das crianças.
+- **Habilidades Motoras:** Atividades que incentivam o desenvolvimento motor.
+- **Reconhecimento de Letras e Sílabas:** Jogos para auxiliar no reconhecimento e aprendizado de letras e sílabas.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Tecnologias Utilizadas
 
-- Configure the top-level `parserOptions` property like this:
+DIALO-GAME utiliza várias tecnologias de ponta para garantir uma experiência de usuário fluida e eficiente:
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+- [React](https://reactjs.org/) - Biblioteca JavaScript para a construção de interfaces de usuário.
+- [TypeScript](https://www.typescriptlang.org/) - Superconjunto tipado de JavaScript que compila para JavaScript simples.
+
+## Requisistos para execução
+
+Para executar o DIALO-GAME localmente, você precisará ter o Node.js instalado. Siga os passos abaixo para instalar as dependências e iniciar o servidor de desenvolvimento.
+
+### Clone o repositório
+
+```sh
+git clone https://github.com/SteveSilvas/dialo-game.git
+```
+### Navegue para a pasta raiz do projeto
+```sh
+cd dialo-game
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+### Instale as dependências
+
+```sh
+npm install
+```
+### Construa a aplicação
+
+```sh
+npm run build
+```
+### Inicie a aplicação
+```sh
+npm run dev
+```

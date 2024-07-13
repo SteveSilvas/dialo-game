@@ -9,7 +9,7 @@ import CustomButton from "../../../components/Button";
 import clickSong from '../../../assets/click-151673.mp3';
 import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
-import { isNumber} from "../../../utils/functions";
+import { isNumber} from "../../../utils/validations";
 
 const Atividade02 = () => {
     const [optionsSimbolsAndNumbers, setOptionsSimbolsAndNumbers] = useState<string[]>([]);

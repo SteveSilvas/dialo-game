@@ -7,23 +7,23 @@ interface LabelValueProps {
     className?: string;
     children?: any;
     value: string;
+    type?: 'hits' | 'errors'
 }
 const LabelValue: React.FC<LabelValueProps> = ({
     text,
     onClick,
     className,
     children,
-    value
+    value,
+    type
 }) => {
 
     const handleClick = () => {
         onClick?.();
     }
-
-
-
+    const classNameComplete = `label-container ${type ?? 'default'} ${className ?? ''}`;
     return (
-        <div className="label-container">
+        <div className={classNameComplete}>
             <strong>
                 {children}
                 {value}

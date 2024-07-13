@@ -10,6 +10,7 @@ import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
 import { isVogal } from "../../../utils/validations";
 import { generateAlphabetArray, generateSimbolsArray } from "../../../utils/functions";
+import PanelPoints from "../../../components/PanelPoints";
 
 const Atividade03 = () => {
     const [optionsSimbolsAndNumbers, setOptionsSimbolsAndNumbers] = useState<string[]>([]);
@@ -120,9 +121,10 @@ const Atividade03 = () => {
     return (
         <main className="page">
             <div className="header-page">
-                <LabelValue
-                    text="ACERTOS"
-                    value={optionsFound.length.toString()}
+                <PanelPoints
+                    hits={optionsFound.length}
+                    errors={clicksCount - optionsFound.length}
+                    rounds={clicksCount}
                 />
                 <h1 className="title-ativity">SELECIONE AS VOGAIS</h1>
 

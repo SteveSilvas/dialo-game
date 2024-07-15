@@ -34,13 +34,6 @@ const Atividade03 = () => {
             startVictorySound();
     }, [finish]);
 
-
-
-    const numberArrayToStringArray = (numbersArray: number[]): string[] => {
-        return numbersArray.map(num => num.toString());
-    }
-
-
     function buildArraySimbols(): string[] {
         const combinedArray: string[] = [...generateAlphabetArray(), ...generateSimbolsArray()];
         combinedArray.sort(() => Math.random() - 0.5);

@@ -23,7 +23,7 @@ const LabelValue: React.FC<LabelValueProps> = ({
     }
     const classNameComplete = `label-container ${type ?? 'default'} ${className ?? ''}`;
     return (
-        <div className={classNameComplete}>
+        <div className={classNameComplete} onClick={handleClick}>
             <strong>
                 {children}
                 {value}

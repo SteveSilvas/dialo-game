@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import './index.css';
 import selectSong from '../../../assets/select-sound-121244.mp3';
 import errorSong from '../../../assets/error-8-206492.mp3';

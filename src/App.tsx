@@ -9,7 +9,6 @@ function App() {
 
   return (
     <main
-      onLoad={() => novoAudio.play()}
       className="page"
     >
       <div>
@@ -25,6 +24,7 @@ function App() {
         <CustomButton
           text="INICIAR"
           href="/modulo-01"
+          onClick={() => novoAudio.play()}
           rightIcon={
             <TiMediaPlay
               style={{

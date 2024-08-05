@@ -8,7 +8,7 @@ import { soundAtom } from './Context/SoundAtom';
 import {  useRef } from 'react';
 function App() {
   const audioRef = useRef(new Audio(arquivoAudio));
-  const [sound, setSound] = useAtom(soundAtom);
+  const [, setSound] = useAtom(soundAtom);
 
   const handleStartSound = () => {
     setSound({

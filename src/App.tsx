@@ -1,11 +1,22 @@
-import logo from './assets/logo.png';
+import logo from './assets/logo_orange.png';
 import './App.css';
 import arquivoAudio from './assets/soudMr.mp3';
 import CustomButton from './components/Button';
 import { TiMediaPlay } from 'react-icons/ti';
-
+import { useAtom } from 'jotai';
+import { soundAtom } from './Context/SoundAtom';
+import {  useRef } from 'react';
 function App() {
-  var novoAudio = new Audio(arquivoAudio);
+  const audioRef = useRef(new Audio(arquivoAudio));
+  const [sound, setSound] = useAtom(soundAtom);
+
+  const handleStartSound = () => {
+    setSound({
+      name: 'sound',
+      src: audioRef.current.src,
+      isActive: true,
+    });
+  };
 
   return (
     <main
@@ -13,7 +24,7 @@ function App() {
     >
       <div>
         <a
-          href="https://vitejs.dev"
+          href="https://steve.infotecdevs.com.br"
           target="_blank">
           <img src={logo} className="logo" alt="logo" />
         </a>
@@ -24,7 +35,7 @@ function App() {
         <CustomButton
           text="INICIAR"
           href="/modulo-01"
-          onClick={() => novoAudio.play()}
+          onClick={handleStartSound}
           rightIcon={
             <TiMediaPlay
               style={{

@@ -1,9 +1,17 @@
+html, body {
+  width: 100vw;
+  min-height: 100vh;
+}
+
 :root {
-  --infantil-1: #6DBAE8;
-  --infantil-2: #FF9500;
-  --infantil-3: #C1FFA1;
-  --infantil-4: #52E800;
-  --infantil-5: #FF67FE;
+  width: 100vw;
+  min-height: 100vh;
+
+  --infantil-1: #6dbae8;
+  --infantil-2: #ff9500;
+  --infantil-3: #c1ffa1;
+  --infantil-4: #52e800;
+  --infantil-5: #ff67fe;
 
   --infantil-1-tran: rgba(108, 186, 232, 0.5);
   --infantil-2-tran: rgba(255, 149, 0, 0.5);
@@ -40,7 +48,7 @@ body {
   padding: 0px;
   display: flex;
   place-items: center;
-  min-width: 320px;
+  min-width: 100vw;
   min-height: 100vh;
 }
 

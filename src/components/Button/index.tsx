@@ -60,7 +60,7 @@ const CustomButton: React.FC<ButtonProps> = ({
                 {text &&
                     <button
                         onClick={()=>handleClick}
-                        className={className ?? 'button'}>
+                        className={className}>
                         <span>{text}</span>
                     </button>
                 }

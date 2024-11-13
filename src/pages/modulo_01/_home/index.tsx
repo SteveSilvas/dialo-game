@@ -42,6 +42,15 @@ const Modulo01Home = () => {
                     navigateTo="/modulo-01/atividade-04"
                 />
             </BoxRow>
+            <BoxRow>
+                <BoxActivity
+                    alt="letras 2"
+                    src={activity02Numeros}
+                    text="Letras 2"
+                    navigateTo="/modulo-01/atividade-05"
+                />
+            </BoxRow>
+
             <BoxRow
                 justifyContent="space-between"
                 width="45%">

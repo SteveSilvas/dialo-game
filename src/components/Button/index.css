@@ -1,7 +1,7 @@
 
 .button {
     max-width: 20rem;
-    min-width: 5rem;;
+    min-width: 5rem;
     border-radius: 15px;
     border: 2px solid white;
     box-shadow: 0.3em 0.5em 0.3em #c3c3c3;
@@ -21,6 +21,8 @@
   }
   
   .button:hover {
+    max-width: 20rem;
+    min-width: 5rem;
     border-radius: 15px;
     box-shadow: 0.3em 0.5em 0.5em var(--infantil-4-tran);
     background-color: var(--infantil-4);

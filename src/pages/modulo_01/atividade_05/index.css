@@ -1,0 +1,138 @@
+/* Estilos gerais */
+.header-page-activity-05 {
+  width: 100%;
+  display: flex;
+  align-items: end;
+  justify-content: end;
+}
+
+.container-atividade-05 {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.title-ativity {
+  text-align: center;
+}
+
+.refresh-button {
+  height: 4.5rem;
+  width: 4.5rem;
+  margin: 0px;
+  border-radius: 100%;
+}
+
+.caixa-letras-atividade-05 {
+  width: 40vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.caixa-letras-escolhidas-atividade-05 {
+  width: 40vw;
+  min-height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  background-color: #747bff;
+}
+
+.button-simbols {
+  box-shadow: 0.3em 0.5em 0.5em var(--infantil-1-tran);
+  margin: 0.3rem;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 100%;
+  height: 4rem;
+  width: 4rem;
+  background-color: var(--infantil-1);
+  font-size: 2rem;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: 0.7s;
+  color: white;
+}
+
+.button-simbols:hover {
+  box-shadow: 0.3em 0.5em 0.5em var(--infantil-1);
+  margin: 0.3rem;
+  border: 3px solid rgba(255, 255, 255, 1);
+  border-radius: 100%;
+  background-color: var(--infantil-1);
+  font-size: 2rem;
+  transition: 0.7s;
+  color: white;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto rgba(255, 255, 255, 1);
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-out {
+  animation: fadeOut 1s forwards;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Estilos do cubo */
+.scene {
+  width: 200px;
+  height: 200px;
+  perspective: 600px;
+}
+
+.cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(-30deg) rotateY(-45deg);
+}
+
+.face {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #ccc;
+  line-height: 200px;
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+}
+
+.front  { transform: translateZ(100px); }
+.back   { transform: rotateY(180deg) translateZ(100px); }
+.right  { transform: rotateY(90deg) translateZ(100px); }
+.left   { transform: rotateY(-90deg) translateZ(100px); }
+.top    { transform: rotateX(90deg) translateZ(100px); }
+.bottom { transform: rotateX(-90deg) translateZ(100px); }

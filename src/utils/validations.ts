@@ -19,7 +19,3 @@ export const isConsoante = (caracter: string): boolean => {
 
     return /^[a-zA-Z]$/.test(letra) && !vogais.includes(letra);
 }
-export default {
-    isLetter,
-    isNumber,
-}

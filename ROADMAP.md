@@ -31,16 +31,17 @@ construção, priorizadas por impacto.
 
 ## Próximas etapas
 
-### 1. Manutenção e limpeza (rápido, baixo risco)
+### 1. Manutenção e limpeza (concluído)
 
-- [ ] Remover arquivos não utilizados: `src/utils/convertions.ts`, `src/assets/react.svg`,
-      `public/vite.svg`, `src/assets/logo-mini.png`, `src/assets/logo.svg`,
+- [x] Removidos arquivos não utilizados: `src/utils/convertions.ts`, `src/assets/react.svg`,
+      `public/vite.svg`, `src/assets/logo.svg`, `src/assets/modulo_01/logo-mini.png`,
       `src/assets/AdobeColor-infantil.jpeg`, `src/assets/1-efek-sound-1-220034.mp3`.
-- [ ] Corrigir `"main": "src/index.tsx"` no `package.json` — o arquivo não existe.
-- [ ] Remover o `export default` órfão de `src/utils/validations.ts`.
-- [ ] Remover o bloco `@media (prefers-color-scheme: light)` duplicado em 6 arquivos CSS
-      (sobrepõe o tema e briga com o fundo verde da aplicação).
-- [ ] Remover o CSS morto de `.logo.react`, `.read-the-docs` e `logo-spin` (herança do
+- [x] Removido `"main": "src/index.tsx"` do `package.json` — apontava para arquivo
+      inexistente (app Vite tem entrada em `index.html`).
+- [x] Removido o `export default` órfão de `src/utils/validations.ts`.
+- [x] Removido o bloco `@media (prefers-color-scheme: light)` duplicado em 6 arquivos CSS;
+      tema fixado como claro (`color-scheme: light`) e cor de texto centralizada em `.page`.
+- [x] Removido o CSS morto de `.logo.react`, `.read-the-docs` e `logo-spin` (herança do
       template do Vite).
 
 ### 2. Refatoração estrutural

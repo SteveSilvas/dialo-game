@@ -3,7 +3,6 @@
   "description": "Jogo educativo de alfabetização infantil com atividades lúdicas e interativas.",
   "private": true,
   "version": "0.0.0",
-  "main": "src/index.tsx",
   "type": "module",
   "license": "MIT",
   "author": "Steve Silva <steve.silva@gpssa.com.br> (https://github.com/SteveSilvas)",

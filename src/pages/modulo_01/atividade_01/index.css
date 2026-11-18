@@ -77,18 +77,3 @@ button:focus-visible {
 .fade-out {
   animation: fadeOut 1s forwards;
 }
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
-
-  button {
-    background-color: #f9f9f9;
-  }
-}

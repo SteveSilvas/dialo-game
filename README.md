@@ -40,7 +40,7 @@ O projeto nasceu da necessidade real de tornar o aprendizado mais leve e envolve
 ## Como jogar
 
 1. Na tela inicial, toque em **INICIAR**.
-2. Escolha uma atividade do módulo (letras, números, vogais ou consoantes).
+2. Escolha uma atividade do módulo (letras, números, vogais, consoantes ou o desafio).
 3. Selecione os elementos corretos pedidos no topo da tela.
 4. Acompanhe seus **acertos**, **erros** e **tentativas** no painel de pontos.
 5. Ao concluir, avance para a próxima atividade.
@@ -66,6 +66,7 @@ Construído com um stack moderno de front-end, focado em performance e experiên
   <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white" />
   <img alt="React Router" src="https://img.shields.io/badge/React_Router-7-CA4245?logo=reactrouter&logoColor=white" />
   <img alt="Jotai" src="https://img.shields.io/badge/Jotai-3-000000?logo=jotai&logoColor=white" />
+  <img alt="Jest" src="https://img.shields.io/badge/Jest-30-C21325?logo=jest&logoColor=white" />
   <img alt="ESLint" src="https://img.shields.io/badge/ESLint-10-4B32C3?logo=eslint&logoColor=white" />
 </p>
 
@@ -75,11 +76,12 @@ Construído com um stack moderno de front-end, focado em performance e experiên
 - **[React Router](https://reactrouter.com/)** — navegação entre módulos e atividades.
 - **[Jotai](https://jotai.org/)** — gerenciamento de estado global leve.
 - **[React Icons](https://react-icons.github.io/react-icons/)** — ícones da interface.
+- **[Jest](https://jestjs.io/)** + **[Testing Library](https://testing-library.com/)** — testes automatizados.
 - **[ESLint](https://eslint.org/)** — padronização e qualidade do código.
 
 ## Requisitos
 
-- **[Node.js](https://nodejs.org/) 20.19+** (ou superior)
+- **[Node.js](https://nodejs.org/) 20.19+** (ou 22.12+ / 24+) — recomendado Node 24 LTS
 - **npm** 10+
 
 ## Começando
@@ -123,6 +125,12 @@ npm run preview
 npm run lint
 ```
 
+### Rode os testes
+
+```sh
+npm test
+```
+
 ## Scripts disponíveis
 
 | Comando | Descrição |
@@ -131,14 +139,17 @@ npm run lint
 | `npm run build` | Verifica os tipos e gera a build de produção. |
 | `npm run preview` | Pré-visualiza a build de produção. |
 | `npm run lint` | Executa o ESLint em todo o projeto. |
+| `npm test` | Executa a suíte de testes com Jest. |
+| `npm run test:watch` | Executa os testes em modo observador. |
 
 ## Estrutura do projeto
 
 ```
 src/
 ├── assets/               # Imagens, logos e arquivos de áudio
-├── components/           # Componentes reutilizáveis (Button, BoxRow, PanelPoints...)
+├── components/           # Componentes reutilizáveis (Button, BoxRow, PanelPoints, ActivityGrid...)
 ├── Context/              # Estado global com Jotai
+├── hooks/                # Hooks reutilizáveis (useActivityProgress)
 ├── pages/                # Telas e atividades do jogo
 │   ├── modulo_01/        # Atividades do módulo 01
 │   └── NotFound/         # Página para rotas não encontradas
@@ -150,10 +161,9 @@ src/
 
 ## Autor
 
-Desenvolvido por **Steve Silva** — Desenvolvedor Full Stack.
+Desenvolvido por **Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.
 
 - GitHub: [@SteveSilvas](https://github.com/SteveSilvas)
-- Site: [steve.infotecdevs.com.br](https://steve.infotecdevs.com.br)
 
 ## Licença
 

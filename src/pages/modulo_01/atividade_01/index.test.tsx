@@ -44,6 +44,25 @@ describe('Atividade01 (SELECIONE AS LETRAS)', () => {
     expect(tentativas()).toBe('1');
   });
 
+  it('não conta erro ao acertar uma letra', () => {
+    renderAtividade();
+    const erros = () => screen.getByText('ERROS').previousSibling?.textContent;
+    const acertos = () => screen.getByText('ACERTOS').previousSibling?.textContent;
+
+    const letra = screen
+      .getAllByRole('button')
+      .find((botao) => /^[A-Z]$/.test(botao.textContent ?? ''));
+
+    fireEvent.click(letra as HTMLElement);
+
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    expect(acertos()).toBe('1');
+    expect(erros()).toBe('0');
+  });
+
   it('remove a letra correta da grade após a animação', () => {
     renderAtividade();
     const letra = screen

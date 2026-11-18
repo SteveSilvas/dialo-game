@@ -26,6 +26,17 @@ construção, priorizadas por impacto.
       vencia. Consolidada em `LabelValue`, removido o CSS morto de `BoxRow`/`PanelPoints`.
 - [x] **Texto invisível no painel de pontos** — `.hits`/`.errors` usavam `color` e
       `background-color` iguais (verde-sobre-verde, vermelho-sobre-vermelho). Corrigido.
+- [x] **Números repetidos na atividade 02** — `generateRandomNumbersArray` sorteava com
+      reposição (ex.: "13" aparecia 6 vezes); clicar removia todas as cópias contando um
+      único acerto. Agora o sorteio é sem repetição.
+- [x] **Erro fantasma ao acertar** — o painel calculava `erros = tentativas - acertos`, então
+      durante a animação de 1 s de um acerto o erro subia para 1. Erros passaram a ser
+      contados de forma explícita.
+- [x] **Link morto do autor** — a logo da home apontava para `steve.infotecdevs.com.br`
+      (domínio inexistente, NXDOMAIN). Agora aponta para o repositório no GitHub.
+- [x] **Home do módulo com placeholder** — o cartão "Letras 2" foi renomeado para "DESAFIO"
+      e vogais/consoantes/desafio passaram a usar a miniatura de letras (antes repetiam a
+      imagem de números).
 
 ---
 

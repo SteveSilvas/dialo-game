@@ -30,8 +30,18 @@ describe('generateRandomNumbersArray', () => {
     expect(generateRandomNumbersArray(0, 1, 10)).toHaveLength(0);
   });
 
+  it('não repete números na mesma grade', () => {
+    const numeros = generateRandomNumbersArray(33, 1, 33);
+    expect(new Set(numeros).size).toBe(numeros.length);
+  });
+
+  it('nunca gera mais itens do que o tamanho do intervalo', () => {
+    expect(generateRandomNumbersArray(200, 1, 33)).toHaveLength(33);
+    expect(generateRandomNumbersArray(50, 5, 6)).toHaveLength(2);
+  });
+
   it('respeita os limites min e max', () => {
-    const numeros = generateRandomNumbersArray(200, 1, 33);
+    const numeros = generateRandomNumbersArray(33, 1, 33);
     for (const numero of numeros) {
       expect(Number.isInteger(numero)).toBe(true);
       expect(numero).toBeGreaterThanOrEqual(1);
@@ -39,10 +49,8 @@ describe('generateRandomNumbersArray', () => {
     }
   });
 
-  it('inclui os extremos quando o intervalo é pequeno', () => {
+  it('inclui todos os valores quando o intervalo é pequeno', () => {
     const numeros = generateRandomNumbersArray(50, 5, 6);
-    for (const numero of numeros) {
-      expect([5, 6]).toContain(numero);
-    }
+    expect([...numeros].sort((a, b) => a - b)).toEqual([5, 6]);
   });
 });

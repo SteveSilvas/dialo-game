@@ -22,10 +22,10 @@ function App() {
     <main className="page">
       <div>
         <a
-          href="https://steve.infotecdevs.com.br"
+          href="https://github.com/SteveSilvas/dialo-game"
           target="_blank"
           rel="noreferrer">
-          <img src={logo} className="logo" alt="logo" />
+          <img src={logo} className="logo" alt="DIALO GAME" />
         </a>
       </div>
 

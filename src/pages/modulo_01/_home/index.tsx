@@ -31,22 +31,22 @@ const Modulo01Home = () => {
                 />
                 <BoxActivity
                     alt="vogais"
-                    src={activity02Numeros}
+                    src={activity01Letras}
                     text="VOGAIS"
                     navigateTo="/modulo-01/atividade-03"
                 />
                 <BoxActivity
                     alt="consoantes"
-                    src={activity02Numeros}
+                    src={activity01Letras}
                     text="CONSOANTES"
                     navigateTo="/modulo-01/atividade-04"
                 />
             </BoxRow>
             <BoxRow>
                 <BoxActivity
-                    alt="letras 2"
-                    src={activity02Numeros}
-                    text="Letras 2"
+                    alt="desafio"
+                    src={activity01Letras}
+                    text="DESAFIO"
                     navigateTo="/modulo-01/atividade-05"
                 />
             </BoxRow>

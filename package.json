@@ -15,7 +15,8 @@
     "preview": "vite preview"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": "^20.19.0 || >=22.12.0",
+    "npm": ">=10"
   },
   "dependencies": {
     "jotai": "^3.0.2",

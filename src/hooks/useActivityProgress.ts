@@ -19,6 +19,7 @@ export const useActivityProgress = (
   const [optionsFound, setOptionsFound] = useState<string[]>([]);
   const [removing, setRemoving] = useState<string | null>(null);
   const [clicksCount, setClicksCount] = useState(0);
+  const [errors, setErrors] = useState(0);
 
   const finish = useMemo(
     () => optionsFound.length > 0 && options.every((item) => !isValid(item)),
@@ -35,6 +36,7 @@ export const useActivityProgress = (
     setClicksCount((count) => count + 1);
 
     if (!isValid(option)) {
+      setErrors((count) => count + 1);
       playSound(errorSong);
       return;
     }
@@ -52,6 +54,7 @@ export const useActivityProgress = (
     playSound(clickSong);
     setOptionsFound([]);
     setClicksCount(0);
+    setErrors(0);
     setOptions(buildOptions());
   };
 
@@ -60,7 +63,7 @@ export const useActivityProgress = (
     optionsFound,
     removing,
     clicksCount,
-    errors: clicksCount - optionsFound.length,
+    errors,
     finish,
     selectOption,
     reset,

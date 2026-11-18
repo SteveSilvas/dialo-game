@@ -38,21 +38,24 @@ const ActivityGrid = ({
   } = useActivityProgress(buildOptions, isValid);
 
   return (
-    <main className="page">
-      <div className="header-page">
+    <main className="page px-2 py-4 gap-2 sm:gap-4">
+      <div className="header-page gap-2">
         <PanelPoints
           hits={optionsFound.length}
           errors={errors}
           rounds={clicksCount}
         />
-        <h1 className="title-ativity">{title}</h1>
+        <h1 className="title-ativity text-base sm:text-xl md:text-2xl">
+          {title}
+        </h1>
 
         <CustomButton
-          className="refresh-button"
+          className="refresh-button min-w-0 h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20"
           leftIcon={
             <TiRefresh
               onClick={reset}
-              style={{ fontSize: '3rem', color: 'white' }}
+              className="text-2xl sm:text-3xl md:text-4xl"
+              style={{ color: 'white' }}
             />
           }
         />

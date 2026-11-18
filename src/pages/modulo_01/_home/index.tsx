@@ -8,14 +8,14 @@ import BoxRow from "../../../components/BoxRow";
 const Modulo01Home = () => {
 
     return (
-        <main className="page">
-            <h1>RECONHECER LETRAS</h1>
-            <p>
+        <main className="page px-4 py-4 gap-3">
+            <h1 className="text-lg sm:text-2xl md:text-3xl text-center">RECONHECER LETRAS</h1>
+            <p className="text-center px-2 text-sm sm:text-base">
                 VAMOS APRENDER A RECONHECER OS SÍMBOLOS?
             </p>
             <BoxRow
                 justifyContent="center"
-                width="80%"
+                width="100%"
                 gap="1rem">
                 <BoxActivity
                     alt="letras"
@@ -52,13 +52,13 @@ const Modulo01Home = () => {
             </BoxRow>
 
             <BoxRow
-                justifyContent="space-between"
-                width="45%">
+                justifyContent="center"
+                width="100%"
+                gap="1rem">
                 <CustomButton
                     href="/"
                     leftIcon={
-                        <TiHome style={{
-                            fontSize: '3rem',
+                        <TiHome className="text-2xl sm:text-3xl" style={{
                             color: 'white'
                         }} />}
                 />

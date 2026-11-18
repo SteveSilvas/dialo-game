@@ -1,99 +1,125 @@
-/* Estilos gerais */
-.header-page-activity-05 {
-  width: 100%;
-  display: flex;
-  align-items: end;
-  justify-content: end;
-}
+@layer components {
+  .header-page-activity-05 {
+    width: 100%;
+    display: flex;
+    align-items: end;
+    justify-content: end;
+  }
 
-.container-atividade-05 {
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
+  .container-atividade-05 {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+  }
 
-.title-ativity {
-  text-align: center;
-}
+  @media (min-width: 768px) {
+    .container-atividade-05 {
+      flex-direction: row;
+      align-items: flex-end;
+    }
+  }
 
-.refresh-button {
-  height: 4.5rem;
-  width: 4.5rem;
-  margin: 0px;
-  border-radius: 100%;
-}
+  .title-ativity {
+    text-align: center;
+  }
 
-.caixa-letras-atividade-05 {
-  width: 40vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
+  .refresh-button {
+    height: 3rem;
+    width: 3rem;
+    margin: 0px;
+    border-radius: 100%;
+  }
 
-.caixa-letras-escolhidas-atividade-05 {
-  width: 40vw;
-  min-height: 50vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  flex-wrap: wrap;
-  background-color: #747bff;
-}
+  @media (min-width: 640px) {
+    .refresh-button {
+      height: 4.5rem;
+      width: 4.5rem;
+    }
+  }
 
-.caixa-letras-escolhidas-grid {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
+  .caixa-letras-atividade-05 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 
-.button-simbols {
-  box-shadow: 0.3em 0.5em 0.5em var(--infantil-1-tran);
-  margin: 0.3rem;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 100%;
-  height: 4rem;
-  width: 4rem;
-  background-color: var(--infantil-1);
-  font-size: 2rem;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  cursor: pointer;
-  transition: 0.7s;
-  color: white;
-}
+  @media (min-width: 768px) {
+    .caixa-letras-atividade-05 {
+      width: 40vw;
+    }
+  }
 
-.button-simbols:hover {
-  box-shadow: 0.3em 0.5em 0.5em var(--infantil-1);
-  margin: 0.3rem;
-  border: 3px solid rgba(255, 255, 255, 1);
-  border-radius: 100%;
-  background-color: var(--infantil-1);
-  font-size: 2rem;
-  transition: 0.7s;
-  color: white;
-}
+  .caixa-letras-escolhidas-atividade-05 {
+    width: 100%;
+    min-height: 30vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    background-color: #747bff;
+  }
 
-button:focus,
-button:focus-visible {
-  outline: 4px auto rgba(255, 255, 255, 1);
+  @media (min-width: 768px) {
+    .caixa-letras-escolhidas-atividade-05 {
+      width: 40vw;
+      min-height: 50vh;
+    }
+  }
+
+  .caixa-letras-escolhidas-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .button-simbols {
+    box-shadow: 0.3em 0.5em 0.5em var(--infantil-1-tran);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 100%;
+    height: 4rem;
+    width: 4rem;
+    background-color: var(--infantil-1);
+    font-size: 2rem;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: 0.7s;
+    color: white;
+  }
+
+  .button-simbols:hover {
+    box-shadow: 0.3em 0.5em 0.5em var(--infantil-1);
+    border: 3px solid rgba(255, 255, 255, 1);
+    background-color: var(--infantil-1);
+    color: white;
+  }
+
+  button:focus,
+  button:focus-visible {
+    outline: 4px auto rgba(255, 255, 255, 1);
+  }
+
+  .fade-out {
+    animation: fadeOut 1s forwards;
+  }
 }
 
 @keyframes fadeOut {
   from {
     opacity: 1;
   }
+
   to {
     opacity: 0;
   }
-}
-
-.fade-out {
-  animation: fadeOut 1s forwards;
 }

@@ -21,7 +21,7 @@ const LabelValue: React.FC<LabelValueProps> = ({
     const handleClick = () => {
         onClick?.();
     }
-    const classNameComplete = `label-container ${type ?? 'default'} ${className ?? ''}`;
+    const classNameComplete = `label-container text-xs sm:text-sm px-1.5 sm:px-3 py-1 ${type ?? 'default'} ${className ?? ''}`;
     return (
         <div className={classNameComplete} onClick={handleClick}>
             <strong>

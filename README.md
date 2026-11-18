@@ -64,6 +64,7 @@ Construído com um stack moderno de front-end, focado em performance e experiên
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" />
   <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white" />
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white" />
   <img alt="React Router" src="https://img.shields.io/badge/React_Router-7-CA4245?logo=reactrouter&logoColor=white" />
   <img alt="Jotai" src="https://img.shields.io/badge/Jotai-3-000000?logo=jotai&logoColor=white" />
   <img alt="Jest" src="https://img.shields.io/badge/Jest-30-C21325?logo=jest&logoColor=white" />
@@ -73,6 +74,7 @@ Construído com um stack moderno de front-end, focado em performance e experiên
 - **[React 19](https://react.dev/)** — biblioteca para construção de interfaces.
 - **[TypeScript](https://www.typescriptlang.org/)** — tipagem estática e segurança no código.
 - **[Vite](https://vite.dev/)** — build e servidor de desenvolvimento ultrarrápidos.
+- **[Tailwind CSS](https://tailwindcss.com/)** — utilitários de estilo e responsividade.
 - **[React Router](https://reactrouter.com/)** — navegação entre módulos e atividades.
 - **[Jotai](https://jotai.org/)** — gerenciamento de estado global leve.
 - **[React Icons](https://react-icons.github.io/react-icons/)** — ícones da interface.
@@ -155,6 +157,7 @@ src/
 │   └── NotFound/         # Página para rotas não encontradas
 ├── routes/               # Definição das rotas da aplicação
 ├── utils/                # Funções auxiliares (validações, sons, geradores)
+├── index.css             # Tailwind + tema (paleta infantil) e estilos globais
 ├── App.tsx               # Tela inicial
 └── main.tsx              # Ponto de entrada da aplicação
 ```

@@ -4,9 +4,10 @@ interface BoxRowProps {
     children?: React.ReactNode;
     justifyContent?: string;
     width?: string;
-    gap?:string;
-    bgColor?:string;
+    gap?: string;
+    bgColor?: string;
     radius?: string;
+    className?: string;
 }
 const BoxRow: React.FC<BoxRowProps> = ({
     children,
@@ -15,11 +16,12 @@ const BoxRow: React.FC<BoxRowProps> = ({
     gap,
     bgColor,
     radius,
+    className,
 }) => {
 
     return (
         <div
-            className="flex-row"
+            className={`flex-row flex-wrap items-center ${className ?? ''}`}
             style={{
                 justifyContent: justifyContent,
                 width: width,

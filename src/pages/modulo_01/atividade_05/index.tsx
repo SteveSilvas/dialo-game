@@ -34,8 +34,8 @@ const Atividade05 = () => {
     }
 
     return (
-        <main className="page">
-            <div className="header-page-activity-05">
+        <main className="page px-2 py-4 gap-2 sm:gap-4">
+            <div className="header-page-activity-05 gap-2">
                 <PanelPoints
                     hits={optionsFound.length}
                     errors={errors}
@@ -43,16 +43,17 @@ const Atividade05 = () => {
                 />
 
                 <CustomButton
-                    className="refresh-button"
+                    className="refresh-button min-w-0"
                     leftIcon={
                         <TiRefresh
                             onClick={reset}
-                            style={{ fontSize: '3rem', color: 'white' }}
+                            className="text-2xl sm:text-3xl"
+                            style={{ color: 'white' }}
                         />
                     }
                 />
             </div>
-            <h1 className="title-ativity">GUARDE AS LETRAS NA CAIXA</h1>
+            <h1 className="title-ativity text-base sm:text-xl md:text-2xl">GUARDE AS LETRAS NA CAIXA</h1>
 
             <section className="container-atividade-05">
                 <SymbolsGrid
@@ -76,20 +77,21 @@ const Atividade05 = () => {
                 </div>
             </section>
 
-            <BoxRow justifyContent="space-evenly" width="80%">
+            <BoxRow justifyContent="space-evenly" width="100%" gap="0.5rem">
                 {finish && (
                     <LabelValue value={clicksCount.toString()} text="TENTATIVAS" />
                 )}
                 <CustomButton
                     href="/"
-                    leftIcon={<TiHome style={{ fontSize: '3rem', color: 'white' }} />}
+                    leftIcon={<TiHome className="text-2xl sm:text-3xl" style={{ color: 'white' }} />}
                 />
                 <CustomButton
                     text="VOLTAR"
                     href="/modulo-01/atividade-04"
                     leftIcon={
                         <TiArrowLeftThick
-                            style={{ left: '0.5rem', fontSize: '3rem', color: 'var(--infantil-6)' }}
+                            className="text-2xl sm:text-3xl"
+                            style={{ left: '0.5rem', color: 'var(--infantil-6)' }}
                         />
                     }
                 />
@@ -99,7 +101,8 @@ const Atividade05 = () => {
                         href="/modulo-01"
                         rightIcon={
                             <TiArrowRightThick
-                                style={{ fontSize: '3rem', color: 'var(--infantil-6)' }}
+                                className="text-2xl sm:text-3xl"
+                                style={{ color: 'var(--infantil-6)' }}
                             />
                         }
                     />

@@ -68,12 +68,15 @@ construção, priorizadas por impacto.
 
 ### 3. Responsividade e acessibilidade
 
-- [ ] Adicionar media queries de layout: tudo hoje é `100vw` com tamanhos fixos (`4rem`,
-      `7rem`); em telas pequenas os botões estouram e quebram.
+- [x] **Tailwind CSS v4 integrado** (`@tailwindcss/vite`) com a paleta infantil mapeada no
+      `@theme`; o CSS dos componentes foi movido para `@layer components`, permitindo que os
+      utilitários responsivos sobrescrevam os estilos base.
+- [x] **Layout responsivo** — botões de símbolos, cabeçalho, logo, caixas de atividade e
+      painel de pontos agora escalam por breakpoints (`sm`, `md`) e as caixas da atividade 05
+      empilham no mobile. `100vw` trocado por `100%` (evitava rolagem horizontal).
 - [ ] Adicionar `aria-label` em todos os botões que só têm ícone (home, refresh, setas).
 - [ ] Revisar contraste — há texto claro sobre `--infantil-3` (verde claro), abaixo do
       mínimo WCAG AA para texto pequeno.
-- [ ] Trocar `cursor: cell` (estranho para botão) por `cursor: pointer`.
 - [ ] Associar `<label>` a controles com `htmlFor`/`id`.
 - [ ] Respeitar `prefers-reduced-motion` nas animações (`fade-out`, `logo-spin`).
 

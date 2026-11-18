@@ -30,7 +30,7 @@ const BoxActivity: React.FC<BoxActivityProps> = ({
     return (
         <Link
             to={navigateTo}
-            className={`box-container ${containerClassName}`}
+            className={`box-container w-24 h-24 sm:w-28 sm:h-28 ${containerClassName}`}
             onClick={handleClick}>
             <img
                 src={src}

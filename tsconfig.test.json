@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "types": ["jest", "@testing-library/jest-dom", "node"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
+    "isolatedModules": false,
+    "jsx": "react-jsx"
+  },
+  "include": ["src", "test", "jest.setup.ts"]
+}

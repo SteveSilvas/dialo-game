@@ -5,7 +5,7 @@ import CustomButton from './components/Button';
 import { TiMediaPlay } from 'react-icons/ti';
 import { useAtom } from 'jotai';
 import { soundAtom } from './Context/SoundAtom';
-import {  useRef } from 'react';
+import { useRef } from 'react';
 function App() {
   const audioRef = useRef(new Audio(arquivoAudio));
   const [, setSound] = useAtom(soundAtom);
@@ -19,13 +19,12 @@ function App() {
   };
 
   return (
-    <main
-      className="page"
-    >
+    <main className="page">
       <div>
         <a
           href="https://steve.infotecdevs.com.br"
-          target="_blank">
+          target="_blank"
+          rel="noreferrer">
           <img src={logo} className="logo" alt="logo" />
         </a>
       </div>

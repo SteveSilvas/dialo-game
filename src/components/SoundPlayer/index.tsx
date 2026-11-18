@@ -1,4 +1,3 @@
-// SoundPlayer.js
 import { useAtom } from "jotai";
 import { soundAtom } from "../../Context/SoundAtom";
 import CustomButton from "../Button";

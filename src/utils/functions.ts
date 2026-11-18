@@ -1,4 +1,3 @@
-
 export const generateRandomNumbersArray = (length: number, min: number, max: number): number[] => {
     const randomNumbers: number[] = [];
     for (let i = 0; i < length; i++) {
@@ -15,9 +14,4 @@ export const generateAlphabetArray = (): string[] => {
 export const generateSimbolsArray = (): string[] => {
     return ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '[', ']', '{', '}', '|', ';', ':', '<', '>', '/', '?', ',', '.', '~'];
       
-}
-export default {
-    generateRandomNumbersArray,
-    generateAlphabetArray,
-    generateSimbolsArray,
 }

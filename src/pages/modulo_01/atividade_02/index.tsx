@@ -9,6 +9,8 @@ import clickSong from '../../../assets/click-151673.mp3';
 import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
 import { isNumber } from "../../../utils/validations";
+import { generateRandomNumbersArray, generateSimbolsArray } from "../../../utils/functions";
+import { playSound } from "../../../utils/sounds";
 import PanelPoints from "../../../components/PanelPoints";
 
 const Atividade02 = () => {
@@ -24,28 +26,13 @@ const Atividade02 = () => {
     );
 
     useEffect(() => {
-        if (finish === true)
-            startVictorySound();
+        if (finish)
+            playSound(successSong);
     }, [finish]);
 
-    const generateRandomNumbersArray = (length: number, min: number, max: number): number[] => {
-        const randomNumbers: number[] = [];
-        for (let i = 0; i < length; i++) {
-            const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-            randomNumbers.push(randomNumber);
-        }
-        return randomNumbers;
-    }
-
-    const numberArrayToStringArray = (numbersArray: number[]): string[] => {
-        return numbersArray.map(num => num.toString());
-    }
-
     function buildArraySimbols(): string[] {
-        const symbols: string[] = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '[', ']', '{', '}', '|', ';', ':', '<', '>', '/', '?', ',', '.', '~'];
-        const numbersArray: number[] = generateRandomNumbersArray(33, 1, 33);
-        // const numbersArray: number[] =[1,5,5]
-        const numbers = numberArrayToStringArray(numbersArray);
+        const symbols: string[] = generateSimbolsArray();
+        const numbers: string[] = generateRandomNumbersArray(33, 1, 33).map(num => num.toString());
         const combinedArray: string[] = [...symbols, ...numbers];
         combinedArray.sort(() => Math.random() - 0.5);
 
@@ -54,36 +41,18 @@ const Atividade02 = () => {
 
     const verifyOptions = (option: string) => {
         if (isNumber(option)) {
-            startSelectSound();
+            playSound(selectSong);
             setRemoving(option);
             setTimeout(() => {
                 setOptionsFound([...optionsFound, option]);
-                let options = [...optionsSimbolsAndNumbers];
-                options = options.filter(item => item !== option);
-                setOptionsSimbolsAndNumbers(options);
+                setOptionsSimbolsAndNumbers(optionsSimbolsAndNumbers.filter(item => item !== option));
                 setRemoving(null);
             }, 1000);
         }
         else {
-            startErrorSound();
+            playSound(errorSong);
         }
         setClicksCount(clicksCount + 1);
-    }
-
-
-    const startSelectSound = () => {
-        const selectAudio = new Audio(selectSong);
-        selectAudio.play();
-    }
-
-    const startErrorSound = () => {
-        const audioError = new Audio(errorSong);
-        audioError.play();
-    }
-
-    const startVictorySound = () => {
-        const successAudio = new Audio(successSong);
-        successAudio.play();
     }
 
     const renderButtonsSimbols = () => {
@@ -113,13 +82,8 @@ const Atividade02 = () => {
             />);
     }
 
-    const startClickSound = () => {
-        const clickAudio = new Audio(clickSong);
-        clickAudio.play();
-    }
-
     const handleRefreshClick = () => {
-        startClickSound();
+        playSound(clickSong);
         setOptionsFound([]);
         setOptionsSimbolsAndNumbers(buildArraySimbols());
     }

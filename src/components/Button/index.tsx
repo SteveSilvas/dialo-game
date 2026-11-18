@@ -1,8 +1,8 @@
-
 import React from 'react';
 import './index.css';
 import { Link } from "react-router-dom";
 import clickSong from '../../assets/click-151673.mp3';
+import { playSound } from '../../utils/sounds';
 
 interface ButtonProps {
     text?: string;
@@ -21,14 +21,9 @@ const CustomButton: React.FC<ButtonProps> = ({
     rightIcon
 }) => {
 
-    const startClickSound = () => {
-        const clickAudio = new Audio(clickSong);
-        clickAudio.play();
-    }
-
     const handleClick = () => {
         onClick?.();
-        startClickSound();
+        playSound(clickSong);
     }
 
     const renderLink = () => {
@@ -40,7 +35,6 @@ const CustomButton: React.FC<ButtonProps> = ({
                 style={{
                     display: 'grid',
                     gridTemplateColumns: gridColumns,
-
                 }}
                 to={href ?? "/"}
             >
@@ -59,7 +53,7 @@ const CustomButton: React.FC<ButtonProps> = ({
                 {leftIcon}
                 {text &&
                     <button
-                        onClick={()=>handleClick}
+                        onClick={handleClick}
                         className={className}>
                         <span>{text}</span>
                     </button>

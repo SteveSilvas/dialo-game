@@ -10,6 +10,7 @@ import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
 import { isConsoante } from "../../../utils/validations";
 import { generateAlphabetArray, generateSimbolsArray } from "../../../utils/functions";
+import { playSound } from "../../../utils/sounds";
 import PanelPoints from "../../../components/PanelPoints";
 
 const Atividade05 = () => {
@@ -26,8 +27,8 @@ const Atividade05 = () => {
     );
 
     useEffect(() => {
-        if (finish === true)
-            startVictorySound();
+        if (finish)
+            playSound(successSong);
     }, [finish]);
 
     function buildArraySimbols(): string[] {
@@ -38,43 +39,21 @@ const Atividade05 = () => {
 
     const verifyOptions = (option: string) => {
         if (isConsoante(option)) {
-            startSelectSound();
+            playSound(selectSong);
             setRemoving(option);
             setTimeout(() => {
                 setOptionsFound([...optionsFound, option]);
-                let options = [...optionsSimbolsAndNumbers];
-                options = options.filter(item => item !== option);
-                setOptionsSimbolsAndNumbers(options);
+                setOptionsSimbolsAndNumbers(optionsSimbolsAndNumbers.filter(item => item !== option));
                 setRemoving(null);
             }, 1000);
         } else {
-            startErrorSound();
+            playSound(errorSong);
         }
         setClicksCount(clicksCount + 1);
     }
 
-    const startSelectSound = () => {
-        const selectAudio = new Audio(selectSong);
-        selectAudio.play();
-    }
-
-    const startErrorSound = () => {
-        const audioError = new Audio(errorSong);
-        audioError.play();
-    }
-
-    const startVictorySound = () => {
-        const successAudio = new Audio(successSong);
-        successAudio.play();
-    }
-
-    const startClickSound = () => {
-        const clickAudio = new Audio(clickSong);
-        clickAudio.play();
-    }
-
     const handleRefreshClick = () => {
-        startClickSound();
+        playSound(clickSong);
         setClicksCount(0);
         setOptionsFound([]);
         setOptionsSimbolsAndNumbers(buildArraySimbols());
@@ -86,7 +65,7 @@ const Atividade05 = () => {
 
     const handleDrop = (targetArray: string[], setTargetArray: React.Dispatch<React.SetStateAction<string[]>>) => {
         if (draggingItem && isConsoante(draggingItem)) {
-            startSelectSound();
+            playSound(selectSong);
             setRemoving(draggingItem);
             setTimeout(() => {
                 setTargetArray([...targetArray, draggingItem]);
@@ -94,7 +73,7 @@ const Atividade05 = () => {
                 setRemoving(null);
             }, 1000);
         } else {
-            startErrorSound();
+            playSound(errorSong);
         }
         setClicksCount(clicksCount + 1);
         setDraggingItem(null);

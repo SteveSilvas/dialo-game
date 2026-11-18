@@ -11,11 +11,10 @@ const Layout = () => {
   useEffect(() => {
     if (sound.isActive) {
       audioRef.current.src = sound.src;
-      audioRef.current.play();
-      console.log();
+      void audioRef.current.play();
     } else {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0; // Opcional: Reinicia o áudio
+      audioRef.current.currentTime = 0;
     }
   }, [sound]);
 

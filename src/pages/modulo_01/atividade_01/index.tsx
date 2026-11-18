@@ -10,6 +10,7 @@ import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
 import { isLetter } from "../../../utils/validations";
 import { generateAlphabetArray, generateSimbolsArray } from "../../../utils/functions";
+import { playSound } from "../../../utils/sounds";
 import PanelPoints from "../../../components/PanelPoints";
 
 const Atividade01 = () => {
@@ -25,8 +26,8 @@ const Atividade01 = () => {
     );
 
     useEffect(() => {
-        if (finish === true)
-            startVictorySound();
+        if (finish)
+            playSound(successSong);
     }, [finish]);
 
     function buildArraySimbols(): string[] {
@@ -40,34 +41,18 @@ const Atividade01 = () => {
 
     const verifyOptions = (option: string) => {
         if (isLetter(option)) {
-            startSelectSound();
+            playSound(selectSong);
             setRemoving(option);
             setTimeout(() => {
                 setOptionsFound([...optionsFound, option]);
-                let options = [...optionsSimbolsAndLetters];
-                options = options.filter(item => item !== option);
-                setOptionsSimbolsAndLetters(options);
+                setOptionsSimbolsAndLetters(optionsSimbolsAndLetters.filter(item => item !== option));
                 setRemoving(null);
             }, 1000);
         }
         else {
-            startErrorSound();
+            playSound(errorSong);
         }
         setClicksCount(clicksCount + 1);
-    }
-    const startSelectSound = () => {
-        const selectAudio = new Audio(selectSong);
-        selectAudio.play();
-    }
-
-    const startErrorSound = () => {
-        const audioError = new Audio(errorSong);
-        audioError.play();
-    }
-
-    const startVictorySound = () => {
-        const successAudio = new Audio(successSong);
-        successAudio.play();
     }
 
     const renderButtonsSimbols = () => {
@@ -97,13 +82,8 @@ const Atividade01 = () => {
             />);
     }
 
-    const startClickSound = () => {
-        const clickAudio = new Audio(clickSong);
-        clickAudio.play();
-    }
-
     const handleRefreshClick = () => {
-        startClickSound();
+        playSound(clickSong);
         setOptionsFound([]);
         setOptionsSimbolsAndLetters(buildArraySimbols());
     }

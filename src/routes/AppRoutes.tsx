@@ -7,6 +7,7 @@ import Atividade03 from '../pages/modulo_01/atividade_03';
 import Atividade04 from '../pages/modulo_01/atividade_04';
 import Layout from '../components/layout';
 import Atividade05 from '../pages/modulo_01/atividade_05';
+import NotFound from '../pages/NotFound';
 
 
 const AppRoutes = () => {
@@ -20,6 +21,7 @@ const AppRoutes = () => {
                 <Route path="/modulo-01/atividade-03" element={<Atividade03 />} />
                 <Route path="/modulo-01/atividade-04" element={<Atividade04 />} />
                 <Route path="/modulo-01/atividade-05" element={<Atividade05 />} />
+                <Route path="*" element={<NotFound />} />
             </Route>
         </Routes>
     )

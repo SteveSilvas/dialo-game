@@ -159,6 +159,36 @@ src/
 └── main.tsx              # Ponto de entrada da aplicação
 ```
 
+## Deploy
+
+A aplicação é um SPA estático (Vite) e já vem pronta para rodar em container. O
+`Dockerfile` faz o build em duas etapas (Node → nginx) e o `nginx.conf` inclui o
+*fallback* de SPA, essencial para que rotas como `/modulo-01/atividade-03` funcionem
+ao recarregar a página.
+
+### Rodar localmente com Docker
+
+```sh
+docker compose up --build
+```
+
+Acesse [http://localhost:8080](http://localhost:8080).
+
+### Hospedar no Coolify
+
+1. **New Resource → Application → Public Repository** e aponte para
+   `https://github.com/SteveSilvas/dialo-game` (branch `master`).
+2. Em **Build Pack**, escolha **Dockerfile** (o repositório já traz o `Dockerfile`
+   na raiz; o `docker-compose.yml` também é detectado se preferir Compose).
+3. **Ports Exposes**: `80` (a imagem serve o nginx nessa porta).
+4. **Domain**: informe o domínio desejado (ex.: `dialo.seudominio.com.br`). O Coolify
+   emite o certificado TLS automaticamente.
+5. Clique em **Deploy**. A cada `git push` na branch configurada o Coolify refaz o
+   build e publica a nova versão.
+
+> Não é necessário configurar variáveis de ambiente: o projeto não usa nenhuma em tempo
+> de build.
+
 ## Autor
 
 Desenvolvido por **Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.

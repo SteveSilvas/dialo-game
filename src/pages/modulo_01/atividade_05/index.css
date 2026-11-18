@@ -44,6 +44,14 @@
   background-color: #747bff;
 }
 
+.caixa-letras-escolhidas-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 .button-simbols {
   box-shadow: 0.3em 0.5em 0.5em var(--infantil-1-tran);
   margin: 0.3rem;

@@ -1,111 +1,36 @@
-import React, { useEffect, useMemo, useState } from "react";
-import './index.css';
-import selectSong from '../../../assets/select-sound-121244.mp3';
-import errorSong from '../../../assets/error-8-206492.mp3';
-import successSong from '../../../assets/goodresult-82807.mp3';
+import { useState } from "react";
 import { TiArrowLeftThick, TiArrowRightThick, TiHome, TiRefresh } from "react-icons/ti";
-import CustomButton from "../../../components/Button";
-import clickSong from '../../../assets/click-151673.mp3';
-import LabelValue from "../../../components/LabelValue";
 import BoxRow from "../../../components/BoxRow";
-import { isConsoante } from "../../../utils/validations";
-import { generateAlphabetArray, generateSimbolsArray } from "../../../utils/functions";
-import { playSound } from "../../../utils/sounds";
+import CustomButton from "../../../components/Button";
+import LabelValue from "../../../components/LabelValue";
 import PanelPoints from "../../../components/PanelPoints";
+import SymbolsGrid from "../../../components/SymbolsGrid";
+import { useActivityProgress } from "../../../hooks/useActivityProgress";
+import { generateAlphabetArray, generateSimbolsArray, shuffleArray } from "../../../utils/functions";
+import { isConsoante } from "../../../utils/validations";
+import './index.css';
+
+const buildOptions = (): string[] =>
+    shuffleArray([...generateAlphabetArray(), ...generateSimbolsArray()]);
 
 const Atividade05 = () => {
-    const [optionsSimbolsAndNumbers, setOptionsSimbolsAndNumbers] = useState<string[]>(() => buildArraySimbols());
-    const [optionsFound, setOptionsFound] = useState<string[]>([]);
-    const [removing, setRemoving] = useState<string | null>(null);
-    const [clicksCount, setClicksCount] = useState<number>(0);
+    const {
+        options,
+        optionsFound,
+        removing,
+        clicksCount,
+        errors,
+        finish,
+        selectOption,
+        reset,
+    } = useActivityProgress(buildOptions, isConsoante);
     const [draggingItem, setDraggingItem] = useState<string | null>(null);
 
-    const finish = useMemo(
-        () => optionsFound.length > 0
-            && optionsSimbolsAndNumbers.every(item => !isConsoante(item)),
-        [optionsFound, optionsSimbolsAndNumbers]
-    );
-
-    useEffect(() => {
-        if (finish)
-            playSound(successSong);
-    }, [finish]);
-
-    function buildArraySimbols(): string[] {
-        const combinedArray: string[] = [...generateAlphabetArray(), ...generateSimbolsArray()];
-        combinedArray.sort(() => Math.random() - 0.5);
-        return combinedArray;
-    }
-
-    const verifyOptions = (option: string) => {
-        if (isConsoante(option)) {
-            playSound(selectSong);
-            setRemoving(option);
-            setTimeout(() => {
-                setOptionsFound([...optionsFound, option]);
-                setOptionsSimbolsAndNumbers(optionsSimbolsAndNumbers.filter(item => item !== option));
-                setRemoving(null);
-            }, 1000);
-        } else {
-            playSound(errorSong);
+    const handleDrop = () => {
+        if (draggingItem) {
+            selectOption(draggingItem);
         }
-        setClicksCount(clicksCount + 1);
-    }
-
-    const handleRefreshClick = () => {
-        playSound(clickSong);
-        setClicksCount(0);
-        setOptionsFound([]);
-        setOptionsSimbolsAndNumbers(buildArraySimbols());
-    }
-
-    const handleDragStart = (item: string) => {
-        setDraggingItem(item);
-    }
-
-    const handleDrop = (targetArray: string[], setTargetArray: React.Dispatch<React.SetStateAction<string[]>>) => {
-        if (draggingItem && isConsoante(draggingItem)) {
-            playSound(selectSong);
-            setRemoving(draggingItem);
-            setTimeout(() => {
-                setTargetArray([...targetArray, draggingItem]);
-                setOptionsSimbolsAndNumbers(prev => prev.filter(item => item !== draggingItem));
-                setRemoving(null);
-            }, 1000);
-        } else {
-            playSound(errorSong);
-        }
-        setClicksCount(clicksCount + 1);
         setDraggingItem(null);
-    }
-
-    const renderButtonsSimbols = (items: string[], isSource: boolean) => {
-        return items.map((item: string) => (
-            <button
-                key={item}
-                className={`button-simbols ${removing === item ? 'fade-out' : ''}`}
-                draggable={isSource}
-                onDragStart={() => isSource && handleDragStart(item)}
-                onClick={() => isSource && verifyOptions(item)}
-            >
-                {item.toUpperCase()}
-            </button>
-        ));
-    }
-
-    const renderNextActivityButton = () => {
-        return (
-            <CustomButton
-                text="PRÓXIMA"
-                href="/modulo-01"
-                rightIcon={
-                    <TiArrowRightThick
-                        style={{
-                            fontSize: '3rem',
-                            color: 'var(--infantil-6)'
-                        }} />}
-            />
-        );
     }
 
     return (
@@ -113,7 +38,7 @@ const Atividade05 = () => {
             <div className="header-page-activity-05">
                 <PanelPoints
                     hits={optionsFound.length}
-                    errors={clicksCount - optionsFound.length}
+                    errors={errors}
                     rounds={clicksCount}
                 />
 
@@ -121,58 +46,64 @@ const Atividade05 = () => {
                     className="refresh-button"
                     leftIcon={
                         <TiRefresh
-                            onClick={handleRefreshClick}
-                            style={{
-                                fontSize: '3rem',
-                                color: 'white'
-                            }} />}
+                            onClick={reset}
+                            style={{ fontSize: '3rem', color: 'white' }}
+                        />
+                    }
                 />
             </div>
             <h1 className="title-ativity">GUARDE AS LETRAS NA CAIXA</h1>
 
             <section className="container-atividade-05">
-                <div className="caixa-letras-atividade-05">
-                    {renderButtonsSimbols(optionsSimbolsAndNumbers, true)}
-                </div>
+                <SymbolsGrid
+                    items={options}
+                    removing={removing}
+                    className="caixa-letras-atividade-05"
+                    draggable
+                    onDragStart={setDraggingItem}
+                    onSelect={selectOption}
+                />
                 <div
                     className="caixa-letras-escolhidas-atividade-05"
-                    onDrop={() => handleDrop(optionsFound, setOptionsFound)}
+                    onDrop={handleDrop}
                     onDragOver={(e) => e.preventDefault()}
                 >
-                    {renderButtonsSimbols(optionsFound, false)}
+                    <SymbolsGrid
+                        items={optionsFound}
+                        removing={removing}
+                        className="caixa-letras-escolhidas-grid"
+                    />
                 </div>
-               
             </section>
 
-            <BoxRow
-                justifyContent="space-evenly"
-                width="80%"
-            >
+            <BoxRow justifyContent="space-evenly" width="80%">
                 {finish && (
-                    <LabelValue
-                        value={clicksCount.toString()}
-                        text="TENTATIVAS"
-                    />)
-                }
+                    <LabelValue value={clicksCount.toString()} text="TENTATIVAS" />
+                )}
                 <CustomButton
                     href="/"
-                    leftIcon={
-                        <TiHome style={{
-                            fontSize: '3rem',
-                            color: 'white'
-                        }} />}
+                    leftIcon={<TiHome style={{ fontSize: '3rem', color: 'white' }} />}
                 />
                 <CustomButton
                     text="VOLTAR"
                     href="/modulo-01/atividade-04"
                     leftIcon={
-                        <TiArrowLeftThick style={{
-                            left: '0.5rem',
-                            fontSize: '3rem',
-                            color: 'var(--infantil-6)'
-                        }} />}
+                        <TiArrowLeftThick
+                            style={{ left: '0.5rem', fontSize: '3rem', color: 'var(--infantil-6)' }}
+                        />
+                    }
                 />
-                {finish && renderNextActivityButton()}
+                {finish && (
+                    <CustomButton
+                        text="PRÓXIMA"
+                        href="/modulo-01"
+                        rightIcon={
+                            <TiArrowRightThick
+                                style={{ fontSize: '3rem', color: 'var(--infantil-6)' }}
+                            />
+                        }
+                    />
+                )}
             </BoxRow>
         </main>
     );

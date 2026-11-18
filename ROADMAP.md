@@ -1,0 +1,88 @@
+# ROADMAP — DIALO GAME
+
+Documento vivo com as melhorias identificadas na auditoria do projeto. Os **bugs reais
+já foram corrigidos** (ver seção *Corrigido*). Os itens abaixo são as próximas etapas de
+construção, priorizadas por impacto.
+
+---
+
+## Corrigido (bugs reais)
+
+- [x] **`--infantil-6` nunca foi definida** — usada em 14 pontos (fundo do painel de pontos,
+      caixas de atividade, caixa do módulo e cor de ícones). Definida como `#ffffff`,
+      conforme a paleta de origem (`AdobeColor-infantil.jpeg`).
+- [x] **Navegação inconsistente** — "PRÓXIMA" da atividade 04 e 05 apontava para
+      `/modulo-02/*` (rota inexistente → 404) e o "VOLTAR" da atividade 05 pulava a 04.
+      Sequência 01 → 02 → 03 → 04 → 05 → módulo agora é contínua.
+- [x] **Atividade 05 exibia textos em inglês** ("Front", "Back", "Right", "Left", "Bottom")
+      de um cubo 3D abandonado. Removido e substituído por uma caixa de destino real.
+- [x] **Atividade 05 usava classes CSS inexistentes** (`page-activity-05`,
+      `title-ativity-01`), perdendo o layout base. Corrigido para `page` e `title-ativity`.
+- [x] **Drop duplicado na atividade 05** — o `onDrop` do botão e o do contêiner disparavam
+      os dois (bubbling), contando a jogada duas vezes. Removido o handler do botão.
+- [x] **`isNumber` aceitava lixo** — `''`, `'  '` e `'Infinity'` retornavam `true`.
+      Agora usa `Number.isFinite` sobre a string aparada.
+- [x] **Colisão de `.label-container`** — definida em 3 arquivos CSS; a última importada
+      vencia. Consolidada em `LabelValue`, removido o CSS morto de `BoxRow`/`PanelPoints`.
+- [x] **Texto invisível no painel de pontos** — `.hits`/`.errors` usavam `color` e
+      `background-color` iguais (verde-sobre-verde, vermelho-sobre-vermelho). Corrigido.
+
+---
+
+## Próximas etapas
+
+### 1. Manutenção e limpeza (rápido, baixo risco)
+
+- [ ] Remover arquivos não utilizados: `src/utils/convertions.ts`, `src/assets/react.svg`,
+      `public/vite.svg`, `src/assets/logo-mini.png`, `src/assets/logo.svg`,
+      `src/assets/AdobeColor-infantil.jpeg`, `src/assets/1-efek-sound-1-220034.mp3`.
+- [ ] Corrigir `"main": "src/index.tsx"` no `package.json` — o arquivo não existe.
+- [ ] Remover o `export default` órfão de `src/utils/validations.ts`.
+- [ ] Remover o bloco `@media (prefers-color-scheme: light)` duplicado em 6 arquivos CSS
+      (sobrepõe o tema e briga com o fundo verde da aplicação).
+- [ ] Remover o CSS morto de `.logo.react`, `.read-the-docs` e `logo-spin` (herança do
+      template do Vite).
+
+### 2. Refatoração estrutural
+
+- [ ] **Unificar as atividades 01–04** em um único componente parametrizado
+      (`<ActivityGrid validator={...} title={...} nextHref={...} />`). Hoje são 4 arquivos
+      quase idênticos, com 4 CSS byte a byte iguais (~300 linhas duplicadas).
+- [ ] Extrair um componente `SymbolsGrid` reutilizado pelas atividades 01–05.
+- [ ] Centralizar a lógica de pontuação (acertos/erros/tentativas) que hoje se repete em
+      cada atividade.
+- [ ] Extrair o `useMemo` de `finish` (validação de término) para um hook `useActivityProgress`.
+
+### 3. Responsividade e acessibilidade
+
+- [ ] Adicionar media queries de layout: tudo hoje é `100vw` com tamanhos fixos (`4rem`,
+      `7rem`); em telas pequenas os botões estouram e quebram.
+- [ ] Adicionar `aria-label` em todos os botões que só têm ícone (home, refresh, setas).
+- [ ] Revisar contraste — há texto claro sobre `--infantil-3` (verde claro), abaixo do
+      mínimo WCAG AA para texto pequeno.
+- [ ] Trocar `cursor: cell` (estranho para botão) por `cursor: pointer`.
+- [ ] Associar `<label>` a controles com `htmlFor`/`id`.
+- [ ] Respeitar `prefers-reduced-motion` nas animações (`fade-out`, `logo-spin`).
+
+### 4. Performance de áudio
+
+- [ ] `soudMr.mp3` tem **2,3 MB** e é instanciado na home e no layout. Comprimir ou trocar.
+- [ ] `playSound` cria um `new Audio()` a cada clique; pré-carregar os sons em um cache e
+      reutilizar as instâncias para evitar atraso/estouro de memória.
+- [ ] Avaliar `preload="none"` para sons que só tocam sob demanda.
+
+### 5. UX e produto
+
+- [ ] Persistir o progresso (acertos, atividades concluídas) — o Jotai já está no projeto.
+- [ ] Tela de conclusão de módulo (parabéns / resumo de pontos) em vez de voltar direto.
+- [ ] `meta description` e tags Open Graph no `index.html` para compartilhamento.
+- [ ] `<title>` dinâmico por atividade (ajuda no histórico e na acessibilidade).
+- [ ] Módulo 02 (as rotas `modulo-02` já foram previstas e hoje caem no 404).
+
+### 6. Qualidade e entrega
+
+- [ ] Adicionar testes (Vitest + Testing Library) para as funções de validação e para o
+      fluxo de uma atividade.
+- [ ] Configurar CI (GitHub Actions) rodando `lint` + `build` + testes em cada PR.
+- [ ] Configurar deploy automático (GitHub Pages/Vercel) a partir do `master`.
+- [ ] Adicionar `strict` já está ativo; avaliar `noUncheckedIndexedAccess` no tsconfig.

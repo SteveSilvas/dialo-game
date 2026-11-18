@@ -1,5 +1,4 @@
 import React from 'react';
-import './index.css';
 import LabelValue from '../LabelValue';
 import BoxRow from '../BoxRow';
 

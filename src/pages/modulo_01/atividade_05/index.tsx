@@ -80,14 +80,12 @@ const Atividade05 = () => {
     }
 
     const renderButtonsSimbols = (items: string[], isSource: boolean) => {
-        return items.map((item: string, index: number) => (
+        return items.map((item: string) => (
             <button
-                key={index}
+                key={item}
                 className={`button-simbols ${removing === item ? 'fade-out' : ''}`}
                 draggable={isSource}
                 onDragStart={() => isSource && handleDragStart(item)}
-                onDrop={() => !isSource && handleDrop(optionsFound, setOptionsFound)}
-                onDragOver={(e) => e.preventDefault()}
                 onClick={() => isSource && verifyOptions(item)}
             >
                 {item.toUpperCase()}
@@ -99,7 +97,7 @@ const Atividade05 = () => {
         return (
             <CustomButton
                 text="PRÓXIMA"
-                href="/modulo-02/atividade-06"
+                href="/modulo-01"
                 rightIcon={
                     <TiArrowRightThick
                         style={{
@@ -111,7 +109,7 @@ const Atividade05 = () => {
     }
 
     return (
-        <main className="page-activity-05">
+        <main className="page">
             <div className="header-page-activity-05">
                 <PanelPoints
                     hits={optionsFound.length}
@@ -130,26 +128,18 @@ const Atividade05 = () => {
                             }} />}
                 />
             </div>
-            <h1 className="title-ativity-01">GUARDE AS LETRAS NA CAIXA</h1>
+            <h1 className="title-ativity">GUARDE AS LETRAS NA CAIXA</h1>
 
             <section className="container-atividade-05">
                 <div className="caixa-letras-atividade-05">
                     {renderButtonsSimbols(optionsSimbolsAndNumbers, true)}
                 </div>
-                <div className="scene">
-                    <div className="cube">
-                        <div className="face front">Front</div>
-                        <div className="face back">Back</div>
-                        <div className="face right">Right</div>
-                        <div className="face left">Left</div>
-                        <div className="face top caixa-letras-escolhidas-atividade-05"
-                            onDrop={() => handleDrop(optionsFound, setOptionsFound)}
-                            onDragOver={(e) => e.preventDefault()}
-                        >
-                            {renderButtonsSimbols(optionsFound, false)}
-                        </div>
-                        <div className="face bottom">Bottom</div>
-                    </div>
+                <div
+                    className="caixa-letras-escolhidas-atividade-05"
+                    onDrop={() => handleDrop(optionsFound, setOptionsFound)}
+                    onDragOver={(e) => e.preventDefault()}
+                >
+                    {renderButtonsSimbols(optionsFound, false)}
                 </div>
                
             </section>
@@ -174,7 +164,7 @@ const Atividade05 = () => {
                 />
                 <CustomButton
                     text="VOLTAR"
-                    href="/modulo-01/atividade-03"
+                    href="/modulo-01/atividade-04"
                     leftIcon={
                         <TiArrowLeftThick style={{
                             left: '0.5rem',

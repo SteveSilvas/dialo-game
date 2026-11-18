@@ -3,13 +3,9 @@ export const isLetter = (option: string) => {
 }
 
 export const isNumber = (option: string): boolean => {
-    try {
-        const numberParsed: number = Number(option);
-        return !isNaN(numberParsed);
-    } catch (ex) {
-        console.error(ex);
-        return false
-    }
+    const trimmed = option.trim();
+    if (trimmed === '') return false;
+    return Number.isFinite(Number(trimmed));
 }
 
 export const isVogal = (caracter: string) : boolean=>{

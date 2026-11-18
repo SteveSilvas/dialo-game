@@ -1,5 +1,4 @@
 import React from 'react';
-import './index.css';
 
 interface BoxRowProps {
     children?: React.ReactNode;

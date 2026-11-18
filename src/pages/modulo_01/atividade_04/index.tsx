@@ -69,7 +69,7 @@ const Atividade04 = () => {
         return (
             <CustomButton
                 text="PRÓXIMA"
-                href="/modulo-02/atividade-01"
+                href="/modulo-01/atividade-05"
                 rightIcon={
                     <TiArrowRightThick
                         style={{

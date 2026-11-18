@@ -1,40 +1,28 @@
 .label-container {
-  /* display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  border-radius: 15px; */
-}
-
-.label-container:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 5px;
-  border-radius: 15px;
-  cursor: cell;
-}
-
-.default {
   background-color: var(--infantil-6);
   color: var(--infantil-2);
+  border-radius: 15px;
   border: 1px solid var(--infantil-2-tran);
 }
 
-.default:hover {
+.label-container:hover {
   background-color: var(--infantil-2);
   color: var(--infantil-3);
   border: 1px solid var(--infantil-1);
+  cursor: pointer;
 }
 
 .hits {
-  color: green;
-  background-color: green;
+  background-color: #1a7f37;
+  color: #ffffff;
 }
 
 .errors {
-  color: red;
-  background-color: red;
+  background-color: #c1121f;
+  color: #ffffff;
 }

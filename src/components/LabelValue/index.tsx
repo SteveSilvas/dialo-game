@@ -5,7 +5,7 @@ interface LabelValueProps {
     text?: string;
     onClick?: () => void;
     className?: string;
-    children?: any;
+    children?: React.ReactNode;
     value: string;
     type?: 'hits' | 'errors'
 }

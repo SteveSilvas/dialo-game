@@ -4,7 +4,7 @@ export const isLetter = (option: string) => {
 
 export const isNumber = (option: string): boolean => {
     try {
-        let numberParsed: number = Number(option);
+        const numberParsed: number = Number(option);
         return !isNaN(numberParsed);
     } catch (ex) {
         console.error(ex);

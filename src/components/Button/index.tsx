@@ -9,8 +9,8 @@ interface ButtonProps {
     onClick?: () => void;
     className?: string;
     href?: string;
-    leftIcon?: JSX.Element;
-    rightIcon?: JSX.Element;
+    leftIcon?: React.JSX.Element;
+    rightIcon?: React.JSX.Element;
 }
 const CustomButton: React.FC<ButtonProps> = ({
     text,
@@ -32,7 +32,7 @@ const CustomButton: React.FC<ButtonProps> = ({
     }
 
     const renderLink = () => {
-        let gridColumns = text ? '1fr 1fr 1fr' : '1fr';
+        const gridColumns = text ? '1fr 1fr 1fr' : '1fr';
         return (
             <Link
                 className={className ?? 'flex-center button'}

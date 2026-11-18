@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import './index.css';
 import selectSong from '../../../assets/select-sound-121244.mp3';
 import errorSong from '../../../assets/error-8-206492.mp3';
@@ -12,22 +12,16 @@ import { isNumber } from "../../../utils/validations";
 import PanelPoints from "../../../components/PanelPoints";
 
 const Atividade02 = () => {
-    const [optionsSimbolsAndNumbers, setOptionsSimbolsAndNumbers] = useState<string[]>([]);
+    const [optionsSimbolsAndNumbers, setOptionsSimbolsAndNumbers] = useState<string[]>(() => buildArraySimbols());
     const [optionsFound, setOptionsFound] = useState<string[]>([]);
-    const [finish, setFinish] = useState<boolean>(false);
     const [removing, setRemoving] = useState<string | null>(null);
     const [clicksCount, setClicksCount] = useState<number>(0);
 
-    useEffect(() => {
-        setOptionsSimbolsAndNumbers(buildArraySimbols());
-    }, [0]);
-
-    useEffect(() => {
-        let hasFinish = optionsFound.length > 0
-            && optionsSimbolsAndNumbers.every(item => !isNumber(item));
-
-        setFinish(hasFinish);
-    }, [optionsFound]);
+    const finish = useMemo(
+        () => optionsFound.length > 0
+            && optionsSimbolsAndNumbers.every(item => !isNumber(item)),
+        [optionsFound, optionsSimbolsAndNumbers]
+    );
 
     useEffect(() => {
         if (finish === true)
@@ -59,9 +53,7 @@ const Atividade02 = () => {
     }
 
     const verifyOptions = (option: string) => {
-        console.log("STEVE")
         if (isNumber(option)) {
-            console.log("PIETRO")
             startSelectSound();
             setRemoving(option);
             setTimeout(() => {

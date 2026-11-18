@@ -2,7 +2,7 @@ import React from 'react';
 import './index.css';
 
 interface BoxRowProps {
-    children?: any;
+    children?: React.ReactNode;
     justifyContent?: string;
     width?: string;
     gap?:string;

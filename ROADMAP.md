@@ -44,15 +44,16 @@ construção, priorizadas por impacto.
 - [x] Removido o CSS morto de `.logo.react`, `.read-the-docs` e `logo-spin` (herança do
       template do Vite).
 
-### 2. Refatoração estrutural
+### 2. Refatoração estrutural (concluído)
 
-- [ ] **Unificar as atividades 01–04** em um único componente parametrizado
-      (`<ActivityGrid validator={...} title={...} nextHref={...} />`). Hoje são 4 arquivos
-      quase idênticos, com 4 CSS byte a byte iguais (~300 linhas duplicadas).
-- [ ] Extrair um componente `SymbolsGrid` reutilizado pelas atividades 01–05.
-- [ ] Centralizar a lógica de pontuação (acertos/erros/tentativas) que hoje se repete em
-      cada atividade.
-- [ ] Extrair o `useMemo` de `finish` (validação de término) para um hook `useActivityProgress`.
+- [x] **Atividades 01–04 unificadas** em um único componente parametrizado
+      (`<ActivityGrid />`), recebendo título, validador, gerador de opções e navegação.
+      Os 4 arquivos quase idênticos viraram wrappers finos e os 4 CSS duplicados foram
+      substituídos por um único `ActivityGrid/index.css`.
+- [x] Extraído o componente `SymbolsGrid`, reutilizado pelas atividades 01–05.
+- [x] Lógica de pontuação (acertos/erros/tentativas) centralizada no hook
+      `useActivityProgress`, junto com a animação de saída, o reset e a detecção de fim.
+- [x] `useMemo` de `finish` e efeitos de som movidos para o mesmo hook.
 
 ### 3. Responsividade e acessibilidade
 
@@ -82,8 +83,8 @@ construção, priorizadas por impacto.
 
 ### 6. Qualidade e entrega
 
-- [ ] Adicionar testes (Vitest + Testing Library) para as funções de validação e para o
-      fluxo de uma atividade.
+- [x] Adicionados testes (Jest + Testing Library) para as funções de validação, os
+      geradores de arrays e o fluxo da atividade 01 (`npm test`).
 - [ ] Configurar CI (GitHub Actions) rodando `lint` + `build` + testes em cada PR.
 - [ ] Configurar deploy automático (GitHub Pages/Vercel) a partir do `master`.
 - [ ] Adicionar `strict` já está ativo; avaliar `noUncheckedIndexedAccess` no tsconfig.

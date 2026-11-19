@@ -292,6 +292,11 @@ Postgres — está planejada em **[ROADMAP.md](./ROADMAP.md)**, com as issues de
 implementação abertas no GitHub. O histórico de auditoria e refatorações fica em
 [docs/historico-tecnico.md](./docs/historico-tecnico.md).
 
+A stack do backend está definida em **.NET 10 (LTS) com ASP.NET Core e EF Core sobre
+PostgreSQL**. O raciocínio completo — alternativas avaliadas, versão escolhida e
+consequências aceitas — está em
+[docs/adr/0001-stack-backend.md](./docs/adr/0001-stack-backend.md).
+
 ## Autor
 
 **Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.

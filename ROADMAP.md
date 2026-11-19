@@ -55,6 +55,9 @@ adulto.
 
 **Decidido: .NET 10 (LTS) com ASP.NET Core e EF Core.**
 
+> Decisão registrada em [docs/adr/0001-stack-backend.md](docs/adr/0001-stack-backend.md),
+> com contexto, alternativas e consequências.
+
 | Item | Escolha | Por quê |
 | --- | --- | --- |
 | Runtime | **.NET 10 (LTS)** | Suporte até nov/2028. .NET 8 LTS saiu de suporte e .NET 11 é STS — nenhum dos dois serve |

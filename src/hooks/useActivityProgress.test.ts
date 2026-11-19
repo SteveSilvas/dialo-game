@@ -82,6 +82,62 @@ describe('useActivityProgress', () => {
     expect(result.current.finish).toBe(true);
   });
 
+  it('relata o resultado uma única vez, mesmo clicando depois de concluir', () => {
+    const onFinish = jest.fn();
+    const { result } = renderHook(() =>
+      useActivityProgress(buildOptions, isValid, onFinish),
+    );
+
+    act(() => {
+      result.current.selectOption('A');
+    });
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    expect(onFinish).toHaveBeenCalledTimes(1);
+    expect(onFinish).toHaveBeenCalledWith({
+      bestScore: 1,
+      attempts: 1,
+      errors: 0,
+    });
+
+    // A grade continua na tela: um erro depois da conclusão não pode gerar um
+    // segundo relatório, que sujaria a melhor tentativa já salva.
+    act(() => {
+      result.current.selectOption('B');
+    });
+
+    expect(result.current.errors).toBe(1);
+    expect(onFinish).toHaveBeenCalledTimes(1);
+  });
+
+  it('relata de novo depois de reiniciar a atividade', () => {
+    const onFinish = jest.fn();
+    const { result } = renderHook(() =>
+      useActivityProgress(buildOptions, isValid, onFinish),
+    );
+
+    act(() => {
+      result.current.selectOption('A');
+    });
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    act(() => {
+      result.current.reset();
+    });
+    act(() => {
+      result.current.selectOption('A');
+    });
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    expect(onFinish).toHaveBeenCalledTimes(2);
+  });
+
   it('remove os dois itens quando o segundo é clicado antes do primeiro sair', () => {
     const { result } = renderHook(() =>
       useActivityProgress(buildOptions, (option) => option !== 'C'),

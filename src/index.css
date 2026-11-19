@@ -105,3 +105,29 @@
     scroll-behavior: auto !important;
   }
 }
+
+@layer components {
+  .activity-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .activity-card--locked {
+    filter: grayscale(0.6);
+    cursor: not-allowed;
+  }
+
+  .account-badge {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .activity-stars {
+    font-size: 1.1rem;
+    letter-spacing: 0.1rem;
+    color: var(--infantil-2);
+  }
+}

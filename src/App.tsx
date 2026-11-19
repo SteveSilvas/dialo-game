@@ -4,6 +4,7 @@ import CustomButton from './components/Button';
 import { TiMediaPlay } from 'react-icons/ti';
 import { useAtom } from 'jotai';
 import { soundAtom } from './Context/SoundAtom';
+import AccountBadge from './components/AccountBadge';
 
 function App() {
   const [, setSound] = useAtom(soundAtom);
@@ -24,6 +25,7 @@ function App() {
       </div>
 
       <h1 className="text-xl sm:text-2xl md:text-3xl px-4">VAMOS APRENDER?</h1>
+      <AccountBadge />
       <div className="card">
         <CustomButton
           text="INICIAR"

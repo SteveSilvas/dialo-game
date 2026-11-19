@@ -7,6 +7,7 @@ const buildOptions = (): string[] =>
 
 const Atividade02 = () => (
     <ActivityGrid
+        activitySlug="atividade-02"
         title="SELECIONE OS NÚMEROS"
         buildOptions={buildOptions}
         isValid={isNumber}

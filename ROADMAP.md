@@ -74,10 +74,16 @@ construção, priorizadas por impacto.
 - [x] **Layout responsivo** — botões de símbolos, cabeçalho, logo, caixas de atividade e
       painel de pontos agora escalam por breakpoints (`sm`, `md`) e as caixas da atividade 05
       empilham no mobile. `100vw` trocado por `100%` (evitava rolagem horizontal).
-- [ ] Adicionar `aria-label` em todos os botões que só têm ícone (home, refresh, setas).
-- [ ] Revisar contraste — há texto claro sobre `--infantil-3` (verde claro), abaixo do
-      mínimo WCAG AA para texto pequeno.
-- [ ] Associar `<label>` a controles com `htmlFor`/`id`.
+- [x] Adicionar `aria-label` em todos os botões que só têm ícone (home, refresh, setas),
+      via prop `ariaLabel` no `CustomButton`; o toggle de som expõe estado com `aria-pressed`.
+- [ ] Revisar contraste. Medições atuais (WCAG, texto normal exige 4.5:1):
+      - botão normal: `--infantil-3` sobre `--infantil-1` → **1.84:1**
+      - botão hover: `--infantil-3` sobre `--infantil-4` → **1.40:1**
+      - `LabelValue` normal: `--infantil-2` sobre branco → **2.20:1**
+      - `LabelValue`/`BoxActivity` hover: `--infantil-3` sobre `--infantil-2` → **1.89:1**
+      Todos falham. O texto de `.page` (`#213547` sobre `--infantil-3`) está OK (10.86:1).
+- [x] Associar `<label>` a controles com `htmlFor`/`id` — o projeto não tem nenhum
+      `<input>`/`<select>`/`<textarea>`; não há o que rotular.
 - [x] Respeitar `prefers-reduced-motion`: animações e transições são reduzidas a 0,01ms
       para quem pediu menos movimento no sistema. A remoção do símbolo usa `setTimeout`,
       não o fim da animação, então o fluxo do jogo não depende dela.
@@ -104,6 +110,8 @@ construção, priorizadas por impacto.
 
 - [x] Adicionados testes (Jest + Testing Library) para as funções de validação, os
       geradores de arrays e o fluxo da atividade 01 (`npm test`).
-- [ ] Configurar CI (GitHub Actions) rodando `lint` + `build` + testes em cada PR.
+- [x] Configurar CI (GitHub Actions) rodando `lint` + `test` + `build` em cada PR,
+      com badge de status no README.
 - [ ] Configurar deploy automático (GitHub Pages/Vercel) a partir do `master`.
+      Hoje o deploy é feito pelo Coolify via `Dockerfile` + `nginx`, fora do GitHub Actions.
 - [ ] Adicionar `strict` já está ativo; avaliar `noUncheckedIndexedAccess` no tsconfig.

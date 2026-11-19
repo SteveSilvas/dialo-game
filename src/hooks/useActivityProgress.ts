@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import clickSong from '../assets/click-151673.mp3';
 import errorSong from '../assets/error-8-206492.mp3';
 import successSong from '../assets/goodresult-82807.mp3';
 import selectSong from '../assets/select-sound-121244.mp3';
@@ -51,7 +50,6 @@ export const useActivityProgress = (
   };
 
   const reset = () => {
-    playSound(clickSong);
     setOptionsFound([]);
     setClicksCount(0);
     setErrors(0);

@@ -121,6 +121,36 @@ npm run build
 npm run preview
 ```
 
+### Recompilar a música de fundo
+
+A música de fundo vive em `public/audio/` (fora do bundle JS) e é gerada a partir
+do master `audio-src/fundo-master.mp3`. Para regerar os dois formatos, é preciso ter
+o **[ffmpeg](https://ffmpeg.org/)** instalado:
+
+```sh
+npm run audio:build
+```
+
+O script equivale a:
+
+```sh
+# Opus mono 40 kbps — primeira opção, ~654 kB
+ffmpeg -y -hide_banner -loglevel error -i audio-src/fundo-master.mp3 \
+  -map_metadata -1 -ac 1 -c:a libopus -b:a 40k -vbr on public/audio/fundo.ogg
+
+# MP3 mono 40 kbps @ 24 kHz — fallback para navegadores sem Ogg/Opus, ~587 kB
+ffmpeg -y -hide_banner -loglevel error -i audio-src/fundo-master.mp3 \
+  -map_metadata -1 -ac 1 -c:a libmp3lame -b:a 40k -ar 24000 public/audio/fundo.mp3
+```
+
+O player (`src/components/layout/index.tsx`) declara as duas fontes em um `<audio>`
+com `preload="none"` e `loop`; o navegador escolhe a primeira que souber decodificar
+(Opus → MP3). O download só começa no gesto em **INICIAR**, o que também evita o
+bloqueio de autoplay.
+
+> Os arquivos em `public/audio/` são versionados: só rode `npm run audio:build`
+> quando trocar o master ou os parâmetros de compressão.
+
 ### Verifique a qualidade do código
 
 ```sh
@@ -143,12 +173,18 @@ npm test
 | `npm run lint` | Executa o ESLint em todo o projeto. |
 | `npm test` | Executa a suíte de testes com Jest. |
 | `npm run test:watch` | Executa os testes em modo observador. |
+| `npm run audio:build` | Regera a música de fundo em Opus e MP3 a partir do master. |
+| `npm run audio:opus` | Regera apenas o Opus (`public/audio/fundo.ogg`). |
+| `npm run audio:mp3` | Regera apenas o MP3 de fallback (`public/audio/fundo.mp3`). |
 
 ## Estrutura do projeto
 
 ```
+audio-src/                # Master da música de fundo (entrada do npm run audio:build)
+public/
+└── audio/                # Música de fundo comprimida, servida como estático
 src/
-├── assets/               # Imagens, logos e arquivos de áudio
+├── assets/               # Imagens, logos e efeitos sonoros curtos
 ├── components/           # Componentes reutilizáveis (Button, BoxRow, PanelPoints, ActivityGrid...)
 ├── Context/              # Estado global com Jotai
 ├── hooks/                # Hooks reutilizáveis (useActivityProgress)
@@ -157,10 +193,26 @@ src/
 │   └── NotFound/         # Página para rotas não encontradas
 ├── routes/               # Definição das rotas da aplicação
 ├── utils/                # Funções auxiliares (validações, sons, geradores)
+│   └── backgroundMusic.ts # Fontes da música de fundo (Opus + MP3)
 ├── index.css             # Tailwind + tema (paleta infantil) e estilos globais
 ├── App.tsx               # Tela inicial
 └── main.tsx              # Ponto de entrada da aplicação
 ```
+
+## Performance do bundle
+
+A música de fundo saiu do bundle: antes ela era importada em dois componentes e
+embutida no build (`soudMr.mp3`, 2,24 MB — 88,7% do total). Agora é um arquivo
+estático de `public/audio/`, baixado só depois do clique em **INICIAR**.
+
+| Item | Antes | Depois |
+| --- | --- | --- |
+| Música de fundo | `soudMr.mp3` — 2.347.680 B (160 kbps, estéreo, 24 kHz) | Opus 653.932 B / MP3 587.396 B (mono, 40 kbps) |
+| JS | 284,62 kB (92,73 kB gzip) | 284,70 kB (92,80 kB gzip) |
+| CSS | 13,82 kB (3,52 kB gzip) | 14,09 kB (3,56 kB gzip) |
+| Baixado na home antes do gesto | 2,24 MB de áudio | 0 B de áudio |
+
+O navegador só pede um dos dois arquivos: ~654 kB no Opus, ~587 kB no MP3.
 
 ## Deploy
 

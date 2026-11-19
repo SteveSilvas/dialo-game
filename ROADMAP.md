@@ -84,7 +84,10 @@ construção, priorizadas por impacto.
 
 ### 4. Performance de áudio
 
-- [ ] `soudMr.mp3` tem **2,3 MB** e é instanciado na home e no layout. Comprimir ou trocar.
+- [x] `soudMr.mp3` (**2,3 MB**) recomprimido para Opus 40 kbps (654 kB) com fallback MP3
+      (587 kB), servido de `public/audio/` e instanciado apenas no `Layout`.
+- [x] `preload="none"` no player da música de fundo: o download só começa no gesto em
+      **INICIAR**, o que também evita bloqueio de autoplay.
 - [ ] `playSound` cria um `new Audio()` a cada clique; pré-carregar os sons em um cache e
       reutilizar as instâncias para evitar atraso/estouro de memória.
 - [ ] Avaliar `preload="none"` para sons que só tocam sob demanda.

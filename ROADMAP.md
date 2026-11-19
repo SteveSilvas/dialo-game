@@ -79,9 +79,11 @@ O repositório passa a ter Node (front) e .NET (API). Isso custa um pouco de
 complexidade no CI, mas o ganho é usar o ORM *code first* mais maduro do mercado e
 a tipagem forte do C# no domínio de progresso e desbloqueio.
 
-Para reduzir o atrito, os **tipos compartilhados** entre front e back não são gerados
-a partir do C#: o contrato é o **OpenAPI** (issue #13), e o front consome os tipos
-gerados dele. Assim a API pode evoluir sem acoplar o build do front ao `dotnet`.
+Para reduzir o atrito, os **tipos compartilhados** entre front e back são escritos à
+mão em `packages/shared`, mantidos junto do contrato de rotas e campos documentado na
+seção 6. Não há geração automática de tipos a partir do C#: o custo é que uma mudança
+de campo na API não quebra o build do front, apenas aparece em runtime — a rede de
+segurança é o teste E2E (issue #37).
 
 
 ---
@@ -97,7 +99,7 @@ gerados dele. Assim a API pode evoluir sem acoplar o build do front ao `dotnet`.
 │  • Atividades               │ ─────► │  • Auth (JWT + Google)   │
 │  • Estado (Jotai)           │  JSON  │  • Catálogo de módulos   │
 │  • Convidado (localStorage) │        │  • Progresso             │
-│  • Tipos do OpenAPI         │        │  • Regras de desbloqueio │
+│  • Tipos em packages/shared │        │  • Regras de desbloqueio │
 └─────────────────────────────┘        └───────────┬──────────────┘
                                                     │ EF Core
                                         ┌───────────▼──────────────┐
@@ -202,8 +204,9 @@ isso é mapeado para `jsonb` com `HasColumnType("jsonb")`.
 
 ## 6. Contrato da API
 
-Definido em OpenAPI antes da implementação (`docs/api/openapi.yaml`), para que front
-e back andem em paralelo.
+As rotas e os formatos de request/response estão definidos nesta tabela, que é a
+referência para o front e o back. Os tipos TypeScript correspondentes vivem em
+`packages/shared`, escritos à mão — não há geração automática a partir do C#.
 
 | Método | Rota | Descrição |
 | --- | --- | --- |
@@ -288,7 +291,7 @@ Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 | Issue | Entrega |
 | --- | --- |
 | ADR: registrar .NET 10 + EF Core | `docs/adr/0001-stack-backend.md` com a decisão da seção 3 |
-| Contrato OpenAPI + modelo de dados | `docs/api/openapi.yaml` e diagrama ER |
+| Contrato da API + modelo de dados | Tabela de rotas (seção 6), `packages/shared` e diagrama ER |
 | Estrutura do monorepo | `apps/web`, `apps/api` (.NET), `packages/shared` |
 | Postgres local + primeira migration | `docker compose` com Postgres e `dotnet ef migrations add` |
 
@@ -375,5 +378,5 @@ nas issues; podem ser ajustadas durante a implementação sem retrabalho estrutu
 | Login ser barreira para a criança | Modo convidado com o Módulo 01 completo |
 | Progresso perdido gera frustração | Sincronização otimista + fila local de escrita |
 | Conteúdo pedagógico sem validação | Revisão por educador antes de publicar cada módulo |
-| Custo de manter dois runtimes (Node + .NET) | Aceito conscientemente; contrato OpenAPI desacopla front e back |
+| Custo de manter dois runtimes (Node + .NET) | Aceito conscientemente; front e back evoluem em deploys independentes |
 | Vazar dados de crianças | Coletar o mínimo: username, e-mail do adulto, sem data de nascimento |

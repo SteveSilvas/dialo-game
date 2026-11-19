@@ -100,8 +100,11 @@ rima, banco de palavras) sem alterar o schema a cada atividade nova.
   um job a mais e cache de NuGet separado. **Aceito:** o ganho de usar EF Core compensa
   a complexidade; a issue #34 trata o CI.
 - **Sem compartilhamento direto de tipos.** C# e TypeScript não se falam. **Mitigação:**
-  o contrato é o OpenAPI (#13), e o front consome tipos gerados dele. Assim o build do
-  front **não** depende do `dotnet` — as duas metades evoluem de forma independente.
+  os tipos do front são escritos à mão em `packages/shared`, e o contrato das rotas e
+  campos fica documentado em uma tabela no [ROADMAP §6](../../ROADMAP.md). O risco de
+  divergência é real: um campo renomeado na API não quebra o build do front, só aparece
+  em runtime. **Aceito** por decisão de não adotar OpenAPI; a rede de segurança é o teste
+  E2E (#37), que exercita os fluxos reais contra a API.
 - **Curva de contexto.** Quem só mexe no front precisa do SDK .NET para rodar a API
   localmente. **Mitigação:** `docker compose` sobe API + Postgres sem instalar SDK.
 - **Imagem Docker maior** que um runtime Node. **Aceito:** a imagem `aspnet:10.0` é
@@ -119,8 +122,9 @@ rima, banco de palavras) sem alterar o schema a cada atividade nova.
 `packages/shared`, reaproveitamento do CI em Node já existente.
 
 **Contra:** o Prisma, embora bom, é menos maduro que o EF Core em migrations
-complexas; e o ganho de compartilhar tipos é menor do que parece — o contrato da API
-precisa ser estável de qualquer forma, e o OpenAPI resolve isso nos dois cenários.
+complexas; e o ganho de compartilhar tipos é menor do que parece — o front consumiria
+os tipos do `packages/shared` de qualquer forma, e a API muda com menos frequência que
+o front.
 
 **Por que não:** a decisão do time foi .NET. Os pontos a favor de Node são reais, mas
 não superam a preferência declarada nem a maturidade do EF Core no requisito *code

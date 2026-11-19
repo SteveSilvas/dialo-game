@@ -242,14 +242,33 @@ Acesse [http://localhost:8080](http://localhost:8080).
 5. Clique em **Deploy**. A cada `git push` na branch configurada o Coolify refaz o
    build e publica a nova versão.
 
-> Não é necessário configurar variáveis de ambiente: o projeto não usa nenhuma em tempo
-> de build.
+### Variável de build (opcional)
+
+`VITE_SITE_URL` define o domínio usado nas tags `canonical` e Open Graph. Como o
+`index.html` é estático, essas tags precisam de URL absoluta para o card aparecer
+certo no WhatsApp, LinkedIn e X.
+
+```sh
+VITE_SITE_URL=https://dialo.seudominio.com.br
+```
+
+Defina no Coolify em **Environment Variables** antes do deploy. Sem ela, as URLs
+saem relativas (`/og-image.png`) — funciona no navegador, mas o preview do link
+fica sem imagem em algumas redes sociais.
 
 ## Autor
 
-Desenvolvido por **Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.
+**Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.
+
+Trabalho com desenvolvimento web de ponta a ponta: interface, estado, testes e
+deploy. Este projeto reúne o que faço no dia a dia aplicado a um problema real de
+educação infantil.
 
 - GitHub: [@SteveSilvas](https://github.com/SteveSilvas)
+- Outros projetos: [github.com/SteveSilvas?tab=repositories](https://github.com/SteveSilvas?tab=repositories)
+
+Sugestões, correções e pull requests são bem-vindos. Se o DIALO GAME ajudar em
+alguma sala de aula, me conte pelo GitHub.
 
 ## Licença
 

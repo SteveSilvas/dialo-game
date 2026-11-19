@@ -242,8 +242,19 @@ Acesse [http://localhost:8080](http://localhost:8080).
 5. Clique em **Deploy**. A cada `git push` na branch configurada o Coolify refaz o
    build e publica a nova versão.
 
-> Não é necessário configurar variáveis de ambiente: o projeto não usa nenhuma em tempo
-> de build.
+### Variável de build (opcional)
+
+`VITE_SITE_URL` define o domínio usado nas tags `canonical` e Open Graph. Como o
+`index.html` é estático, essas tags precisam de URL absoluta para o card aparecer
+certo no WhatsApp, LinkedIn e X.
+
+```sh
+VITE_SITE_URL=https://dialo.seudominio.com.br
+```
+
+Defina no Coolify em **Environment Variables** antes do deploy. Sem ela, as URLs
+saem relativas (`/og-image.png`) — funciona no navegador, mas o preview do link
+fica sem imagem em algumas redes sociais.
 
 ## Autor
 

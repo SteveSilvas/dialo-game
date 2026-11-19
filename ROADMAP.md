@@ -113,8 +113,13 @@ construção, priorizadas por impacto.
 
 - [ ] Persistir o progresso (acertos, atividades concluídas) — o Jotai já está no projeto.
 - [ ] Tela de conclusão de módulo (parabéns / resumo de pontos) em vez de voltar direto.
-- [ ] `meta description` e tags Open Graph no `index.html` para compartilhamento.
-- [ ] `<title>` dinâmico por atividade (ajuda no histórico e na acessibilidade).
+- [x] `meta description` e tags Open Graph no `index.html` para compartilhamento.
+      Inclui `og:image` 1200×630 (`public/og-image.png`, 160 kB), `og:image:alt`,
+      `theme-color` e `twitter:card`. A URL absoluta vem de `VITE_SITE_URL`, aplicada
+      no build pelo plugin `site-url` do `vite.config.ts`.
+- [x] `<title>` dinâmico por atividade (ajuda no histórico e na acessibilidade).
+      `src/components/DocumentTitle` mapeia cada rota; rota desconhecida vira
+      "Página não encontrada | Dialo Game".
 - [ ] Módulo 02 (as rotas `modulo-02` já foram previstas e hoje caem no 404).
 
 ### 6. Qualidade e entrega

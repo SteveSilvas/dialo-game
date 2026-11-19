@@ -124,29 +124,31 @@ public class AuthController(
         return user is null ? Unauthorized() : Ok(ToResponse(user));
     }
 
-    private void SetRefreshCookie(AuthOutcome outcome)
-    {
-        // Secure/SameSite=None porque o front fica no Vercel e a API em outro
-        // domínio: sem isso o navegador não envia o cookie no cross-site.
-        Response.Cookies.Append(RefreshCookieName, outcome.RefreshToken!, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = _auth.RefreshCookieSecure,
-            SameSite = SameSiteMode.None,
-            Path = _auth.RefreshCookiePath,
-            Expires = outcome.RefreshTokenExpiresAt,
-            IsEssential = true,
-        });
-    }
+    private void SetRefreshCookie(AuthOutcome outcome) =>
+        Response.Cookies.Append(
+            RefreshCookieName,
+            outcome.RefreshToken!,
+            RefreshCookieOptions(outcome.RefreshTokenExpiresAt));
 
     private void ClearRefreshCookie() =>
-        Response.Cookies.Delete(RefreshCookieName, new CookieOptions
+        Response.Cookies.Delete(RefreshCookieName, RefreshCookieOptions());
+
+    /// <summary>
+    /// `SameSite=None` só é aceito pelo navegador junto com `Secure`; sem isso
+    /// o cookie é descartado em silêncio e o refresh nunca funcionaria em
+    /// desenvolvimento (http). Em produção o front e a API ficam em domínios
+    /// diferentes, então é `None` mesmo — daí a chave ser a mesma.
+    /// </summary>
+    private CookieOptions RefreshCookieOptions(DateTimeOffset? expires = null) =>
+        new()
         {
             HttpOnly = true,
             Secure = _auth.RefreshCookieSecure,
-            SameSite = SameSiteMode.None,
+            SameSite = _auth.RefreshCookieSecure ? SameSiteMode.None : SameSiteMode.Lax,
             Path = _auth.RefreshCookiePath,
-        });
+            Expires = expires,
+            IsEssential = true,
+        };
 
     private ObjectResult Failure(AuthFailure failure)
     {

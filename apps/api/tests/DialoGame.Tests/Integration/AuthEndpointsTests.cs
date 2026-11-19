@@ -253,6 +253,40 @@ public class AuthEndpointsTests(ApiFactory factory) : IClassFixture<ApiFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
+    /// <summary>
+    /// O navegador descarta `SameSite=None` que não venha com `Secure`. O
+    /// cookie handler do HttpClient não aplica essa regra, então só o header
+    /// revela o problema — sem este teste, o refresh quebrava em http e a
+    /// suíte passava.
+    /// </summary>
+    [Fact]
+    public async Task CookieDeRefreshNaoUsaSameSiteNoneSemSecure()
+    {
+        var client = factory.CreateClientWithCookies();
+        var username = UniqueName();
+
+        var (response, _) = await client.PostJsonAsync("/auth/register", new
+        {
+            username,
+            email = $"{username}@example.com",
+            password = "SenhaForte123",
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var setCookie = response.Headers
+            .GetValues("Set-Cookie")
+            .Single(cookie => cookie.StartsWith("dialo_refresh=", StringComparison.Ordinal));
+
+        var usesSameSiteNone = setCookie.Contains("samesite=none", StringComparison.OrdinalIgnoreCase);
+        var isSecure = setCookie.Contains("secure", StringComparison.OrdinalIgnoreCase);
+
+        // A fábrica de testes roda com RefreshCookieSecure=false (http).
+        isSecure.Should().BeFalse();
+        usesSameSiteNone.Should().BeFalse(
+            "SameSite=None sem Secure é descartado pelo navegador");
+    }
+
     [Fact]
     public async Task LogoutInvalidaORefresh()
     {

@@ -2,7 +2,7 @@ import React from 'react';
 
 interface SymbolsGridProps {
   items: string[];
-  removing?: string | null;
+  removing?: string[];
   className?: string;
   onSelect?: (item: string) => void;
   draggable?: boolean;
@@ -26,7 +26,7 @@ const SymbolsGrid: React.FC<SymbolsGridProps> = ({
       {items.map((item, index) => (
         <button
           key={`${item}-${index}`}
-          className={`button-simbols h-10 w-10 text-2xl sm:h-14 sm:w-14 sm:text-3xl md:h-16 md:w-16 md:text-4xl ${removing === item ? 'fade-out' : ''}`}
+          className={`button-simbols h-10 w-10 text-2xl sm:h-14 sm:w-14 sm:text-3xl md:h-16 md:w-16 md:text-4xl ${removing?.includes(item) ? 'fade-out' : ''}`}
           draggable={draggable}
           onDragStart={() => onDragStart?.(item)}
           onClick={() => onSelect?.(item)}

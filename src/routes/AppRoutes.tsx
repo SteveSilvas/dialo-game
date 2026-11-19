@@ -9,6 +9,7 @@ import Layout from '../components/layout';
 import Atividade05 from '../pages/modulo_01/atividade_05';
 import NotFound from '../pages/NotFound';
 import DocumentTitle from '../components/DocumentTitle';
+import Entrar from '../pages/entrar';
 
 
 const AppRoutes = () => {
@@ -18,6 +19,7 @@ const AppRoutes = () => {
             <Routes >
                 <Route path="/" element={<Layout />}>
                     <Route index element={<App />} />
+                    <Route path="/entrar" element={<Entrar />} />
                     <Route path="/modulo-01/" element={<Modulo01Home />} />
                     <Route path="/modulo-01/atividade-01" element={<Atividade01 />} />
                     <Route path="/modulo-01/atividade-02" element={<Atividade02 />} />

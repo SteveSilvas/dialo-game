@@ -149,15 +149,67 @@ registram o que foi feito e o que restou de manutenção pontual.
 - [x] **Open Graph sem imagem em produção** — `VITE_SITE_URL` não estava definida, então
       `og:image` saía relativa e o card do link não mostrava imagem. O build agora usa
       `VERCEL_PROJECT_PRODUCTION_URL` quando `VITE_SITE_URL` não existe.
+- [x] **Cookie de refresh descartado em desenvolvimento** — o `AuthController` emitia o
+      cookie com `SameSite=None` e `Secure=false` (o padrão em dev). O navegador recusa
+      essa combinação e joga o cookie fora sem avisar, então o login não sobrevivia a um
+      F5: o `POST /auth/refresh` chegava sem cookie e devolvia 401. Agora o `SameSite`
+      acompanha a flag `Auth:RefreshCookieSecure` (`None` em produção, `Lax` em http).
+      O teste de integração anterior usava o cookie handler do `HttpClient`, que não
+      aplica as regras do navegador — por isso passava. O novo
+      `CookieDeRefreshNaoUsaSameSiteNoneSemSecure` inspeciona o header `Set-Cookie`.
 - [x] **Bug no `reset()` de `useActivityProgress`**: o `setTimeout` da animação de saída
       não era cancelado. Se a criança acertasse um símbolo e tocasse em "reiniciar" antes
       de 1 s, o callback antigo rodava depois do reset e removia o símbolo recém-sorteado.
       Corrigido guardando o id do timer em `useRef`, limpando em `reset()` e no unmount.
       Coberto por `src/hooks/useActivityProgress.test.ts`.
 
+### 4.2 Integração front ↔ API
+
+- [x] **Camada de API no front** (`src/api/`): `client.ts` com `fetch`, token de acesso
+      em memória, `credentials: 'include'` para o cookie de refresh, renovação
+      automática no 401 (uma única vez, com promise compartilhada para não disparar
+      dois refreshes e invalidar o token rotacionado) e conversão de `ProblemDetails`
+      em `ApiError`. `auth.ts` e `catalog.ts` expõem as operações tipadas; `types.ts`
+      espelha os DTOs do C#.
+- [x] **Sessão restaurada no carregamento** — `useSessionRestore` roda uma vez no
+      `Layout` e usa o cookie de refresh para recuperar o login. Fica separado de
+      `useSession` de propósito: páginas que só leem a sessão não devem disparar refresh.
+- [x] **Modo convidado** — quem não tem conta joga normalmente. O `GET /catalog` é
+      anônimo e devolve a trilha sem progresso; as estrelas saem de
+      `src/utils/scoring.ts`, que espelha o `ScoreCalculator` do servidor, e o resultado
+      fica no `localStorage` (`src/state/guestProgress.ts`). A mescla usa a mesma regra
+      de desempate do servidor: mais acertos vence e, no empate, menos erros.
+- [x] **Importação ao entrar** — `POST /progress/import` envia o progresso de convidado
+      logo após o login e só então limpa o `localStorage`. Se a chamada falha, o
+      progresso local é preservado para a próxima tentativa.
+- [x] **Atividades registram o resultado** — `useActivityProgress` ganhou um callback
+      `onFinish`, guardado em ref para o efeito não reenviar o progresso a cada render.
+      `ActivityGrid` e a atividade 05 enviam o slug da atividade ao concluir.
+- [x] **Home do módulo vem da API** — títulos, ordem, estrelas e desbloqueio saem do
+      catálogo. Sem resposta da API, cai na trilha local e avisa que o progresso fica
+      no aparelho.
+- [x] **Tela de entrada** (`/entrar`) com login e cadastro, mostrando a mensagem que o
+      servidor devolve (senha inválida, usuário em uso, servidor fora do ar).
+- [x] **Relatório duplicado ao concluir** — depois de a criança acertar tudo, a grade
+      continua na tela com os itens errados. Clicar em um deles incrementava `errors`,
+      o efeito de conclusão rodava outra vez e reenviava o progresso com o placar pior.
+      Um `ref` de controle faz o relatório sair uma vez por conclusão; `reset()` libera
+      a próxima. Coberto por dois testes em `useActivityProgress.test.ts`.
+- [x] **Atividade de módulo bloqueado continuava clicável** — a home mostrava as
+      atividades da API sem olhar `isUnlocked`. O servidor recusaria o progresso com
+      403, então a criança chegava a uma tela que não podia concluir. Atividade de
+      módulo bloqueado agora aparece com cadeado e sem link.
+- [x] **Resiliência** — se a API cai durante a partida, o resultado é gravado localmente
+      em vez de perdido. Um 403 (módulo bloqueado) não é retentado: o catálogo do
+      servidor é que manda.
+- [x] **Testes da integração** — cliente HTTP, contratos do catálogo (nomes de campo
+      travados), progresso de convidado, hooks e tela de entrada. O front passou de 64
+      para 112 testes.
+
 ### 5. UX e produto
 
-- [ ] Persistir o progresso (acertos, atividades concluídas) — o Jotai já está no projeto.
+- [x] Persistir o progresso (acertos, atividades concluídas) — na conta via API e, sem
+      conta, no `localStorage` (ver *Integração front ↔ API*).
 - [ ] Tela de conclusão de módulo (parabéns / resumo de pontos) em vez de voltar direto.
 - [x] `meta description` e tags Open Graph no `index.html` para compartilhamento.
       Inclui `og:image` 1200×630 (`public/og-image.png`, 160 kB), `og:image:alt`,

@@ -4,9 +4,12 @@ import CustomButton from '../Button';
 import PanelPoints from '../PanelPoints';
 import SymbolsGrid from '../SymbolsGrid';
 import { useActivityProgress } from '../../hooks/useActivityProgress';
+import { useProgressReporter } from '../../hooks/useCatalog';
 import './index.css';
 
 interface ActivityGridProps {
+  /** Slug na API (`atividade-01`), usado para registrar o progresso. */
+  activitySlug: string;
   title: string;
   buildOptions: () => string[];
   isValid: (option: string) => boolean;
@@ -19,12 +22,15 @@ interface ActivityGridProps {
  * painel de pontos, grade de símbolos, botões de navegação e conclusão.
  */
 const ActivityGrid = ({
+  activitySlug,
   title,
   buildOptions,
   isValid,
   backHref,
   nextHref,
 }: ActivityGridProps) => {
+  const reportProgress = useProgressReporter();
+
   const {
     options,
     optionsFound,
@@ -34,7 +40,9 @@ const ActivityGrid = ({
     finish,
     selectOption,
     reset,
-  } = useActivityProgress(buildOptions, isValid);
+  } = useActivityProgress(buildOptions, isValid, (result) => {
+    void reportProgress(activitySlug, { ...result, completed: true });
+  });
 
   return (
     <main className="page px-2 py-4 gap-2 sm:gap-4">

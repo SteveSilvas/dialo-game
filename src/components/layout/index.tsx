@@ -4,8 +4,11 @@ import { useAtom } from "jotai";
 import { soundAtom } from "../../Context/SoundAtom";
 import SoundPlayer from "../SoundPlayer";
 import { BACKGROUND_MUSIC_SOURCES } from "../../utils/backgroundMusic";
+import { useSessionRestore } from "../../hooks/useSession";
 
 const Layout = () => {
+  // Restaura o login uma única vez, aqui: todas as páginas ficam dentro dele.
+  useSessionRestore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [sound] = useAtom(soundAtom);
 

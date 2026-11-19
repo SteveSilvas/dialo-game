@@ -13,6 +13,11 @@ const REMOVAL_DELAY_MS = 1000;
 export const useActivityProgress = (
   buildOptions: () => string[],
   isValid: (option: string) => boolean,
+  onFinish?: (result: {
+    bestScore: number;
+    attempts: number;
+    errors: number;
+  }) => void,
 ) => {
   const [options, setOptions] = useState<string[]>(buildOptions);
   const [optionsFound, setOptionsFound] = useState<string[]>([]);
@@ -28,11 +33,29 @@ export const useActivityProgress = (
     [optionsFound, options, isValid],
   );
 
+  // `onFinish` fica em ref para o efeito depender só de `finish`: com a função
+  // nas dependências, cada render do pai reenviaria o progresso da atividade.
+  const onFinishRef = useRef(onFinish);
   useEffect(() => {
-    if (finish) {
-      playSound(successSong);
-    }
-  }, [finish]);
+    onFinishRef.current = onFinish;
+  }, [onFinish]);
+
+  // Depois de concluir, a grade continua mostrando os itens errados: clicar em
+  // um deles incrementa `errors` e faria o efeito reenviar o resultado. O
+  // relatório sai uma vez por conclusão, e `reset` libera a próxima.
+  const reportedRef = useRef(false);
+
+  useEffect(() => {
+    if (!finish || reportedRef.current) return;
+
+    reportedRef.current = true;
+    playSound(successSong);
+    onFinishRef.current?.({
+      bestScore: optionsFound.length,
+      attempts: clicksCount,
+      errors,
+    });
+  }, [finish, optionsFound.length, clicksCount, errors]);
 
   const clearRemovalTimers = useCallback(() => {
     removalTimers.current.forEach((timer) => clearTimeout(timer));
@@ -69,6 +92,7 @@ export const useActivityProgress = (
   const reset = () => {
     // Sem isso, um timer pendente removeria um símbolo do novo sorteio.
     clearRemovalTimers();
+    reportedRef.current = false;
     setOptionsFound([]);
     setClicksCount(0);
     setErrors(0);

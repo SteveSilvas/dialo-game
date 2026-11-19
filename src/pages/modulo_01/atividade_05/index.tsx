@@ -5,6 +5,7 @@ import CustomButton from "../../../components/Button";
 import PanelPoints from "../../../components/PanelPoints";
 import SymbolsGrid from "../../../components/SymbolsGrid";
 import { useActivityProgress } from "../../../hooks/useActivityProgress";
+import { useProgressReporter } from "../../../hooks/useCatalog";
 import { generateAlphabetArray, generateSimbolsArray, shuffleArray } from "../../../utils/functions";
 import { isConsoante } from "../../../utils/validations";
 import './index.css';
@@ -13,6 +14,7 @@ const buildOptions = (): string[] =>
     shuffleArray([...generateAlphabetArray(), ...generateSimbolsArray()]);
 
 const Atividade05 = () => {
+    const reportProgress = useProgressReporter();
     const {
         options,
         optionsFound,
@@ -22,7 +24,9 @@ const Atividade05 = () => {
         finish,
         selectOption,
         reset,
-    } = useActivityProgress(buildOptions, isConsoante);
+    } = useActivityProgress(buildOptions, isConsoante, (result) => {
+        void reportProgress('atividade-05', { ...result, completed: true });
+    });
     const [draggingItem, setDraggingItem] = useState<string | null>(null);
 
     const handleDrop = () => {

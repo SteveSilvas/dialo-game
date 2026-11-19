@@ -8,6 +8,7 @@ const renderGrid = () =>
   render(
     <MemoryRouter>
       <ActivityGrid
+        activitySlug="atividade-01"
         title="SELECIONE AS LETRAS"
         buildOptions={() => ['A', '@']}
         isValid={isLetter}
@@ -33,6 +34,7 @@ describe('ActivityGrid', () => {
     render(
       <MemoryRouter>
         <ActivityGrid
+          activitySlug="atividade-01"
           title="SELECIONE AS LETRAS"
           buildOptions={() => ['a', '@']}
           isValid={isLetter}

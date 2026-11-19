@@ -27,6 +27,10 @@ Hoje o repositório tem duas partes: o **jogo** (Vite + React + TypeScript, publ
 - **Feedback imediato** — acertos e erros são reconhecidos na hora, com sons e contagem de pontos.
 - **Progressão clara** — módulos e atividades organizados em uma jornada de dificuldade crescente.
 - **Feito para crianças** — interface simples, botões grandes e cores vivas.
+- **Sem barreira de entrada** — a criança joga na hora, sem cadastro. A conta é
+  opcional e serve para levar o progresso de um aparelho para outro.
+- **Progresso que não se perde** — estrelas e atividades concluídas ficam salvas.
+  Sem conta, no próprio aparelho; com conta, no servidor.
 
 ## Habilidades desenvolvidas
 
@@ -47,16 +51,21 @@ Hoje o repositório tem duas partes: o **jogo** (Vite + React + TypeScript, publ
 4. Acompanhe seus **acertos**, **erros** e **tentativas** no painel de pontos.
 5. Ao concluir, avance para a próxima atividade.
 
+O cadastro é opcional. Quem entra com uma conta leva o progresso para outro
+aparelho; quem joga como convidado tem o progresso guardado no navegador e pode
+importá-lo depois, ao criar a conta.
+
 ## Módulos e atividades
 
-- **Módulo 01 — Reconhecer letras**
+- **Módulo 01 — Reconhecer símbolos**
   - Atividade 01 — Selecionar as letras
   - Atividade 02 — Selecionar os números
   - Atividade 03 — Selecionar as vogais
   - Atividade 04 — Selecionar as consoantes
-  - Atividade 05 — Desafio com arrastar-e-soltar
+  - Atividade 05 — Desafio das consoantes (arrastar-e-soltar)
 
-> Novos módulos e atividades estão em desenvolvimento.
+> Novos módulos e atividades estão em desenvolvimento. A trilha é carregada do
+> catálogo no servidor, então um módulo novo entra no ar sem publicar o front.
 
 ## Tecnologias
 
@@ -199,14 +208,17 @@ npm run lint
 npm test
 ```
 
-São 64 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
-navegação e o fluxo completo de cada atividade (acerto, erro, reinício e conclusão).
+São 112 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
+navegação, o fluxo completo de cada atividade (acerto, erro, reinício e conclusão)
+e a integração com a API: cliente HTTP com renovação de token, contratos do
+catálogo, progresso de convidado e a tela de entrada.
 
 ## API (`apps/api`)
 
-A API guarda contas, catálogo e progresso. Ela roda separada do front: o jogo
-continua funcionando sozinho, e o front passa a consumir a API quando a
-sincronização estiver ligada.
+A API guarda contas, catálogo e progresso. Ela roda separada do front, e o jogo
+**já consome** esses endpoints: a trilha vem do `/catalog` e cada atividade
+concluída é registrada no servidor. Se a API não responder, o jogo continua
+jogável em modo convidado e guarda o progresso no navegador.
 
 ### Subir tudo com Docker
 
@@ -292,6 +304,13 @@ quem valida é a API: gravar progresso em módulo bloqueado devolve `403`. As
 estrelas também são calculadas no servidor, a partir da precisão, para que o
 cliente não possa concedê-las a si mesmo.
 
+**Modo convidado.** Quem não quer criar conta joga normalmente: o `GET /catalog`
+responde sem progresso, as estrelas são calculadas no próprio navegador com a
+mesma regra do servidor (`src/utils/scoring.ts`) e o resultado fica no
+`localStorage`. Ao entrar ou criar conta, esse progresso é enviado para
+`POST /progress/import` e o servidor fica com a melhor tentativa de cada
+atividade. Por isso a conta é opcional, e não uma barreira na frente do jogo.
+
 ### Variáveis de ambiente
 
 Todas seguem o formato `Secao__Chave` do ASP.NET Core.
@@ -354,15 +373,18 @@ public/
 ├── audio/                # Música de fundo comprimida, servida como estático
 └── og-image.png          # Imagem do card de compartilhamento
 src/
+├── api/                  # Cliente HTTP e contratos da API (client, auth, catalog, types)
 ├── assets/               # Imagens, logos e efeitos sonoros curtos
 ├── components/           # Componentes reutilizáveis (Button, BoxRow, PanelPoints, ActivityGrid...)
 ├── Context/              # Estado global com Jotai
-├── hooks/                # Hooks reutilizáveis (useActivityProgress)
+├── hooks/                # Hooks reutilizáveis (useActivityProgress, useCatalog, useSession)
 ├── pages/                # Telas e atividades do jogo
+│   ├── entrar/           # Login e cadastro
 │   ├── modulo_01/        # Atividades do módulo 01
 │   └── NotFound/         # Página para rotas não encontradas
 ├── routes/               # Definição das rotas da aplicação
-├── utils/                # Funções auxiliares (validações, sons, geradores)
+├── state/                # Sessão e progresso de convidado (localStorage)
+├── utils/                # Funções auxiliares (validações, sons, geradores, pontuação)
 │   └── backgroundMusic.ts # Fontes da música de fundo (Opus + MP3)
 ├── index.css             # Tailwind + tema (paleta infantil) e estilos globais
 ├── App.tsx               # Tela inicial
@@ -434,7 +456,7 @@ Para hospedar no Coolify:
    não existe a variável do Vercel, então sem ela as tags de Open Graph saem
    relativas e o card do link fica sem imagem.
 
-### Variável de build (opcional)
+### Variáveis de build
 
 `VITE_SITE_URL` define o domínio usado nas tags `canonical` e Open Graph. Como o
 `index.html` é estático, essas tags precisam de URL absoluta para o card aparecer
@@ -447,6 +469,18 @@ VITE_SITE_URL=https://dialo.seudominio.com.br
 Defina no painel da plataforma antes do deploy. Sem ela (e fora do Vercel), as URLs
 saem relativas (`/og-image.png`) — funciona no navegador, mas o preview do link fica
 sem imagem em algumas redes sociais.
+
+`VITE_API_URL` aponta para a API. Sem ela, o front usa `http://localhost:5099`
+em desenvolvimento e a própria origem em produção. Como a API fica em outro
+domínio no deploy, defina-a lá — e libere o domínio do front em
+`Cors__AllowedOrigins__0`, senão o cookie de refresh não é aceito.
+
+```sh
+VITE_API_URL=https://api.dialo.seudominio.com.br
+```
+
+Ambas são lidas em tempo de build (veja `define` no `vite.config.ts`), então mudar
+o valor exige um novo deploy. O modelo está em `.env.example`.
 
 ### API em produção
 
@@ -466,14 +500,19 @@ acontece no startup, e não na primeira requisição.
 
 ## Roadmap
 
-O Módulo 01 está completo e a API já entrega contas, catálogo e progresso no
-servidor. O que falta é o front consumir esses endpoints: hoje o jogo ainda salva o
-progresso apenas na sessão do navegador, enquanto a API está pronta e testada.
+O Módulo 01 está completo e o front **já conversa com a API**: a trilha vem do
+catálogo do servidor, cada atividade concluída é registrada em
+`PUT /progress/activities/{slug}` e o progresso de convidado é importado ao
+entrar na conta. Sem conta, ou sem rede, o jogo segue funcionando e guarda o
+progresso no navegador.
 
-A expansão para uma plataforma de alfabetização — trilha com progressão entre
-módulos, contas com JWT e login Google, progresso salvo em Postgres — está
-detalhada em **[ROADMAP.md](./ROADMAP.md)**, com as issues de implementação abertas
-no GitHub. O histórico de auditoria e refatorações fica em
+O próximo passo é abrir os módulos seguintes no catálogo e levar as novas
+atividades para a mesma trilha.
+
+A trilha com progressão entre módulos, contas com JWT, login Google e progresso
+salvo em Postgres já está no ar; o que resta é conteúdo e as telas de conclusão.
+O detalhamento está em **[ROADMAP.md](./ROADMAP.md)**, com as issues abertas no
+GitHub. O histórico de auditoria e refatorações fica em
 [docs/historico-tecnico.md](./docs/historico-tecnico.md).
 
 O raciocínio da escolha de backend — alternativas avaliadas, versão escolhida e
@@ -485,8 +524,9 @@ consequências aceitas — está em
 **Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.
 
 Trabalho com desenvolvimento web de ponta a ponta: interface, estado, testes e
-deploy. Este projeto reúne o que faço no dia a dia aplicado a um problema real de
-educação infantil.
+deploy. Meu dia a dia é React e TypeScript no front e .NET com C# no back — que é
+exatamente o par de stacks deste projeto. O DIALO GAME reúne esse trabalho
+aplicado a um problema real de educação infantil.
 
 - GitHub: [@SteveSilvas](https://github.com/SteveSilvas)
 - Outros projetos: [github.com/SteveSilvas?tab=repositories](https://github.com/SteveSilvas?tab=repositories)

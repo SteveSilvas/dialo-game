@@ -30,5 +30,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss(), siteUrlPlugin(resolveSiteUrl(env))],
+    // A URL da API é fixada no bundle: `VITE_API_URL` em produção e
+    // `http://localhost:5099` no servidor de desenvolvimento.
+    define: {
+      __DIALO_API_URL__: JSON.stringify(env.VITE_API_URL ?? ''),
+      __DIALO_IS_DEV__: JSON.stringify(mode !== 'production'),
+    },
   }
 })

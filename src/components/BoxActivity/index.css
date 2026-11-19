@@ -8,14 +8,14 @@
     justify-content: center;
     padding: 5px;
     background-color: var(--infantil-6);
-    color: var(--infantil-2);
+    color: var(--ink);
     border-radius: 15px;
     border: 1px solid var(--infantil-2-tran);
   }
 
   .box-container:hover {
     background-color: var(--infantil-2);
-    color: var(--infantil-3);
+    color: var(--ink);
     border: 1px solid var(--infantil-1);
     cursor: pointer;
   }

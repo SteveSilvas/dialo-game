@@ -6,7 +6,7 @@
     border: 2px solid white;
     box-shadow: 0.3em 0.5em 0.3em #c3c3c3;
     background-color: var(--infantil-1);
-    color: var(--infantil-3);
+    color: var(--ink);
     text-align: center;
     text-decoration: none;
     font: inherit;
@@ -24,7 +24,7 @@
     border-radius: 15px;
     box-shadow: 0.3em 0.5em 0.5em var(--infantil-4-tran);
     background-color: var(--infantil-4);
-    color: var(--infantil-3);
+    color: var(--ink);
   }
 
   .button:focus,

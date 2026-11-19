@@ -34,7 +34,7 @@ function App() {
             <TiMediaPlay
               className="text-3xl sm:text-4xl md:text-5xl"
               style={{
-                color: 'var(--infantil-6)'
+                color: 'var(--ink)'
               }}
             />
           }

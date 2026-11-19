@@ -56,7 +56,7 @@ const ActivityGrid = ({
           leftIcon={
             <TiRefresh
               className="text-2xl sm:text-3xl md:text-4xl"
-              style={{ color: 'white' }}
+              style={{ color: 'var(--ink)' }}
             />
           }
         />
@@ -75,7 +75,7 @@ const ActivityGrid = ({
         <CustomButton
           href="/"
           ariaLabel="Ir para o início"
-          leftIcon={<TiHome style={{ fontSize: '3rem', color: 'white' }} />}
+          leftIcon={<TiHome style={{ fontSize: '3rem', color: 'var(--ink)' }} />}
         />
         <CustomButton
           text="VOLTAR"
@@ -85,7 +85,7 @@ const ActivityGrid = ({
               style={{
                 left: '0.5rem',
                 fontSize: '3rem',
-                color: 'var(--infantil-6)',
+                color: 'var(--ink)',
               }}
             />
           }
@@ -96,7 +96,7 @@ const ActivityGrid = ({
             href={nextHref}
             rightIcon={
               <TiArrowRightThick
-                style={{ fontSize: '3rem', color: 'var(--infantil-6)' }}
+                style={{ fontSize: '3rem', color: 'var(--ink)' }}
               />
             }
           />

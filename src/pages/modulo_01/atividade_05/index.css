@@ -94,14 +94,14 @@
     display: inline-block;
     cursor: pointer;
     transition: 0.7s;
-    color: white;
+    color: var(--ink);
   }
 
   .button-simbols:hover {
     box-shadow: 0.3em 0.5em 0.5em var(--infantil-1);
     border: 3px solid rgba(255, 255, 255, 1);
     background-color: var(--infantil-1);
-    color: white;
+    color: var(--ink);
   }
 
   button:focus,

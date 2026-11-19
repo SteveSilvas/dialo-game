@@ -112,6 +112,18 @@ construção, priorizadas por impacto.
 
 ### 4.1 Correções aplicadas
 
+- [x] **Clique duplo inflava a pontuação** — durante o 1 s de animação de saída, um
+      segundo clique no mesmo símbolo adicionava o item duas vezes em `optionsFound` e
+      contava duas tentativas. Um único timer compartilhado também fazia o segundo
+      clique cancelar a remoção do primeiro, devolvendo à grade um símbolo já acertado.
+      Agora cada item tem seu próprio timer e itens em saída ignoram novos cliques.
+- [x] **Recarregar rota interna dava 404 em produção** — o `nginx.conf` tinha o
+      *fallback* de SPA, mas o deploy real é no Vercel, que não lê esse arquivo. Sem
+      `vercel.json`, `/modulo-01` e `/modulo-01/atividade-01` devolviam 404 no F5 e em
+      links compartilhados. Adicionado o rewrite para `index.html`.
+- [x] **Open Graph sem imagem em produção** — `VITE_SITE_URL` não estava definida, então
+      `og:image` saía relativa e o card do link não mostrava imagem. O build agora usa
+      `VERCEL_PROJECT_PRODUCTION_URL` quando `VITE_SITE_URL` não existe.
 - [x] **Bug no `reset()` de `useActivityProgress`**: o `setTimeout` da animação de saída
       não era cancelado. Se a criança acertasse um símbolo e tocasse em "reiniciar" antes
       de 1 s, o callback antigo rodava depois do reset e removia o símbolo recém-sorteado.
@@ -137,6 +149,6 @@ construção, priorizadas por impacto.
       geradores de arrays e o fluxo da atividade 01 (`npm test`).
 - [x] Configurar CI (GitHub Actions) rodando `lint` + `test` + `build` em cada PR,
       com badge de status no README.
-- [ ] Configurar deploy automático (GitHub Pages/Vercel) a partir do `master`.
-      Hoje o deploy é feito pelo Coolify via `Dockerfile` + `nginx`, fora do GitHub Actions.
+- [x] Deploy automático no Vercel a partir do `master` (cada PR gera preview).
+      O `Dockerfile` + `nginx.conf` continuam válidos para hospedagem em container.
 - [ ] Adicionar `strict` já está ativo; avaliar `noUncheckedIndexedAccess` no tsconfig.

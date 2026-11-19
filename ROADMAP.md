@@ -51,27 +51,35 @@ adulto.
 
 ---
 
-## 3. Decisão pendente: stack do backend
+## 3. Stack do backend: .NET 10 + EF Core
 
-Esta é a **única decisão bloqueante** do roadmap. Tudo o mais pode começar.
+**Decidido: .NET 10 (LTS) com ASP.NET Core e EF Core.**
 
-O requisito é Postgres com *Code First*, JWT e login Google. Há dois caminhos
-naturais:
-
-| | **A — Node + TypeScript** (recomendado) | **B — .NET + EF Core** |
+| Item | Escolha | Por quê |
 | --- | --- | --- |
-| Framework | Fastify ou NestJS | ASP.NET Core |
-| ORM *code first* | Prisma (`schema.prisma` → migration) | EF Core (migrations) |
-| Linguagem | TS no back e no front | C# no back, TS no front |
-| Tipos compartilhados | Direto (`packages/shared` + zod) | Precisa gerar/duplicar |
-| CI | Um único toolchain (Node 26 já configurado) | Dois toolchains |
+| Runtime | **.NET 10 (LTS)** | Suporte até nov/2028. .NET 8 LTS saiu de suporte e .NET 11 é STS — nenhum dos dois serve |
+| Framework | ASP.NET Core Web API | Minimal APIs ou Controllers, ambos no mesmo runtime |
+| ORM | **EF Core** com migrations | *Code First*: classes C# → `dotnet ef migrations add` → banco |
+| Banco | PostgreSQL | `Npgsql.EntityFrameworkCore.PostgreSQL` |
+| Autenticação | JWT via `Microsoft.AspNetCore.Authentication.JwtBearer` | Access token + refresh próprio |
+| Hash de senha | `Argon2` (lib externa) ou `PasswordHasher<T>` do ASP.NET Core | Ver issue #16 |
+| Testes | xUnit + `Microsoft.AspNetCore.Mvc.Testing` | Testes de integração com a API real |
+| Validação | Data Annotations + FluentValidation | Regras de username, email e senha |
 
-**Recomendação: A.** Unifica a linguagem, permite compartilhar os tipos do catálogo
-e das respostas da API com o front, e reaproveita o Node 26 e o CI que já existem.
-A perda é não usar EF Core, que é o ORM *code first* mais maduro do mercado.
+O front continua em Vite + React + TypeScript no Vercel. A API roda em container
+(.NET é multi-plataforma e a imagem `mcr.microsoft.com/dotnet/aspnet:10.0` já vem
+pronta).
 
-> Se a preferência for **B**, os épicos de backend mudam de stack; os de produto,
-> trilha e conteúdo não mudam.
+### Consequência aceita: dois runtimes no CI
+
+O repositório passa a ter Node (front) e .NET (API). Isso custa um pouco de
+complexidade no CI, mas o ganho é usar o ORM *code first* mais maduro do mercado e
+a tipagem forte do C# no domínio de progresso e desbloqueio.
+
+Para reduzir o atrito, os **tipos compartilhados** entre front e back não são gerados
+a partir do C#: o contrato é o **OpenAPI** (issue #13), e o front consome os tipos
+gerados dele. Assim a API pode evoluir sem acoplar o build do front ao `dotnet`.
+
 
 ---
 
@@ -79,15 +87,16 @@ A perda é não usar EF Core, que é o ORM *code first* mais maduro do mercado.
 
 ```
 ┌─────────────────────────────┐        ┌──────────────────────────┐
-│  Frontend (Vite + React)    │        │  Backend (API REST)      │
-│  Vercel                     │        │  container / PaaS        │
-│                             │        │                          │
-│  • Trilha (árvore vertical) │  HTTPS │  • Auth (JWT + Google)   │
-│  • Atividades               │ ─────► │  • Catálogo de módulos   │
-│  • Estado (Jotai)           │  JSON  │  • Progresso             │
-│  • Convidado (localStorage) │        │  • Regras de desbloqueio │
+│  Frontend (Vite + React)    │        │  Backend (.NET 10)       │
+│  Vercel                     │        │  ASP.NET Core Web API    │
+│                             │        │  container               │
+│  • Trilha (árvore vertical) │  HTTPS │                          │
+│  • Atividades               │ ─────► │  • Auth (JWT + Google)   │
+│  • Estado (Jotai)           │  JSON  │  • Catálogo de módulos   │
+│  • Convidado (localStorage) │        │  • Progresso             │
+│  • Tipos do OpenAPI         │        │  • Regras de desbloqueio │
 └─────────────────────────────┘        └───────────┬──────────────┘
-                                                    │ SQL
+                                                    │ EF Core
                                         ┌───────────▼──────────────┐
                                         │  PostgreSQL              │
                                         │  (migrations code first) │
@@ -107,31 +116,84 @@ mesclado (fica o maior valor por atividade).
 
 ---
 
-## 5. Modelo de dados (code first)
+## 5. Modelo de dados (EF Core, code first)
 
+Entidades C# que geram o schema por migration. `Module` e `Activity` são
+**catálogo**, não conteúdo do usuário.
+
+```csharp
+public class User
+{
+    public Guid Id { get; set; }
+    public string Username { get; set; }      // único, case-insensitive
+    public string? Email { get; set; }        // único quando presente
+    public string? PasswordHash { get; set; } // nulo se só Google
+    public string? GoogleId { get; set; }
+    public string? DisplayName { get; set; }
+    public string? AvatarUrl { get; set; }
+    public UserRole Role { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+    public ICollection<ActivityProgress> Progress { get; set; } = [];
+}
+
+public class RefreshToken
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public string TokenHash { get; set; }     // nunca o token em claro
+    public DateTimeOffset ExpiresAt { get; set; }
+    public DateTimeOffset? RevokedAt { get; set; }
+    public string? UserAgent { get; set; }
+}
+
+public class Module
+{
+    public Guid Id { get; set; }
+    public string Slug { get; set; }          // único
+    public int Order { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public string Concept { get; set; }
+
+    public ICollection<Activity> Activities { get; set; } = [];
+}
+
+public class Activity
+{
+    public Guid Id { get; set; }
+    public Guid ModuleId { get; set; }
+    public string Slug { get; set; }          // único
+    public int Order { get; set; }
+    public string Title { get; set; }
+    public ActivityType Type { get; set; }
+    public string Config { get; set; }        // JSONB: o que varia por atividade
+    public bool IsRequired { get; set; } = true;
+}
+
+public class ActivityProgress
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public Guid ActivityId { get; set; }
+    public int BestScore { get; set; }
+    public int Attempts { get; set; }
+    public int Errors { get; set; }
+    public int Stars { get; set; }            // 0–3
+    public DateTimeOffset? CompletedAt { get; set; }
+    // índice único em (UserId, ActivityId)
+}
 ```
-User             id, username* (único), email* (único, opcional p/ Google),
-                 passwordHash (nulo se só Google), googleId, displayName,
-                 avatarUrl, role, createdAt
 
-RefreshToken     id, userId, tokenHash, expiresAt, revokedAt, userAgent
+`ModuleProgress` é **derivado**, não persistido: um módulo está concluído quando
+todas as atividades com `IsRequired = true` têm `CompletedAt` preenchido. Calcular
+sob demanda evita dado duplicado que sai de sincronia.
 
-Module           id, slug* (único), order, title, description, concept
+`Config` (JSONB) guarda o que varia por tipo de atividade (alfabeto alvo, pares de
+rima, banco de palavras), sem alterar o schema a cada atividade nova. No EF Core
+isso é mapeado para `jsonb` com `HasColumnType("jsonb")`.
 
-Activity         id, moduleId, slug* (único), order, title, type, config (JSONB)
-
-ActivityProgress id, userId, activityId, bestScore, attempts, errors,
-                 stars (0–3), completedAt
-                 └ único por (userId, activityId)
-
-ModuleProgress   derivado: módulo concluído quando todas as atividades
-                 obrigatórias têm completedAt
-```
-
-`Module` e `Activity` são **catálogo**, não conteúdo do usuário: entram por seed a
-partir de um arquivo versionado no repositório, para que o conteúdo seja revisável
-em PR. `config` (JSONB) guarda o que varia por tipo de atividade (alfabeto alvo,
-pares de rima, banco de palavras), sem alterar o schema a cada atividade nova.
 
 ---
 
@@ -222,10 +284,10 @@ Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 
 | Issue | Entrega |
 | --- | --- |
-| ADR: stack do backend | Documento com a decisão A/B da seção 3 |
+| ADR: registrar .NET 10 + EF Core | `docs/adr/0001-stack-backend.md` com a decisão da seção 3 |
 | Contrato OpenAPI + modelo de dados | `docs/api/openapi.yaml` e diagrama ER |
-| Estrutura do monorepo | `apps/web`, `apps/api`, `packages/shared` |
-| Postgres local + primeira migration | `docker compose` com Postgres e migration inicial |
+| Estrutura do monorepo | `apps/web`, `apps/api` (.NET), `packages/shared` |
+| Postgres local + primeira migration | `docker compose` com Postgres e `dotnet ef migrations add` |
 
 ### Fase 1 — Contas e autenticação (P0)
 
@@ -280,14 +342,14 @@ Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 
 | # | Questão | Impacto |
 | --- | --- | --- |
-| 1 | Stack do backend: Node/TS ou .NET/EF Core (seção 3) | Bloqueia a Fase 0 |
-| 2 | Estrelas por atividade: por acertos, por tempo ou por tentativas? | Modelo de dados |
-| 3 | A criança tem login próprio ou sempre entra pelo adulto? | UX de cadastro |
-| 4 | Conclusão do módulo exige 100% das atividades ou uma nota mínima? | Regra de desbloqueio |
-| 5 | Domínio próprio para o site e a API? | Cookies e CORS |
+| 1 | Estrelas por atividade: por acertos, por tempo ou por tentativas? | Modelo de dados |
+| 2 | A criança tem login próprio ou sempre entra pelo adulto? | UX de cadastro |
+| 3 | Conclusão do módulo exige 100% das atividades ou uma nota mínima? | Regra de desbloqueio |
+| 4 | Domínio próprio para o site e a API? | Cookies e CORS |
+| 5 | Hash de senha: `Argon2` (lib externa) ou `PasswordHasher<T>` do ASP.NET Core? | Issue #16 |
 
-As decisões 2–4 têm um padrão proposto nas issues; podem ser ajustadas durante a
-implementação sem retrabalho estrutural.
+A stack do backend está decidida (seção 3). As decisões acima têm um padrão proposto
+nas issues; podem ser ajustadas durante a implementação sem retrabalho estrutural.
 
 ---
 
@@ -310,5 +372,5 @@ implementação sem retrabalho estrutural.
 | Login ser barreira para a criança | Modo convidado com o Módulo 01 completo |
 | Progresso perdido gera frustração | Sincronização otimista + fila local de escrita |
 | Conteúdo pedagógico sem validação | Revisão por educador antes de publicar cada módulo |
-| Custo de manter dois runtimes | Argumento a favor da stack A (seção 3) |
+| Custo de manter dois runtimes (Node + .NET) | Aceito conscientemente; contrato OpenAPI desacopla front e back |
 | Vazar dados de crianças | Coletar o mínimo: username, e-mail do adulto, sem data de nascimento |

@@ -49,7 +49,7 @@ const Atividade05 = () => {
                     leftIcon={
                         <TiRefresh
                             className="text-2xl sm:text-3xl"
-                            style={{ color: 'white' }}
+                            style={{ color: 'var(--ink)' }}
                         />
                     }
                 />
@@ -85,7 +85,7 @@ const Atividade05 = () => {
                 <CustomButton
                     href="/"
                     ariaLabel="Ir para o início"
-                    leftIcon={<TiHome className="text-2xl sm:text-3xl" style={{ color: 'white' }} />}
+                    leftIcon={<TiHome className="text-2xl sm:text-3xl" style={{ color: 'var(--ink)' }} />}
                 />
                 <CustomButton
                     text="VOLTAR"
@@ -93,7 +93,7 @@ const Atividade05 = () => {
                     leftIcon={
                         <TiArrowLeftThick
                             className="text-2xl sm:text-3xl"
-                            style={{ left: '0.5rem', color: 'var(--infantil-6)' }}
+                            style={{ left: '0.5rem', color: 'var(--ink)' }}
                         />
                     }
                 />
@@ -104,7 +104,7 @@ const Atividade05 = () => {
                         rightIcon={
                             <TiArrowRightThick
                                 className="text-2xl sm:text-3xl"
-                                style={{ color: 'var(--infantil-6)' }}
+                                style={{ color: 'var(--ink)' }}
                             />
                         }
                     />

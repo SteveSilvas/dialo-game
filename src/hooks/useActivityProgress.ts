@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import errorSong from '../assets/error-8-206492.mp3';
 import successSong from '../assets/goodresult-82807.mp3';
 import selectSong from '../assets/select-sound-121244.mp3';
@@ -19,6 +19,7 @@ export const useActivityProgress = (
   const [removing, setRemoving] = useState<string | null>(null);
   const [clicksCount, setClicksCount] = useState(0);
   const [errors, setErrors] = useState(0);
+  const removalTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const finish = useMemo(
     () => optionsFound.length > 0 && options.every((item) => !isValid(item)),
@@ -31,6 +32,15 @@ export const useActivityProgress = (
     }
   }, [finish]);
 
+  const clearRemovalTimer = useCallback(() => {
+    if (removalTimer.current !== null) {
+      clearTimeout(removalTimer.current);
+      removalTimer.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearRemovalTimer, [clearRemovalTimer]);
+
   const selectOption = (option: string) => {
     setClicksCount((count) => count + 1);
 
@@ -42,7 +52,9 @@ export const useActivityProgress = (
 
     playSound(selectSong);
     setRemoving(option);
-    setTimeout(() => {
+    clearRemovalTimer();
+    removalTimer.current = setTimeout(() => {
+      removalTimer.current = null;
       setOptionsFound((found) => [...found, option]);
       setOptions((current) => current.filter((item) => item !== option));
       setRemoving(null);
@@ -50,9 +62,12 @@ export const useActivityProgress = (
   };
 
   const reset = () => {
+    // Sem isso, um timer pendente removeria um símbolo do novo sorteio.
+    clearRemovalTimer();
     setOptionsFound([]);
     setClicksCount(0);
     setErrors(0);
+    setRemoving(null);
     setOptions(buildOptions());
   };
 

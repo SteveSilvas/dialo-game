@@ -76,12 +76,22 @@ construção, priorizadas por impacto.
       empilham no mobile. `100vw` trocado por `100%` (evitava rolagem horizontal).
 - [x] Adicionar `aria-label` em todos os botões que só têm ícone (home, refresh, setas),
       via prop `ariaLabel` no `CustomButton`; o toggle de som expõe estado com `aria-pressed`.
-- [ ] Revisar contraste. Medições atuais (WCAG, texto normal exige 4.5:1):
-      - botão normal: `--infantil-3` sobre `--infantil-1` → **1.84:1**
-      - botão hover: `--infantil-3` sobre `--infantil-4` → **1.40:1**
-      - `LabelValue` normal: `--infantil-2` sobre branco → **2.20:1**
-      - `LabelValue`/`BoxActivity` hover: `--infantil-3` sobre `--infantil-2` → **1.89:1**
-      Todos falham. O texto de `.page` (`#213547` sobre `--infantil-3`) está OK (10.86:1).
+- [x] Revisar contraste. Texto passou de tons claros sobre pastel para `--ink`
+      (`#213547`), que mantém >= 4.5:1 sobre toda a paleta. Medições finais:
+
+      | Elemento | Antes | Depois |
+      | --- | --- | --- |
+      | `.button` normal | 1.84:1 | **5.91:1** |
+      | `.button` hover | 1.40:1 | **7.75:1** |
+      | `.button-simbols` | 2.13:1 | **5.91:1** |
+      | `.button-sound` | 1.03:1 | **5.91:1** |
+      | `.box-container` / `.label-container` normal | 2.20:1 | **12.61:1** |
+      | `.box-container` / `.label-container` hover | 1.89:1 | **5.74:1** |
+      | Ícones inline (antes `white`) | 2.13:1 | **5.91:1** |
+      | Links | 4.09:1 | **12.61:1** |
+
+      A paleta pastel não mudou — só a cor do texto. `src/utils/contrast.test.ts`
+      trava esses pares para não regredirem.
 - [x] Associar `<label>` a controles com `htmlFor`/`id` — o projeto não tem nenhum
       `<input>`/`<select>`/`<textarea>`; não há o que rotular.
 - [x] Respeitar `prefers-reduced-motion`: animações e transições são reduzidas a 0,01ms
@@ -100,14 +110,13 @@ construção, priorizadas por impacto.
       reutilizar as instâncias. Hoje o `play()` também ignora a promessa rejeitada, o que
       gera `UnhandledPromiseRejection` quando o navegador bloqueia o áudio.
 
-### 4.1 Correções pendentes
+### 4.1 Correções aplicadas
 
-- [ ] **Bug no `reset()` de `useActivityProgress`**: o `setTimeout` da animação de saída
-      não é cancelado. Se a criança acertar um símbolo e tocar em "reiniciar" antes de
-      1 s, o callback antigo roda depois do reset e remove o símbolo recém-sorteado
-      (`options` volta sem ele e `optionsFound` fica inconsistente). Confirmado com teste
-      reproduzindo o fluxo. Correção: guardar o id do timer em um `useRef` e limpar em
-      `reset()` e no unmount.
+- [x] **Bug no `reset()` de `useActivityProgress`**: o `setTimeout` da animação de saída
+      não era cancelado. Se a criança acertasse um símbolo e tocasse em "reiniciar" antes
+      de 1 s, o callback antigo rodava depois do reset e removia o símbolo recém-sorteado.
+      Corrigido guardando o id do timer em `useRef`, limpando em `reset()` e no unmount.
+      Coberto por `src/hooks/useActivityProgress.test.ts`.
 
 ### 5. UX e produto
 

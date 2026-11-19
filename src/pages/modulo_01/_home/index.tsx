@@ -60,7 +60,7 @@ const Modulo01Home = () => {
                     ariaLabel="Ir para o início"
                     leftIcon={
                         <TiHome className="text-2xl sm:text-3xl" style={{
-                            color: 'white'
+                            color: 'var(--ink)'
                         }} />}
                 />
                 <Link

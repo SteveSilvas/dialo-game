@@ -205,6 +205,10 @@ src/
 └── main.tsx              # Ponto de entrada da aplicação
 ```
 
+Na raiz ficam os arquivos de entrega: `vercel.json` (deploy no Vercel),
+`Dockerfile` + `nginx.conf` + `docker-compose.yml` (deploy em container) e
+`.github/workflows/ci.yml` (lint, testes e build).
+
 ## Performance do bundle
 
 A música de fundo saiu do bundle: antes ela era importada em dois componentes e
@@ -222,12 +226,30 @@ O navegador só pede um dos dois arquivos: ~654 kB no Opus, ~587 kB no MP3.
 
 ## Deploy
 
-A aplicação é um SPA estático (Vite) e já vem pronta para rodar em container. O
-`Dockerfile` faz o build em duas etapas (Node → nginx) e o `nginx.conf` inclui o
-*fallback* de SPA, essencial para que rotas como `/modulo-01/atividade-03` funcionem
-ao recarregar a página.
+A aplicação é um SPA estático (Vite). O ponto crítico de qualquer hospedagem é o
+*fallback* de SPA: sem ele, recarregar `/modulo-01/atividade-03` devolve 404, porque
+não existe um arquivo nesse caminho — o React Router resolve a rota no cliente.
+Cada plataforma abaixo já está configurada no repositório.
 
-### Rodar localmente com Docker
+### Vercel (produção atual)
+
+O site está em **[dialo-game.vercel.app](https://dialo-game.vercel.app)**. O `vercel.json`
+traz o rewrite que manda qualquer rota para o `index.html`, além dos cabeçalhos de
+cache (assets com hash por 1 ano, áudio por 7 dias) e de segurança.
+
+1. Importe o repositório em [vercel.com/new](https://vercel.com/new).
+2. O Vercel detecta o Vite sozinho. Não é preciso configurar comando nem diretório.
+3. Cada `git push` no `master` publica em produção; cada PR ganha uma URL de preview.
+
+Não é necessário definir `VITE_SITE_URL`: em produção o Vercel expõe
+`VERCEL_PROJECT_PRODUCTION_URL` e o `vite.config.ts` monta a URL absoluta a partir
+dela. Para usar domínio próprio, defina `VITE_SITE_URL` nas *Environment Variables*
+do projeto — ela tem prioridade.
+
+### Coolify (container)
+
+O repositório também roda em container: o `Dockerfile` faz o build em duas etapas
+(Node → nginx) e o `nginx.conf` inclui o mesmo *fallback* de SPA.
 
 ```sh
 docker compose up --build
@@ -235,17 +257,18 @@ docker compose up --build
 
 Acesse [http://localhost:8080](http://localhost:8080).
 
-### Hospedar no Coolify
+Para hospedar no Coolify:
 
 1. **New Resource → Application → Public Repository** e aponte para
    `https://github.com/SteveSilvas/dialo-game` (branch `master`).
-2. Em **Build Pack**, escolha **Dockerfile** (o repositório já traz o `Dockerfile`
-   na raiz; o `docker-compose.yml` também é detectado se preferir Compose).
+2. Em **Build Pack**, escolha **Dockerfile** (o `docker-compose.yml` também é
+   detectado, se preferir Compose).
 3. **Ports Exposes**: `80` (a imagem serve o nginx nessa porta).
-4. **Domain**: informe o domínio desejado (ex.: `dialo.seudominio.com.br`). O Coolify
-   emite o certificado TLS automaticamente.
-5. Clique em **Deploy**. A cada `git push` na branch configurada o Coolify refaz o
-   build e publica a nova versão.
+4. **Domain**: informe o domínio desejado. O Coolify emite o certificado TLS
+   automaticamente.
+5. Em **Environment Variables**, defina `VITE_SITE_URL` com o domínio final — aqui
+   não existe a variável do Vercel, então sem ela as tags de Open Graph saem
+   relativas e o card do link fica sem imagem.
 
 ### Variável de build (opcional)
 
@@ -257,9 +280,17 @@ certo no WhatsApp, LinkedIn e X.
 VITE_SITE_URL=https://dialo.seudominio.com.br
 ```
 
-Defina no Coolify em **Environment Variables** antes do deploy. Sem ela, as URLs
-saem relativas (`/og-image.png`) — funciona no navegador, mas o preview do link
-fica sem imagem em algumas redes sociais.
+Defina no painel da plataforma antes do deploy. Sem ela (e fora do Vercel), as URLs
+saem relativas (`/og-image.png`) — funciona no navegador, mas o preview do link fica
+sem imagem em algumas redes sociais.
+
+## Roadmap
+
+O Módulo 01 está completo. A expansão para uma plataforma de alfabetização — trilha
+com progressão entre módulos, contas com JWT e login Google, progresso salvo em
+Postgres — está planejada em **[ROADMAP.md](./ROADMAP.md)**, com as issues de
+implementação abertas no GitHub. O histórico de auditoria e refatorações fica em
+[docs/historico-tecnico.md](./docs/historico-tecnico.md).
 
 ## Autor
 

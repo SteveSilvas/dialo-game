@@ -1,21 +1,15 @@
 import logo from './assets/logo_orange.png';
 import './App.css';
-import arquivoAudio from './assets/soudMr.mp3';
 import CustomButton from './components/Button';
 import { TiMediaPlay } from 'react-icons/ti';
 import { useAtom } from 'jotai';
 import { soundAtom } from './Context/SoundAtom';
-import { useRef } from 'react';
+
 function App() {
-  const audioRef = useRef(new Audio(arquivoAudio));
   const [, setSound] = useAtom(soundAtom);
 
   const handleStartSound = () => {
-    setSound({
-      name: 'sound',
-      src: audioRef.current.src,
-      isActive: true,
-    });
+    setSound({ isActive: true });
   };
 
   return (

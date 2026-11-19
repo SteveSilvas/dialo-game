@@ -12,7 +12,10 @@
     "lint": "eslint .",
     "test": "jest",
     "test:watch": "jest --watch",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audio:build": "npm run audio:opus && npm run audio:mp3",
+    "audio:opus": "ffmpeg -y -hide_banner -loglevel error -i audio-src/fundo-master.mp3 -map_metadata -1 -ac 1 -c:a libopus -b:a 40k -vbr on public/audio/fundo.ogg",
+    "audio:mp3": "ffmpeg -y -hide_banner -loglevel error -i audio-src/fundo-master.mp3 -map_metadata -1 -ac 1 -c:a libmp3lame -b:a 40k -ar 24000 public/audio/fundo.mp3"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0",

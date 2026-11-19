@@ -1,26 +1,36 @@
 import { Outlet } from "react-router-dom";
 import { useEffect, useRef } from "react";
-import { soundAtom } from "../../Context/SoundAtom";
 import { useAtom } from "jotai";
+import { soundAtom } from "../../Context/SoundAtom";
 import SoundPlayer from "../SoundPlayer";
-import arquivoAudio from "../../assets/soudMr.mp3";
+import { BACKGROUND_MUSIC_SOURCES } from "../../utils/backgroundMusic";
+
 const Layout = () => {
-  const audioRef = useRef(new Audio(arquivoAudio));
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [sound] = useAtom(soundAtom);
 
   useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
     if (sound.isActive) {
-      audioRef.current.src = sound.src;
-      void audioRef.current.play();
+      // O play só acontece depois do gesto em "INICIAR"; se o navegador
+      // bloquear, o botão de som continua disponível para nova tentativa.
+      void audio.play().catch(() => undefined);
     } else {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+      audio.pause();
+      audio.currentTime = 0;
     }
-  }, [sound]);
+  }, [sound.isActive]);
 
   return (
     <>
       <SoundPlayer />
+      <audio ref={audioRef} loop preload="none">
+        {BACKGROUND_MUSIC_SOURCES.map(({ src, type }) => (
+          <source key={src} src={src} type={type} />
+        ))}
+      </audio>
       <Outlet />
     </>
   );

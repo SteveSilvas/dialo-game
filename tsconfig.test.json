@@ -6,13 +6,13 @@
     "types": ["jest", "@testing-library/jest-dom", "node"],
     "module": "CommonJS",
     "moduleResolution": "node",
-    "allowJs": true,
     "baseUrl": ".",
     "paths": {
       "jotai": ["./node_modules/jotai/dist/index.d.ts"],
       "jotai/*": ["./node_modules/jotai/dist/*"]
     },
     "esModuleInterop": true,
+    "allowJs": true,
     "verbatimModuleSyntax": false,
     "allowImportingTsExtensions": false,
     "isolatedModules": false,

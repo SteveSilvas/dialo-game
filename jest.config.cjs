@@ -17,7 +17,8 @@ module.exports = {
     '\\.(png|jpe?g|gif|svg|webp|ico)$': '<rootDir>/test/fileMock.ts',
     '\\.(mp3|wav|ogg|m4a|mp4)$': '<rootDir>/test/fileMock.ts',
   },
-  transformIgnorePatterns: ['/node_modules/(?!jotai)/'],
+  // O jotai publica apenas ESM; precisa ser transpilado para CommonJS no Jest.
+  transformIgnorePatterns: ['/node_modules/(?!jotai/)'],
   transform: {
     '^.+\\.js$': [
       'ts-jest',

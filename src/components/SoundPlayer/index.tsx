@@ -3,6 +3,7 @@ import { soundAtom } from "../../Context/SoundAtom";
 import CustomButton from "../Button";
 import "./styles.css";
 import { TiNotes, TiVolumeMute } from "react-icons/ti";
+
 const SoundPlayer = () => {
   const [sound, setSound] = useAtom(soundAtom);
 

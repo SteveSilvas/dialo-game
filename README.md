@@ -284,6 +284,14 @@ Defina no painel da plataforma antes do deploy. Sem ela (e fora do Vercel), as U
 saem relativas (`/og-image.png`) — funciona no navegador, mas o preview do link fica
 sem imagem em algumas redes sociais.
 
+## Roadmap
+
+O Módulo 01 está completo. A expansão para uma plataforma de alfabetização — trilha
+com progressão entre módulos, contas com JWT e login Google, progresso salvo em
+Postgres — está planejada em **[ROADMAP.md](./ROADMAP.md)**, com as issues de
+implementação abertas no GitHub. O histórico de auditoria e refatorações fica em
+[docs/historico-tecnico.md](./docs/historico-tecnico.md).
+
 ## Autor
 
 **Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.

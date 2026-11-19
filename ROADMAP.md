@@ -1,154 +1,314 @@
 # ROADMAP — DIALO GAME
 
-Documento vivo com as melhorias identificadas na auditoria do projeto. Os **bugs reais
-já foram corrigidos** (ver seção *Corrigido*). Os itens abaixo são as próximas etapas de
-construção, priorizadas por impacto.
+Roadmap de produto do Dialo Game: de um jogo de um único módulo para uma
+plataforma de alfabetização com trilha de progressão, contas e progresso salvo.
+
+> O histórico de auditoria, bugs corrigidos e refatorações já concluídas está em
+> [`docs/historico-tecnico.md`](./docs/historico-tecnico.md). Este documento olha
+> para frente.
+
+**Estado atual:** Módulo 01 completo e publicado em
+[dialo-game.vercel.app](https://dialo-game.vercel.app), com 5 atividades, 56 testes,
+CI e deploy automático. Todo o progresso vive na memória da sessão — recarregar a
+página apaga tudo, e não existe usuário.
 
 ---
 
-## Corrigido (bugs reais)
+## 1. Visão
 
-- [x] **`--infantil-6` nunca foi definida** — usada em 14 pontos (fundo do painel de pontos,
-      caixas de atividade, caixa do módulo e cor de ícones). Definida como `#ffffff`,
-      conforme a paleta de origem (`AdobeColor-infantil.jpeg`).
-- [x] **Navegação inconsistente** — "PRÓXIMA" da atividade 04 e 05 apontava para
-      `/modulo-02/*` (rota inexistente → 404) e o "VOLTAR" da atividade 05 pulava a 04.
-      Sequência 01 → 02 → 03 → 04 → 05 → módulo agora é contínua.
-- [x] **Atividade 05 exibia textos em inglês** ("Front", "Back", "Right", "Left", "Bottom")
-      de um cubo 3D abandonado. Removido e substituído por uma caixa de destino real.
-- [x] **Atividade 05 usava classes CSS inexistentes** (`page-activity-05`,
-      `title-ativity-01`), perdendo o layout base. Corrigido para `page` e `title-ativity`.
-- [x] **Drop duplicado na atividade 05** — o `onDrop` do botão e o do contêiner disparavam
-      os dois (bubbling), contando a jogada duas vezes. Removido o handler do botão.
-- [x] **`isNumber` aceitava lixo** — `''`, `'  '` e `'Infinity'` retornavam `true`.
-      Agora usa `Number.isFinite` sobre a string aparada.
-- [x] **Colisão de `.label-container`** — definida em 3 arquivos CSS; a última importada
-      vencia. Consolidada em `LabelValue`, removido o CSS morto de `BoxRow`/`PanelPoints`.
-- [x] **Texto invisível no painel de pontos** — `.hits`/`.errors` usavam `color` e
-      `background-color` iguais (verde-sobre-verde, vermelho-sobre-vermelho). Corrigido.
-- [x] **Números repetidos na atividade 02** — `generateRandomNumbersArray` sorteava com
-      reposição (ex.: "13" aparecia 6 vezes); clicar removia todas as cópias contando um
-      único acerto. Agora o sorteio é sem repetição.
-- [x] **Erro fantasma ao acertar** — o painel calculava `erros = tentativas - acertos`, então
-      durante a animação de 1 s de um acerto o erro subia para 1. Erros passaram a ser
-      contados de forma explícita.
-- [x] **Link morto do autor** — a logo da home apontava para `steve.infotecdevs.com.br`
-      (domínio inexistente, NXDOMAIN). Agora aponta para o repositório no GitHub.
-- [x] **Home do módulo com placeholder** — o cartão "Letras 2" foi renomeado para "DESAFIO"
-      e vogais/consoantes/desafio passaram a usar a miniatura de letras (antes repetiam a
-      imagem de números).
+O Dialo Game é um jogo de alfabetização para crianças em fase de aquisição do
+sistema de escrita. A criança avança por uma **trilha vertical** de módulos, cada um
+trabalhando um conceito de alfabetização, e o progresso fica salvo na conta para ser
+retomado de qualquer aparelho.
+
+Três pilares:
+
+1. **Progressão pedagógica** — os conceitos seguem a ordem natural da alfabetização:
+   reconhecer símbolos → consciência fonológica → sílabas → palavras → frases →
+   produção escrita.
+2. **Autonomia com limites** — a criança escolhe qual atividade fazer dentro do
+   módulo liberado, mas só avança de módulo cumprindo o anterior.
+3. **Progresso que não se perde** — conta própria (ou Google), progresso no servidor.
+
+### Público
+
+Crianças de 4 a 8 anos em alfabetização, com um adulto (pai, mãe ou professor)
+criando a conta. Isso define duas exigências de UX: a **trilha** precisa ser legível
+sem depender de leitura para a criança, e o **cadastro** precisa ser simples para o
+adulto.
 
 ---
 
-## Próximas etapas
+## 2. Princípios de produto
 
-### 1. Manutenção e limpeza (concluído)
+| Princípio | Consequência prática |
+| --- | --- |
+| A criança não digita texto | Login é do adulto; a criança só clica e arrasta |
+| Erro não pune | Erro não bloqueia avanço; só o acerto conta para conclusão |
+| Progresso é visível | Cada módulo mostra quantas atividades faltam |
+| Nada de becos sem saída | Módulo bloqueado explica *o que* falta, não só "bloqueado" |
+| Funciona sem conta | Modo convidado joga o Módulo 01; progresso local migra ao entrar |
 
-- [x] Removidos arquivos não utilizados: `src/utils/convertions.ts`, `src/assets/react.svg`,
-      `public/vite.svg`, `src/assets/logo.svg`, `src/assets/modulo_01/logo-mini.png`,
-      `src/assets/AdobeColor-infantil.jpeg`, `src/assets/1-efek-sound-1-220034.mp3`.
-- [x] Removido `"main": "src/index.tsx"` do `package.json` — apontava para arquivo
-      inexistente (app Vite tem entrada em `index.html`).
-- [x] Removido o `export default` órfão de `src/utils/validations.ts`.
-- [x] Removido o bloco `@media (prefers-color-scheme: light)` duplicado em 6 arquivos CSS;
-      tema fixado como claro (`color-scheme: light`) e cor de texto centralizada em `.page`.
-- [x] Removido o CSS morto de `.logo.react`, `.read-the-docs` e `logo-spin` (herança do
-      template do Vite).
+---
 
-### 2. Refatoração estrutural (concluído)
+## 3. Decisão pendente: stack do backend
 
-- [x] **Atividades 01–04 unificadas** em um único componente parametrizado
-      (`<ActivityGrid />`), recebendo título, validador, gerador de opções e navegação.
-      Os 4 arquivos quase idênticos viraram wrappers finos e os 4 CSS duplicados foram
-      substituídos por um único `ActivityGrid/index.css`.
-- [x] Extraído o componente `SymbolsGrid`, reutilizado pelas atividades 01–05.
-- [x] Lógica de pontuação (acertos/erros/tentativas) centralizada no hook
-      `useActivityProgress`, junto com a animação de saída, o reset e a detecção de fim.
-- [x] `useMemo` de `finish` e efeitos de som movidos para o mesmo hook.
+Esta é a **única decisão bloqueante** do roadmap. Tudo o mais pode começar.
 
-### 3. Responsividade e acessibilidade
+O requisito é Postgres com *Code First*, JWT e login Google. Há dois caminhos
+naturais:
 
-- [x] **Tailwind CSS v4 integrado** (`@tailwindcss/vite`) com a paleta infantil mapeada no
-      `@theme`; o CSS dos componentes foi movido para `@layer components`, permitindo que os
-      utilitários responsivos sobrescrevam os estilos base.
-- [x] **Layout responsivo** — botões de símbolos, cabeçalho, logo, caixas de atividade e
-      painel de pontos agora escalam por breakpoints (`sm`, `md`) e as caixas da atividade 05
-      empilham no mobile. `100vw` trocado por `100%` (evitava rolagem horizontal).
-- [x] Adicionar `aria-label` em todos os botões que só têm ícone (home, refresh, setas),
-      via prop `ariaLabel` no `CustomButton`; o toggle de som expõe estado com `aria-pressed`.
-- [x] Revisar contraste. Texto passou de tons claros sobre pastel para `--ink`
-      (`#213547`), que mantém >= 4.5:1 sobre toda a paleta. Medições finais:
+| | **A — Node + TypeScript** (recomendado) | **B — .NET + EF Core** |
+| --- | --- | --- |
+| Framework | Fastify ou NestJS | ASP.NET Core |
+| ORM *code first* | Prisma (`schema.prisma` → migration) | EF Core (migrations) |
+| Linguagem | TS no back e no front | C# no back, TS no front |
+| Tipos compartilhados | Direto (`packages/shared` + zod) | Precisa gerar/duplicar |
+| CI | Um único toolchain (Node 26 já configurado) | Dois toolchains |
 
-      | Elemento | Antes | Depois |
-      | --- | --- | --- |
-      | `.button` normal | 1.84:1 | **5.91:1** |
-      | `.button` hover | 1.40:1 | **7.75:1** |
-      | `.button-simbols` | 2.13:1 | **5.91:1** |
-      | `.button-sound` | 1.03:1 | **5.91:1** |
-      | `.box-container` / `.label-container` normal | 2.20:1 | **12.61:1** |
-      | `.box-container` / `.label-container` hover | 1.89:1 | **5.74:1** |
-      | Ícones inline (antes `white`) | 2.13:1 | **5.91:1** |
-      | Links | 4.09:1 | **12.61:1** |
+**Recomendação: A.** Unifica a linguagem, permite compartilhar os tipos do catálogo
+e das respostas da API com o front, e reaproveita o Node 26 e o CI que já existem.
+A perda é não usar EF Core, que é o ORM *code first* mais maduro do mercado.
 
-      A paleta pastel não mudou — só a cor do texto. `src/utils/contrast.test.ts`
-      trava esses pares para não regredirem.
-- [x] Associar `<label>` a controles com `htmlFor`/`id` — o projeto não tem nenhum
-      `<input>`/`<select>`/`<textarea>`; não há o que rotular.
-- [x] Respeitar `prefers-reduced-motion`: animações e transições são reduzidas a 0,01ms
-      para quem pediu menos movimento no sistema. A remoção do símbolo usa `setTimeout`,
-      não o fim da animação, então o fluxo do jogo não depende dela.
+> Se a preferência for **B**, os épicos de backend mudam de stack; os de produto,
+> trilha e conteúdo não mudam.
 
-### 4. Performance de áudio
+---
 
-- [x] `soudMr.mp3` (**2,3 MB**) recomprimido para Opus 40 kbps (654 kB) com fallback MP3
-      (587 kB), servido de `public/audio/` e instanciado apenas no `Layout`.
-- [x] `preload="none"` no player da música de fundo: o download só começa no gesto em
-      **INICIAR**, o que também evita bloqueio de autoplay.
-- [x] Avaliar `preload="none"` para sons que só tocam sob demanda — os efeitos são curtos
-      (2,6 kB a 70 kB) e tocam sob demanda, então não precisam de pré-carga.
-- [ ] `playSound` cria um `new Audio()` a cada clique; pré-carregar os sons em um cache e
-      reutilizar as instâncias. Hoje o `play()` também ignora a promessa rejeitada, o que
-      gera `UnhandledPromiseRejection` quando o navegador bloqueia o áudio.
+## 4. Arquitetura alvo
 
-### 4.1 Correções aplicadas
+```
+┌─────────────────────────────┐        ┌──────────────────────────┐
+│  Frontend (Vite + React)    │        │  Backend (API REST)      │
+│  Vercel                     │        │  container / PaaS        │
+│                             │        │                          │
+│  • Trilha (árvore vertical) │  HTTPS │  • Auth (JWT + Google)   │
+│  • Atividades               │ ─────► │  • Catálogo de módulos   │
+│  • Estado (Jotai)           │  JSON  │  • Progresso             │
+│  • Convidado (localStorage) │        │  • Regras de desbloqueio │
+└─────────────────────────────┘        └───────────┬──────────────┘
+                                                    │ SQL
+                                        ┌───────────▼──────────────┐
+                                        │  PostgreSQL              │
+                                        │  (migrations code first) │
+                                        └──────────────────────────┘
+```
 
-- [x] **Clique duplo inflava a pontuação** — durante o 1 s de animação de saída, um
-      segundo clique no mesmo símbolo adicionava o item duas vezes em `optionsFound` e
-      contava duas tentativas. Um único timer compartilhado também fazia o segundo
-      clique cancelar a remoção do primeiro, devolvendo à grade um símbolo já acertado.
-      Agora cada item tem seu próprio timer e itens em saída ignoram novos cliques.
-- [x] **Recarregar rota interna dava 404 em produção** — o `nginx.conf` tinha o
-      *fallback* de SPA, mas o deploy real é no Vercel, que não lê esse arquivo. Sem
-      `vercel.json`, `/modulo-01` e `/modulo-01/atividade-01` devolviam 404 no F5 e em
-      links compartilhados. Adicionado o rewrite para `index.html`.
-- [x] **Open Graph sem imagem em produção** — `VITE_SITE_URL` não estava definida, então
-      `og:image` saía relativa e o card do link não mostrava imagem. O build agora usa
-      `VERCEL_PROJECT_PRODUCTION_URL` quando `VITE_SITE_URL` não existe.
-- [x] **Bug no `reset()` de `useActivityProgress`**: o `setTimeout` da animação de saída
-      não era cancelado. Se a criança acertasse um símbolo e tocasse em "reiniciar" antes
-      de 1 s, o callback antigo rodava depois do reset e removia o símbolo recém-sorteado.
-      Corrigido guardando o id do timer em `useRef`, limpando em `reset()` e no unmount.
-      Coberto por `src/hooks/useActivityProgress.test.ts`.
+**Autenticação:** access token JWT curto (15 min, em memória) + refresh token
+longo (7 dias, em cookie `HttpOnly` + `Secure` + `SameSite=None`). O refresh em
+cookie impede que um XSS roube a sessão; o access em memória evita persistir
+credencial em `localStorage`. Como o front (Vercel) e a API ficam em domínios
+diferentes, o cookie exige `SameSite=None`, CORS com credenciais e lista fechada de
+origens.
 
-### 5. UX e produto
+**Convidado:** quem ainda não tem conta joga o Módulo 01 com progresso em
+`localStorage`. No primeiro login, o progresso local é enviado para o servidor e
+mesclado (fica o maior valor por atividade).
 
-- [ ] Persistir o progresso (acertos, atividades concluídas) — o Jotai já está no projeto.
-- [ ] Tela de conclusão de módulo (parabéns / resumo de pontos) em vez de voltar direto.
-- [x] `meta description` e tags Open Graph no `index.html` para compartilhamento.
-      Inclui `og:image` 1200×630 (`public/og-image.png`, 160 kB), `og:image:alt`,
-      `theme-color` e `twitter:card`. A URL absoluta vem de `VITE_SITE_URL`, aplicada
-      no build pelo plugin `site-url` do `vite.config.ts`.
-- [x] `<title>` dinâmico por atividade (ajuda no histórico e na acessibilidade).
-      `src/components/DocumentTitle` mapeia cada rota; rota desconhecida vira
-      "Página não encontrada | Dialo Game".
-- [ ] Módulo 02 (as rotas `modulo-02` já foram previstas e hoje caem no 404).
+---
 
-### 6. Qualidade e entrega
+## 5. Modelo de dados (code first)
 
-- [x] Adicionados testes (Jest + Testing Library) para as funções de validação, os
-      geradores de arrays e o fluxo da atividade 01 (`npm test`).
-- [x] Configurar CI (GitHub Actions) rodando `lint` + `test` + `build` em cada PR,
-      com badge de status no README.
-- [x] Deploy automático no Vercel a partir do `master` (cada PR gera preview).
-      O `Dockerfile` + `nginx.conf` continuam válidos para hospedagem em container.
-- [ ] Adicionar `strict` já está ativo; avaliar `noUncheckedIndexedAccess` no tsconfig.
+```
+User             id, username* (único), email* (único, opcional p/ Google),
+                 passwordHash (nulo se só Google), googleId, displayName,
+                 avatarUrl, role, createdAt
+
+RefreshToken     id, userId, tokenHash, expiresAt, revokedAt, userAgent
+
+Module           id, slug* (único), order, title, description, concept
+
+Activity         id, moduleId, slug* (único), order, title, type, config (JSONB)
+
+ActivityProgress id, userId, activityId, bestScore, attempts, errors,
+                 stars (0–3), completedAt
+                 └ único por (userId, activityId)
+
+ModuleProgress   derivado: módulo concluído quando todas as atividades
+                 obrigatórias têm completedAt
+```
+
+`Module` e `Activity` são **catálogo**, não conteúdo do usuário: entram por seed a
+partir de um arquivo versionado no repositório, para que o conteúdo seja revisável
+em PR. `config` (JSONB) guarda o que varia por tipo de atividade (alfabeto alvo,
+pares de rima, banco de palavras), sem alterar o schema a cada atividade nova.
+
+---
+
+## 6. Contrato da API
+
+Definido em OpenAPI antes da implementação (`docs/api/openapi.yaml`), para que front
+e back andem em paralelo.
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
+| `POST` | `/auth/register` | username, email (opcional), senha |
+| `POST` | `/auth/login` | `identifier` (username **ou** email) + senha |
+| `POST` | `/auth/google` | `idToken` do Google Identity Services |
+| `POST` | `/auth/refresh` | troca refresh cookie por novo access token |
+| `POST` | `/auth/logout` | revoga o refresh token |
+| `GET` | `/auth/me` | perfil do usuário autenticado |
+| `GET` | `/catalog` | módulos + atividades + estado de desbloqueio |
+| `GET` | `/progress` | progresso consolidado do usuário |
+| `PUT` | `/progress/activities/:slug` | registra resultado de uma atividade |
+| `POST` | `/progress/import` | mescla progresso local do convidado |
+| `GET` | `/health` | liveness/readiness |
+
+Regra de ouro: **o servidor decide o desbloqueio**, nunca o cliente. O front esconde
+o que está bloqueado, mas quem valida é a API — caso contrário, basta editar o
+`localStorage` para pular módulos.
+
+---
+
+## 7. Catálogo de módulos (conceitos de alfabetização)
+
+| # | Módulo | Conceito | Exemplo de atividade |
+| --- | --- | --- | --- |
+| 01 | Reconhecer símbolos ✅ | Princípio alfabético | Achar letras, números, vogais, consoantes |
+| 02 | Sons das letras | Consciência fonológica | "Com que som começa *bola*?"; rimas |
+| 03 | Sílabas | Consciência silábica | Contar sílabas; juntar `ba` + `la` = `bala` |
+| 04 | Formar palavras | Síntese | Montar palavra a partir de sílabas/imagem |
+| 05 | Ler frases | Fluência e compreensão | Associar frase a imagem; ordem da frase |
+| 06 | Escrever | Produção escrita | Completar palavra; escrever o que vê |
+
+O Módulo 01 é o único pronto. Os demais são o escopo deste roadmap.
+
+---
+
+## 8. A trilha (árvore vertical)
+
+Tela principal depois do login: uma coluna vertical com os módulos como nós
+grandes, ligados por um caminho desenhado, e as atividades do módulo atual abrindo
+em ramos menores abaixo do nó.
+
+```
+        ╭──────────╮
+        │  MÓDULO 1│  ✅ concluído
+        ╰────┬─────╯
+     ┌───────┴───────┐
+     ●  ●  ●  ●  ●        ← atividades (escolha livre)
+             │
+        ╭────▼─────╮
+        │  MÓDULO 2│  ▶ atual
+        ╰────┬─────╯
+     ┌───────┴───────┐
+     ●  ●  ●  ●  ●
+             │
+        ╭────▼─────╮
+        │  MÓDULO 3│  🔒 bloqueado — "Conclua o módulo 2"
+        ╰──────────╯
+```
+
+**Reconciliação dos dois requisitos.** "Progressão obrigatória" e "escolher alguma na
+trilha" convivem em níveis diferentes:
+
+- **Entre módulos:** obrigatório e sequencial. O módulo N só abre com N−1 concluído.
+- **Dentro do módulo liberado:** livre escolha. A criança toca na atividade que
+  quiser, na ordem que quiser.
+
+Assim a trilha oferece escolha real sem furar a sequência pedagógica.
+
+Estados visuais: **concluído** (check + estrelas), **atual** (pulsando), **bloqueado**
+(cadeado + motivo). A trilha rola verticalmente e posiciona a criança no módulo atual
+ao abrir.
+
+---
+
+## 9. Fases e issues
+
+Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
+
+### Fase 0 — Fundação (P0)
+
+| Issue | Entrega |
+| --- | --- |
+| ADR: stack do backend | Documento com a decisão A/B da seção 3 |
+| Contrato OpenAPI + modelo de dados | `docs/api/openapi.yaml` e diagrama ER |
+| Estrutura do monorepo | `apps/web`, `apps/api`, `packages/shared` |
+| Postgres local + primeira migration | `docker compose` com Postgres e migration inicial |
+
+### Fase 1 — Contas e autenticação (P0)
+
+| Issue | Entrega |
+| --- | --- |
+| Cadastro com username/email + senha | Hash Argon2id, validação, username único |
+| Login por username **ou** email com JWT | Access 15 min + refresh 7 dias |
+| Login com Google | OIDC via Google Identity Services |
+| Refresh, logout e `/auth/me` | Revogação de token, rotação |
+| Telas de login/cadastro + guarda de rota | Front com validação e erros claros |
+
+### Fase 2 — Progresso no servidor (P0)
+
+| Issue | Entrega |
+| --- | --- |
+| Catálogo de módulos e atividades + seed | Módulo 01 migrado para o banco |
+| Registro de progresso por atividade | `PUT /progress/activities/:slug` |
+| Desbloqueio de módulos no servidor | Regra + testes de autorização |
+| Migração do estado local para a API | Jotai + modo convidado + `POST /progress/import` |
+
+### Fase 3 — Trilha (P1)
+
+| Issue | Entrega |
+| --- | --- |
+| Componente de trilha vertical | Árvore com estados e caminho desenhado |
+| Página do módulo com atividades | Escolha livre dentro do módulo |
+| Conclusão de módulo | Tela de parabéns, estrelas e "próximo módulo" |
+| Mapa de progresso na home | Visão geral e retomada |
+
+### Fase 4 — Conteúdo pedagógico (P1)
+
+| Issue | Entrega |
+| --- | --- |
+| Módulo 02 — sons das letras | Consciência fonológica |
+| Módulo 03 — sílabas | Consciência silábica |
+| Módulo 04 — formar palavras | Síntese silábica |
+| Módulo 05 — ler frases | Fluência e compreensão |
+| Módulo 06 — escrever | Produção escrita |
+
+### Fase 5 — Qualidade e operação (P1/P2)
+
+| Issue | Entrega |
+| --- | --- |
+| CI do backend | Lint, testes e migrations em PR |
+| Deploy da API + CORS | Ambiente, segredos e origens permitidas |
+| Rate limiting e observabilidade | Proteção de login e logs estruturados |
+| Acessibilidade e E2E da trilha | Teclado, leitor de tela e Playwright |
+
+---
+
+## 10. Decisões abertas
+
+| # | Questão | Impacto |
+| --- | --- | --- |
+| 1 | Stack do backend: Node/TS ou .NET/EF Core (seção 3) | Bloqueia a Fase 0 |
+| 2 | Estrelas por atividade: por acertos, por tempo ou por tentativas? | Modelo de dados |
+| 3 | A criança tem login próprio ou sempre entra pelo adulto? | UX de cadastro |
+| 4 | Conclusão do módulo exige 100% das atividades ou uma nota mínima? | Regra de desbloqueio |
+| 5 | Domínio próprio para o site e a API? | Cookies e CORS |
+
+As decisões 2–4 têm um padrão proposto nas issues; podem ser ajustadas durante a
+implementação sem retrabalho estrutural.
+
+---
+
+## 11. Métricas de sucesso
+
+| Métrica | Meta inicial |
+| --- | --- |
+| Conclusão do Módulo 01 | ≥ 60% de quem inicia a atividade 01 |
+| Retorno em 7 dias | ≥ 30% das contas criadas |
+| Abandono no cadastro | < 40% de quem abre a tela de login |
+| Erro por atividade | ≤ 3 tentativas erradas em média |
+| Tempo até a primeira atividade | < 60 s desde o primeiro acesso |
+
+---
+
+## 12. Riscos
+
+| Risco | Mitigação |
+| --- | --- |
+| Login ser barreira para a criança | Modo convidado com o Módulo 01 completo |
+| Progresso perdido gera frustração | Sincronização otimista + fila local de escrita |
+| Conteúdo pedagógico sem validação | Revisão por educador antes de publicar cada módulo |
+| Custo de manter dois runtimes | Argumento a favor da stack A (seção 3) |
+| Vazar dados de crianças | Coletar o mínimo: username, e-mail do adulto, sem data de nascimento |

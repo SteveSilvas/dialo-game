@@ -16,10 +16,16 @@ testes): cadastro/login com JWT e Google, catálogo de módulos e atividades, pr
 por atividade com estrelas calculadas no servidor e desbloqueio entre módulos
 validado na API.
 
-O que falta é a **integração**: o front ainda não consome esses endpoints, então hoje
-o progresso de quem joga vive apenas na memória da sessão — recarregar a página apaga
-tudo. A estrutura de `packages/shared` e a migração do front para `apps/web`,
-descritas abaixo, ainda não foram feitas: o front continua na raiz do repositório.
+A **integração está feita**: o front consome esses endpoints. A trilha vem do
+`GET /catalog`, cada atividade concluída é enviada para
+`PUT /progress/activities/{slug}` e o progresso de convidado é importado ao entrar
+na conta. Quem joga sem conta (ou sem rede) tem o progresso guardado no
+`localStorage`.
+
+Os tipos compartilhados vivem em `src/api/types.ts`, escritos à mão, e o front
+continua na raiz do repositório — não houve migração para `apps/web` nem criação de
+`packages/shared`, porque o front é o app publicado no Vercel e mover a raiz
+quebraria o deploy sem ganho real.
 
 ---
 
@@ -89,10 +95,11 @@ complexidade no CI, mas o ganho é usar o ORM *code first* mais maduro do mercad
 a tipagem forte do C# no domínio de progresso e desbloqueio.
 
 Para reduzir o atrito, os **tipos compartilhados** entre front e back são escritos à
-mão em `packages/shared`, mantidos junto do contrato de rotas e campos documentado na
-seção 6. Não há geração automática de tipos a partir do C#: o custo é que uma mudança
-de campo na API não quebra o build do front, apenas aparece em runtime — a rede de
-segurança é o teste E2E (issue #37).
+mão em `src/api/types.ts`, mantidos junto do contrato de rotas e campos documentado
+na seção 6. Não há geração automática de tipos a partir do C#: o custo é que uma
+mudança de campo na API não quebra o build do front, apenas aparece em runtime. A
+rede de segurança é `src/api/catalog.test.ts`, que fixa os nomes e formatos dos
+campos que a API devolve.
 
 
 ---
@@ -108,7 +115,7 @@ segurança é o teste E2E (issue #37).
 │  • Atividades               │ ─────► │  • Auth (JWT + Google)   │
 │  • Estado (Jotai)           │  JSON  │  • Catálogo de módulos   │
 │  • Convidado (localStorage) │        │  • Progresso             │
-│  • Tipos em packages/shared │        │  • Regras de desbloqueio │
+│  • Tipos em src/api/types   │        │  • Regras de desbloqueio │
 └─────────────────────────────┘        └───────────┬──────────────┘
                                                     │ EF Core
                                         ┌───────────▼──────────────┐
@@ -215,7 +222,7 @@ isso é mapeado para `jsonb` com `HasColumnType("jsonb")`.
 
 As rotas e os formatos de request/response estão definidos nesta tabela, que é a
 referência para o front e o back. Os tipos TypeScript correspondentes vivem em
-`packages/shared`, escritos à mão — não há geração automática a partir do C#.
+`src/api/types.ts`, escritos à mão — não há geração automática a partir do C#.
 
 | Método | Rota | Descrição |
 | --- | --- | --- |
@@ -295,16 +302,21 @@ ao abrir.
 
 Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 
-### Fase 0 — Fundação (P0)
+**Estado:** as fases 0, 1 e 2 estão concluídas. A fase 3 está parcial — a home do
+módulo e a escolha livre de atividade existem; faltam a trilha vertical desenhada,
+a tela de conclusão de módulo e o mapa de progresso na home. As fases 4 e 5 seguem
+abertas.
+
+### Fase 0 — Fundação (P0) ✅
 
 | Issue | Entrega |
 | --- | --- |
 | ADR: registrar .NET 10 + EF Core | `docs/adr/0001-stack-backend.md` com a decisão da seção 3 |
-| Contrato da API + modelo de dados | Tabela de rotas (seção 6), `packages/shared` e diagrama ER |
-| Estrutura do monorepo | `apps/web`, `apps/api` (.NET), `packages/shared` |
+| Contrato da API + modelo de dados | Tabela de rotas (seção 6), `src/api/types.ts` e diagrama ER |
+| Estrutura do monorepo | Front na raiz e API em `apps/api` (.NET) |
 | Postgres local + primeira migration | `docker compose` com Postgres e `dotnet ef migrations add` |
 
-### Fase 1 — Contas e autenticação (P0)
+### Fase 1 — Contas e autenticação (P0) ✅
 
 | Issue | Entrega |
 | --- | --- |
@@ -314,7 +326,7 @@ Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 | Refresh, logout e `/auth/me` | Revogação de token, rotação |
 | Telas de login/cadastro + guarda de rota | Front com validação e erros claros |
 
-### Fase 2 — Progresso no servidor (P0)
+### Fase 2 — Progresso no servidor (P0) ✅
 
 | Issue | Entrega |
 | --- | --- |
@@ -323,7 +335,7 @@ Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 | Desbloqueio de módulos no servidor | Regra + testes de autorização |
 | Migração do estado local para a API | Jotai + modo convidado + `POST /progress/import` |
 
-### Fase 3 — Trilha (P1)
+### Fase 3 — Trilha (P1) — parcial
 
 | Issue | Entrega |
 | --- | --- |

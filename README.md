@@ -61,6 +61,7 @@ O projeto nasceu da necessidade real de tornar o aprendizado mais leve e envolve
 Construído com um stack moderno de front-end, focado em performance e experiência de uso:
 
 <p>
+  <a href="https://github.com/SteveSilvas/dialo-game/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/SteveSilvas/dialo-game/actions/workflows/ci.yml/badge.svg" /></a>
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" />
   <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white" />

@@ -56,6 +56,12 @@ registram o que foi feito e o que restou de manutenção pontual.
 - [x] **Validação de configuração tardia** — `Jwt:SigningKey` só era validada na primeira
       requisição; agora `AuthOptions` e `RateLimitingOptions` usam `ValidateOnStart` e a API
       falha no boot com mensagem clara.
+- [x] **Rótulo "TENTATIVAS" duplicado** — ao concluir a atividade, o rodapé repetia o valor
+      que o painel de pontos já mostrava, com o mesmo número duas vezes na tela. A duplicata
+      saiu da grade e da atividade 05, com teste de regressão.
+- [x] **Validação de JWT duplicada** — depois do `ValidateOnStart`, o `if` manual sobre
+      `SigningKey` no `Program.cs` repetia a mesma regra. Removido: o boot continua falhando
+      com mensagem clara quando a chave é curta, verificado na prática.
 
 ---
 

@@ -258,9 +258,17 @@ fica sem imagem em algumas redes sociais.
 
 ## Autor
 
-Desenvolvido por **Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.
+**Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.
+
+Trabalho com desenvolvimento web de ponta a ponta: interface, estado, testes e
+deploy. Este projeto reúne o que faço no dia a dia aplicado a um problema real de
+educação infantil.
 
 - GitHub: [@SteveSilvas](https://github.com/SteveSilvas)
+- Outros projetos: [github.com/SteveSilvas?tab=repositories](https://github.com/SteveSilvas?tab=repositories)
+
+Sugestões, correções e pull requests são bem-vindos. Se o DIALO GAME ajudar em
+alguma sala de aula, me conte pelo GitHub.
 
 ## Licença
 

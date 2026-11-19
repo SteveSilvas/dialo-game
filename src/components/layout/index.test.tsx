@@ -98,12 +98,14 @@ describe('Layout (música de fundo)', () => {
 
     fireEvent.click(getSoundButton(container));
 
-    expect(play).toHaveBeenCalledTimes(1);
+    // O clique também toca o som de efeito do botão, por isso verificamos o
+    // player de fundo especificamente em vez do total de chamadas.
+    expect(play.mock.instances).toContain(audio);
     expect(getDefaultStore().get(soundAtom).isActive).toBe(true);
 
     fireEvent.click(getSoundButton(container));
 
-    expect(pause).toHaveBeenCalled();
+    expect(pause.mock.instances).toContain(audio);
     expect(audio.currentTime).toBe(0);
     expect(getDefaultStore().get(soundAtom).isActive).toBe(false);
   });

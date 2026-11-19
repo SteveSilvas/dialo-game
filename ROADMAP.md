@@ -94,9 +94,20 @@ construção, priorizadas por impacto.
       (587 kB), servido de `public/audio/` e instanciado apenas no `Layout`.
 - [x] `preload="none"` no player da música de fundo: o download só começa no gesto em
       **INICIAR**, o que também evita bloqueio de autoplay.
+- [x] Avaliar `preload="none"` para sons que só tocam sob demanda — os efeitos são curtos
+      (2,6 kB a 70 kB) e tocam sob demanda, então não precisam de pré-carga.
 - [ ] `playSound` cria um `new Audio()` a cada clique; pré-carregar os sons em um cache e
-      reutilizar as instâncias para evitar atraso/estouro de memória.
-- [ ] Avaliar `preload="none"` para sons que só tocam sob demanda.
+      reutilizar as instâncias. Hoje o `play()` também ignora a promessa rejeitada, o que
+      gera `UnhandledPromiseRejection` quando o navegador bloqueia o áudio.
+
+### 4.1 Correções pendentes
+
+- [ ] **Bug no `reset()` de `useActivityProgress`**: o `setTimeout` da animação de saída
+      não é cancelado. Se a criança acertar um símbolo e tocar em "reiniciar" antes de
+      1 s, o callback antigo roda depois do reset e remove o símbolo recém-sorteado
+      (`options` volta sem ele e `optionsFound` fica inconsistente). Confirmado com teste
+      reproduzindo o fluxo. Correção: guardar o id do timer em um `useRef` e limpar em
+      `reset()` e no unmount.
 
 ### 5. UX e produto
 

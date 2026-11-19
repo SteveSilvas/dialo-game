@@ -78,7 +78,9 @@ construção, priorizadas por impacto.
 - [ ] Revisar contraste — há texto claro sobre `--infantil-3` (verde claro), abaixo do
       mínimo WCAG AA para texto pequeno.
 - [ ] Associar `<label>` a controles com `htmlFor`/`id`.
-- [ ] Respeitar `prefers-reduced-motion` nas animações (`fade-out`, `logo-spin`).
+- [x] Respeitar `prefers-reduced-motion`: animações e transições são reduzidas a 0,01ms
+      para quem pediu menos movimento no sistema. A remoção do símbolo usa `setTimeout`,
+      não o fim da animação, então o fluxo do jogo não depende dela.
 
 ### 4. Performance de áudio
 

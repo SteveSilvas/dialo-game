@@ -25,7 +25,7 @@ describe('useActivityProgress', () => {
     act(() => {
       result.current.selectOption('A');
     });
-    expect(result.current.removing).toBe('A');
+    expect(result.current.removing).toEqual(['A']);
 
     act(() => {
       jest.advanceTimersByTime(1000);
@@ -33,7 +33,7 @@ describe('useActivityProgress', () => {
 
     expect(result.current.options).toEqual(['B', 'C']);
     expect(result.current.optionsFound).toEqual(['A']);
-    expect(result.current.removing).toBeNull();
+    expect(result.current.removing).toEqual([]);
   });
 
   it('conta erro e mantém as opções quando o símbolo não é válido', () => {
@@ -66,7 +66,7 @@ describe('useActivityProgress', () => {
 
     expect(result.current.options).toEqual(['A', 'B', 'C']);
     expect(result.current.optionsFound).toEqual([]);
-    expect(result.current.removing).toBeNull();
+    expect(result.current.removing).toEqual([]);
   });
 
   it('marca finish quando todos os símbolos válidos foram encontrados', () => {
@@ -80,6 +80,44 @@ describe('useActivityProgress', () => {
     });
 
     expect(result.current.finish).toBe(true);
+  });
+
+  it('remove os dois itens quando o segundo é clicado antes do primeiro sair', () => {
+    const { result } = renderHook(() =>
+      useActivityProgress(buildOptions, (option) => option !== 'C'),
+    );
+
+    act(() => {
+      result.current.selectOption('A');
+    });
+    act(() => {
+      result.current.selectOption('B');
+    });
+
+    act(() => {
+      jest.advanceTimersByTime(1200);
+    });
+
+    expect(result.current.options).toEqual(['C']);
+    expect(result.current.optionsFound).toEqual(['A', 'B']);
+  });
+
+  it('conta o acerto uma única vez em clique duplo no mesmo item', () => {
+    const { result } = setup();
+
+    act(() => {
+      result.current.selectOption('A');
+    });
+    act(() => {
+      result.current.selectOption('A');
+    });
+
+    act(() => {
+      jest.advanceTimersByTime(1200);
+    });
+
+    expect(result.current.optionsFound).toEqual(['A']);
+    expect(result.current.clicksCount).toBe(1);
   });
 
   it('limpa o timer ao desmontar', () => {

@@ -8,9 +8,18 @@ plataforma de alfabetização com trilha de progressão, contas e progresso salv
 > para frente.
 
 **Estado atual:** Módulo 01 completo e publicado em
-[dialo-game.vercel.app](https://dialo-game.vercel.app), com 5 atividades, 56 testes,
-CI e deploy automático. Todo o progresso vive na memória da sessão — recarregar a
-página apaga tudo, e não existe usuário.
+[dialo-game.vercel.app](https://dialo-game.vercel.app), com 5 atividades, 64 testes no
+front e CI com deploy automático.
+
+A **API já existe e está testada** em `apps/api` (.NET 10 + EF Core + PostgreSQL, 75
+testes): cadastro/login com JWT e Google, catálogo de módulos e atividades, progresso
+por atividade com estrelas calculadas no servidor e desbloqueio entre módulos
+validado na API.
+
+O que falta é a **integração**: o front ainda não consome esses endpoints, então hoje
+o progresso de quem joga vive apenas na memória da sessão — recarregar a página apaga
+tudo. A estrutura de `packages/shared` e a migração do front para `apps/web`,
+descritas abaixo, ainda não foram feitas: o front continua na raiz do repositório.
 
 ---
 

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { TiArrowLeftThick, TiArrowRightThick, TiHome, TiRefresh } from "react-icons/ti";
 import BoxRow from "../../../components/BoxRow";
 import CustomButton from "../../../components/Button";
-import LabelValue from "../../../components/LabelValue";
 import PanelPoints from "../../../components/PanelPoints";
 import SymbolsGrid from "../../../components/SymbolsGrid";
 import { useActivityProgress } from "../../../hooks/useActivityProgress";
@@ -79,9 +78,6 @@ const Atividade05 = () => {
             </section>
 
             <BoxRow justifyContent="space-evenly" width="100%" gap="0.5rem">
-                {finish && (
-                    <LabelValue value={clicksCount.toString()} text="TENTATIVAS" />
-                )}
                 <CustomButton
                     href="/"
                     ariaLabel="Ir para o início"

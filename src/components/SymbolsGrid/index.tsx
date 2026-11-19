@@ -28,7 +28,12 @@ const SymbolsGrid: React.FC<SymbolsGridProps> = ({
           key={`${item}-${index}`}
           className={`button-simbols h-10 w-10 text-2xl sm:h-14 sm:w-14 sm:text-3xl md:h-16 md:w-16 md:text-4xl ${removing?.includes(item) ? 'fade-out' : ''}`}
           draggable={draggable}
-          onDragStart={() => onDragStart?.(item)}
+          onDragStart={(event) => {
+            // Firefox e Safari só iniciam o arraste se o dataTransfer receber
+            // algum dado; sem isso o drop nunca dispara nesses navegadores.
+            event.dataTransfer?.setData('text/plain', item);
+            onDragStart?.(item);
+          }}
           onClick={() => onSelect?.(item)}
         >
           {item.toUpperCase()}

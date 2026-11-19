@@ -30,3 +30,9 @@ dist-ssr
 
 # Testes
 coverage
+
+# .NET (apps/api)
+**/bin/
+**/obj/
+*.user
+.vs/

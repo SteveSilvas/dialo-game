@@ -2,6 +2,7 @@ import {
   generateAlphabetArray,
   generateRandomNumbersArray,
   generateSimbolsArray,
+  shuffleArray,
 } from './functions';
 
 describe('generateAlphabetArray', () => {
@@ -52,5 +53,38 @@ describe('generateRandomNumbersArray', () => {
   it('inclui todos os valores quando o intervalo é pequeno', () => {
     const numeros = generateRandomNumbersArray(50, 5, 6);
     expect([...numeros].sort((a, b) => a - b)).toEqual([5, 6]);
+  });
+});
+
+describe('shuffleArray', () => {
+  it('não altera o array original', () => {
+    const original = ['a', 'b', 'c'];
+    shuffleArray(original);
+    expect(original).toEqual(['a', 'b', 'c']);
+  });
+
+  it('mantém todos os itens', () => {
+    const resultado = shuffleArray(['a', 'b', 'c', 'd']);
+    expect([...resultado].sort()).toEqual(['a', 'b', 'c', 'd']);
+  });
+
+  it('distribui as posições sem viés grosseiro', () => {
+    // Regressão: com `sort(() => Math.random() - 0.5)` o último item ficava
+    // na última posição em ~50% das vezes. Tolerância folgada para não
+    // tornar o teste instável, mas suficiente para pegar aquele viés.
+    const rodadas = 6000;
+    const ultimaPosicao = { a: 0, b: 0, c: 0 };
+    const itens = ['a', 'b', 'c'];
+
+    for (let i = 0; i < rodadas; i++) {
+      const resultado = shuffleArray(itens);
+      ultimaPosicao[resultado[2] as 'a' | 'b' | 'c'] += 1;
+    }
+
+    const esperado = rodadas / 3;
+    for (const item of itens) {
+      const desvio = Math.abs(ultimaPosicao[item as 'a' | 'b' | 'c'] - esperado) / esperado;
+      expect(desvio).toBeLessThan(0.15);
+    }
   });
 });

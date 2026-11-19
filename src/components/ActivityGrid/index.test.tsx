@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import ActivityGrid from './index';
@@ -27,6 +27,30 @@ describe('ActivityGrid', () => {
     await userEvent.tab();
     expect(reiniciar).toHaveFocus();
     expect(inicio).toBeInTheDocument();
+  });
+
+  it('não repete o rótulo TENTATIVAS ao concluir a atividade', async () => {
+    render(
+      <MemoryRouter>
+        <ActivityGrid
+          title="SELECIONE AS LETRAS"
+          buildOptions={() => ['a', '@']}
+          isValid={isLetter}
+          backHref="/modulo-01"
+          nextHref="/modulo-01/atividade-02"
+        />
+      </MemoryRouter>,
+    );
+
+    // Último item válido: após a animação de saída a atividade é concluída.
+    await userEvent.click(screen.getByRole('button', { name: 'A' }));
+    await waitFor(
+      () => expect(screen.getByRole('link', { name: 'PRÓXIMA' })).toBeInTheDocument(),
+      { timeout: 3000 },
+    );
+
+    // O painel de pontos já mostra TENTATIVAS; o rodapé repetia o mesmo valor.
+    expect(screen.getAllByText('TENTATIVAS')).toHaveLength(1);
   });
 
   it('reinicia a atividade pelo teclado', async () => {

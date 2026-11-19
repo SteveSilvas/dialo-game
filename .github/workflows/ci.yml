@@ -40,3 +40,46 @@ jobs:
       - name: Auditoria de dependências (informativa)
         run: npm audit --audit-level=high
         continue-on-error: true
+
+  api:
+    name: API .NET (build, format e testes)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: dialo_game
+          POSTGRES_USER: dialo
+          POSTGRES_PASSWORD: dialo_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dialo -d dialo_game"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      ConnectionStrings__Default: Host=127.0.0.1;Port=5432;Database=dialo_game;Username=dialo;Password=dialo_dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restaurar dependências
+        run: dotnet restore DialoGame.slnx
+
+      - name: Verificar formatação
+        run: dotnet format --verify-no-changes --no-restore
+
+      - name: Build
+        run: dotnet build DialoGame.slnx --no-restore -c Release
+
+      - name: Testes
+        run: dotnet test DialoGame.slnx --no-build -c Release --logger "console;verbosity=normal"

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DialoGame.Api/DialoGame.Api.csproj" />
+    <Project Path="src/DialoGame.Domain/DialoGame.Domain.csproj" />
+    <Project Path="src/DialoGame.Infrastructure/DialoGame.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DialoGame.Tests/DialoGame.Tests.csproj" />
+  </Folder>
+</Solution>

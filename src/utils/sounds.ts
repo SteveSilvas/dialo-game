@@ -1,4 +1,5 @@
 export const playSound = (src: string) => {
-    const audio = new Audio(src);
-    void audio.play();
+    // O navegador rejeita play() quando o áudio não foi autorizado por um gesto.
+    // Sem o catch, cada clique vira uma unhandled rejection no console.
+    void new Audio(src).play().catch(() => undefined);
 };

@@ -1,7 +1,6 @@
 import { TiArrowLeftThick, TiArrowRightThick, TiHome, TiRefresh } from 'react-icons/ti';
 import BoxRow from '../BoxRow';
 import CustomButton from '../Button';
-import LabelValue from '../LabelValue';
 import PanelPoints from '../PanelPoints';
 import SymbolsGrid from '../SymbolsGrid';
 import { useActivityProgress } from '../../hooks/useActivityProgress';
@@ -69,9 +68,6 @@ const ActivityGrid = ({
       />
 
       <BoxRow justifyContent="space-evenly" width="80%">
-        {finish && (
-          <LabelValue value={clicksCount.toString()} text="TENTATIVAS" />
-        )}
         <CustomButton
           href="/"
           ariaLabel="Ir para o início"

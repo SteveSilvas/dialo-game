@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dialo_game}
+      POSTGRES_USER: ${POSTGRES_USER:-dialo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dialo_dev}
+    ports:
+      - "5432:5432"
+    volumes:
+      - dialo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dialo} -d ${POSTGRES_DB:-dialo_game}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+    environment:
+      ConnectionStrings__Default: ${ConnectionStrings__Default:-Host=db;Port=5432;Database=dialo_game;Username=dialo;Password=dialo_dev}
+      Jwt__SigningKey: ${Jwt__SigningKey:?defina Jwt__SigningKey no .env (minimo 32 caracteres)}
+      Jwt__Issuer: dialo-game
+      Jwt__Audience: dialo-game-web
+      Google__ClientId: ${Google__ClientId:-}
+      Cors__AllowedOrigins__0: ${Cors__AllowedOrigins__0:-http://localhost:5173}
+      ApplyMigrationsOnStartup: ${ApplyMigrationsOnStartup:-true}
+      Auth__RefreshCookieSecure: ${Auth__RefreshCookieSecure:-false}
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  dialo_pgdata:

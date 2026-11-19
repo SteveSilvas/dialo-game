@@ -24,5 +24,13 @@ export const generateSimbolsArray = (): string[] => {
 }
 
 export const shuffleArray = <T,>(items: T[]): T[] => {
-    return [...items].sort(() => Math.random() - 0.5);
+    // Fisher-Yates. `sort` com comparador aleatório não gera distribuição
+    // uniforme: com 3 itens, a última posição recebia 50% dos sorteios, o que
+    // fazia o mesmo símbolo cair sempre no fim da grade.
+    const result = [...items];
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
 }

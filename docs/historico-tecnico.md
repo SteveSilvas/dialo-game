@@ -39,6 +39,23 @@ registram o que foi feito e o que restou de manutenção pontual.
 - [x] **Home do módulo com placeholder** — o cartão "Letras 2" foi renomeado para "DESAFIO"
       e vogais/consoantes/desafio passaram a usar a miniatura de letras (antes repetiam a
       imagem de números).
+- [x] **Sorteio com viés** — `shuffleArray` usava `sort(() => Math.random() - 0.5)`, que não
+      gera distribuição uniforme: medido com 3 itens, a última posição recebia ~50% dos
+      sorteios (contra 33% esperado), então o mesmo símbolo caía sempre no fim da grade.
+      Trocado por Fisher-Yates, com teste de distribuição.
+- [x] **Arrastar não funcionava no Firefox e no Safari** — o `onDragStart` não preenchia o
+      `dataTransfer`, e esses navegadores só iniciam o arraste se houver dado. Agora o item
+      é gravado como `text/plain`.
+- [x] **Unhandled rejection ao tocar sons** — `play()` devolve uma promise que rejeita
+      quando o navegador bloqueia o áudio sem gesto; sem `catch`, cada clique poluía o
+      console. Agora a rejeição é tratada.
+- [x] **Progresso podia regredir** — reenviar a mesma pontuação com mais erros sobrescrevia
+      os erros da melhor tentativa, derrubando as estrelas de 3 para 1. O desempate passou a
+      ser: mais acertos vence; com a mesma nota, vence quem teve menos erros. Coberto por
+      teste de unidade e verificado contra a API real.
+- [x] **Validação de configuração tardia** — `Jwt:SigningKey` só era validada na primeira
+      requisição; agora `AuthOptions` e `RateLimitingOptions` usam `ValidateOnStart` e a API
+      falha no boot com mensagem clara.
 
 ---
 

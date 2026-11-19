@@ -44,9 +44,10 @@ const Atividade05 = () => {
 
                 <CustomButton
                     className="refresh-button min-w-0"
+                    onClick={reset}
+                    ariaLabel="Reiniciar atividade"
                     leftIcon={
                         <TiRefresh
-                            onClick={reset}
                             className="text-2xl sm:text-3xl"
                             style={{ color: 'white' }}
                         />
@@ -83,6 +84,7 @@ const Atividade05 = () => {
                 )}
                 <CustomButton
                     href="/"
+                    ariaLabel="Ir para o início"
                     leftIcon={<TiHome className="text-2xl sm:text-3xl" style={{ color: 'white' }} />}
                 />
                 <CustomButton

@@ -6,31 +6,26 @@ import { TiNotes, TiVolumeMute } from "react-icons/ti";
 const SoundPlayer = () => {
   const [sound, setSound] = useAtom(soundAtom);
 
-  const handleStopSound = () => {
+  const handleToggleSound = () => {
     setSound({
       ...sound,
-      isActive: false,
-    });
-  };
-
-  const handleStartSound = () => {
-    setSound({
-      ...sound,
-      isActive: true,
+      isActive: !sound.isActive,
     });
   };
 
   return (
     <CustomButton
+      onClick={handleToggleSound}
+      ariaLabel={sound.isActive ? "Pausar som" : "Ativar som"}
+      ariaPressed={sound.isActive}
       leftIcon={
         sound.isActive ? (
-          <TiVolumeMute onClick={handleStopSound} className="icon-sound" />
+          <TiVolumeMute className="icon-sound" />
         ) : (
-          <TiNotes onClick={handleStartSound} className="icon-sound" />
+          <TiNotes className="icon-sound" />
         )
       }
       className="button-sound"
-
     />
   );
 };

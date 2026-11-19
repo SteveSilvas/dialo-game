@@ -57,6 +57,7 @@ const Modulo01Home = () => {
                 gap="1rem">
                 <CustomButton
                     href="/"
+                    ariaLabel="Ir para o início"
                     leftIcon={
                         <TiHome className="text-2xl sm:text-3xl" style={{
                             color: 'white'

@@ -11,6 +11,8 @@ interface ButtonProps {
     href?: string;
     leftIcon?: React.JSX.Element;
     rightIcon?: React.JSX.Element;
+    ariaLabel?: string;
+    ariaPressed?: boolean;
 }
 const CustomButton: React.FC<ButtonProps> = ({
     text,
@@ -18,7 +20,9 @@ const CustomButton: React.FC<ButtonProps> = ({
     className,
     href,
     leftIcon,
-    rightIcon
+    rightIcon,
+    ariaLabel,
+    ariaPressed
 }) => {
 
     const handleClick = () => {
@@ -26,40 +30,49 @@ const CustomButton: React.FC<ButtonProps> = ({
         playSound(clickSong);
     }
 
+    const hasAccessibleName = Boolean(text || ariaLabel);
+
+    const decorate = (icon?: React.JSX.Element) =>
+        icon && hasAccessibleName
+            ? React.cloneElement(icon, { 'aria-hidden': 'true' })
+            : icon;
+
+    const left = decorate(leftIcon);
+    const right = decorate(rightIcon);
+
     const renderLink = () => {
         const gridColumns = text ? '1fr 1fr 1fr' : '1fr';
         return (
             <Link
                 className={className ?? 'flex-center button'}
                 onClick={handleClick}
+                aria-label={ariaLabel}
                 style={{
                     display: 'grid',
                     gridTemplateColumns: gridColumns,
                 }}
                 to={href ?? "/"}
             >
-                <div>{leftIcon}</div>
+                <div>{left}</div>
                 {text && <span style={{ margin: '0px 24px' }}>{text}</span>}
-                <div>{rightIcon}</div>
+                <div>{right}</div>
             </Link>
         );
     }
     const renderButton = () => {
         const buttonClassName = `button ${className ?? ''}`;
-        
+
         return (
-            <div
-                className={buttonClassName}>
-                {leftIcon}
-                {text &&
-                    <button
-                        onClick={handleClick}
-                        className={className}>
-                        <span>{text}</span>
-                    </button>
-                }
-                {rightIcon}
-            </div>
+            <button
+                type="button"
+                className={buttonClassName}
+                onClick={handleClick}
+                aria-label={ariaLabel}
+                aria-pressed={ariaPressed}>
+                {left}
+                {text && <span>{text}</span>}
+                {right}
+            </button>
         );
     }
 

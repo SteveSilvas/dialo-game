@@ -51,9 +51,10 @@ const ActivityGrid = ({
 
         <CustomButton
           className="refresh-button min-w-0 h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20"
+          onClick={reset}
+          ariaLabel="Reiniciar atividade"
           leftIcon={
             <TiRefresh
-              onClick={reset}
               className="text-2xl sm:text-3xl md:text-4xl"
               style={{ color: 'white' }}
             />
@@ -73,6 +74,7 @@ const ActivityGrid = ({
         )}
         <CustomButton
           href="/"
+          ariaLabel="Ir para o início"
           leftIcon={<TiHome style={{ fontSize: '3rem', color: 'white' }} />}
         />
         <CustomButton

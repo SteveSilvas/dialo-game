@@ -84,8 +84,13 @@ Construído com um stack moderno de front-end, focado em performance e experiên
 
 ## Requisitos
 
-- **[Node.js](https://nodejs.org/) 20.19+** (ou 22.12+ / 24+) — recomendado Node 24 LTS
-- **npm** 10+
+- **[Node.js](https://nodejs.org/) 24 LTS ou 26 LTS** — recomendado Node 26 LTS
+- **npm** 11+
+
+O repositório traz um `.nvmrc` com a versão recomendada. Com
+[nvm](https://github.com/nvm-sh/nvm) instalado, basta rodar `nvm use` na raiz do
+projeto. O CI e o `Dockerfile` usam a mesma versão, então o que passa localmente
+passa no build.
 
 ## Começando
 
@@ -209,8 +214,8 @@ estático de `public/audio/`, baixado só depois do clique em **INICIAR**.
 | Item | Antes | Depois |
 | --- | --- | --- |
 | Música de fundo | `soudMr.mp3` — 2.347.680 B (160 kbps, estéreo, 24 kHz) | Opus 653.932 B / MP3 587.396 B (mono, 40 kbps) |
-| JS | 284,62 kB (92,73 kB gzip) | 284,70 kB (92,80 kB gzip) |
-| CSS | 13,82 kB (3,52 kB gzip) | 14,09 kB (3,56 kB gzip) |
+| JS | 284,62 kB (92,73 kB gzip) | 285,04 kB (92,93 kB gzip) |
+| CSS | 13,82 kB (3,52 kB gzip) | 14,13 kB (3,57 kB gzip) |
 | Baixado na home antes do gesto | 2,24 MB de áudio | 0 B de áudio |
 
 O navegador só pede um dos dois arquivos: ~654 kB no Opus, ~587 kB no MP3.

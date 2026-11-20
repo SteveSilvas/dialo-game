@@ -67,6 +67,7 @@ const Atividade05 = () => {
                     draggable
                     onDragStart={setDraggingItem}
                     onSelect={selectOption}
+                    label="Símbolos da atividade"
                 />
                 <div
                     className="caixa-letras-escolhidas-atividade-05"
@@ -77,6 +78,7 @@ const Atividade05 = () => {
                         items={optionsFound}
                         removing={removing}
                         className="caixa-letras-escolhidas-grid"
+                        label="Letras guardadas na caixa"
                     />
                 </div>
             </section>

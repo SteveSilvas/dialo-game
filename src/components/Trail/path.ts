@@ -20,14 +20,21 @@ const ROW_TOLERANCE = 4;
 
 const round = (value: number) => Math.round(value * 10) / 10;
 
-const groupRows = (activities: TrailBox[]): TrailBox[][] =>
-  activities.reduce<TrailBox[][]>((rows, box) => {
-    const last = rows[rows.length - 1];
-    if (last && Math.abs(last[0].top - box.top) < ROW_TOLERANCE) {
-      last.push(box);
+type TrailRow = {
+  top: number;
+  last: TrailBox;
+  boxes: TrailBox[];
+};
+
+const groupRows = (activities: TrailBox[]): TrailRow[] =>
+  activities.reduce<TrailRow[]>((rows, box) => {
+    const row = rows[rows.length - 1];
+    if (row && Math.abs(row.top - box.top) < ROW_TOLERANCE) {
+      row.boxes.push(box);
+      row.last = box;
       return rows;
     }
-    rows.push([box]);
+    rows.push({ top: box.top, last: box, boxes: [box] });
     return rows;
   }, []);
 
@@ -58,7 +65,7 @@ export const buildTrailPath = (segments: TrailSegment[]): string => {
     }
 
     const trunkX = Math.min(...activities.map((box) => box.left)) - GUTTER;
-    const barY = (row: TrailBox[]) => row[0].top - GUTTER / 2;
+    const barY = (row: TrailRow) => row.top - GUTTER / 2;
     const entryY = node.bottom + GUTTER / 2;
 
     // Tronco: sai do nó, encosta na lateral e desce passando por cada barra.
@@ -67,9 +74,9 @@ export const buildTrailPath = (segments: TrailSegment[]): string => {
     line(trunkX, entryY);
     rows.forEach((row) => line(trunkX, barY(row)));
 
-    if (next) {
-      const lastBottom = rows[rows.length - 1][0].bottom;
-      const exitY = Math.min(lastBottom + GUTTER / 2, next.top - GUTTER / 2);
+    const lastRow = rows[rows.length - 1];
+    if (next && lastRow) {
+      const exitY = Math.min(lastRow.last.bottom + GUTTER / 2, next.top - GUTTER / 2);
 
       line(trunkX, exitY);
       line(next.centerX, exitY);
@@ -80,9 +87,9 @@ export const buildTrailPath = (segments: TrailSegment[]): string => {
     rows.forEach((row) => {
       const y = barY(row);
       move(trunkX, y);
-      line(row[row.length - 1].centerX, y);
+      line(row.last.centerX, y);
 
-      row.forEach((activity) => {
+      row.boxes.forEach((activity) => {
         move(activity.centerX, y);
         line(activity.centerX, activity.top);
       });

@@ -11,6 +11,7 @@ const renderHome = () =>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<App />} />
+          <Route path="/trilha" element={<p>trilha</p>} />
           <Route path="/modulo-01" element={<p>módulo 01</p>} />
         </Route>
       </Routes>
@@ -21,6 +22,15 @@ describe('Home (INICIAR)', () => {
   beforeEach(() => {
     getDefaultStore().set(soundAtom, { isActive: false });
     jest.clearAllMocks();
+  });
+
+  it('leva à trilha, que é a tela principal depois do login', () => {
+    renderHome();
+
+    expect(screen.getByRole('link', { name: /INICIAR/i })).toHaveAttribute(
+      'href',
+      '/trilha',
+    );
   });
 
   it('não cria players de áudio próprios', () => {

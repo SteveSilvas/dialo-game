@@ -40,7 +40,7 @@ const Entrar = () => {
         : await login({ identifier, password });
 
       await signIn(data.user);
-      navigate('/modulo-01', { replace: true });
+      navigate('/trilha', { replace: true });
     } catch (caught) {
       if (caught instanceof ApiError) {
         setError(
@@ -145,7 +145,7 @@ const Entrar = () => {
         {isRegister ? 'Já tenho conta' : 'Criar uma conta'}
       </button>
 
-      <Link className="login-guest" to="/modulo-01">
+      <Link className="login-guest" to="/trilha">
         Continuar sem conta
       </Link>
 

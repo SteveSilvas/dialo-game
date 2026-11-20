@@ -68,14 +68,13 @@ describe('home de módulo genérica', () => {
     expect(
       await screen.findByRole('heading', { name: 'SONS DAS LETRAS' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /SONS/i })).toHaveAttribute(
-      'href',
-      '/modulo/modulo-02/atividade-01',
-    );
-    expect(screen.getByRole('link', { name: 'INICIAR MÓDULO' })).toHaveAttribute(
-      'href',
-      '/modulo/modulo-02/atividade-01',
-    );
+
+    // O módulo 02 ainda não tem tela de atividade: o card avisa que está em
+    // preparação em vez de linkar para uma rota que não existe.
+    expect(
+      screen.getByRole('img', { name: /SONS em preparação/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'INICIAR MÓDULO' })).not.toBeInTheDocument();
   });
 
   it('cai no catálogo local do módulo 01 quando a API não responde', async () => {

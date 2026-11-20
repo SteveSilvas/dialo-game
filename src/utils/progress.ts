@@ -1,21 +1,7 @@
 import type { Activity, Module } from '../api/types';
+import { TRAIL_PATH, activityPath, isPlayableModule } from './paths';
 
-/** Tela da trilha completa, usada quando não há atividade para retomar. */
-export const TRAIL_PATH = '/trilha';
-
-/**
- * Rotas por módulo. Só o módulo 01 tem telas de atividade hoje; um módulo novo
- * cai na trilha até ganhar rota própria — melhor voltar um nível do que mandar
- * a criança para um 404.
- */
-const MODULE_PATHS: Record<string, string> = {
-  'modulo-01': '/modulo-01',
-};
-
-export const activityPath = (moduleSlug: string, activitySlug: string): string => {
-  const base = MODULE_PATHS[moduleSlug];
-  return base ? `${base}/${activitySlug}` : TRAIL_PATH;
-};
+export { TRAIL_PATH, activityPath };
 
 const byOrder = <T extends { order: number }>(items: readonly T[]): T[] =>
   [...items].sort((a, b) => a.order - b.order);
@@ -51,10 +37,13 @@ const targetOf = (
 /**
  * Atividade onde a criança parou: a primeira pendente do primeiro módulo
  * liberado, na ordem do catálogo. Módulo bloqueado é ignorado porque o servidor
- * recusaria o progresso com 403.
+ * recusaria o progresso com 403; módulo sem tela de atividade também, porque não
+ * existe para onde levar a criança.
  */
 export const resumeTarget = (modules: readonly Module[]): ResumeTarget | null => {
-  const playable = byOrder(modules).filter((module) => module.isUnlocked);
+  const playable = byOrder(modules).filter(
+    (module) => module.isUnlocked && isPlayableModule(module.slug),
+  );
 
   for (const module of playable) {
     const pending = byOrder(module.activities).find((activity) => !isCompleted(activity));

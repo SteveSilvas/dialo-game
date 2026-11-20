@@ -32,9 +32,10 @@ export const playActivity = async (
     await grid.getByRole('button', { name: target.toUpperCase(), exact: true }).click();
   }
 
-  // O item fica 1 s em animação de saída antes de sair da grade; PRÓXIMA só
-  // aparece quando a atividade é dada por concluída.
-  await expect(page.getByRole('link', { name: 'PRÓXIMA' })).toBeVisible({
-    timeout: 20_000,
-  });
+  // O item fica 1 s em animação de saída antes de sair da grade; o botão de
+  // avanço só aparece quando a atividade é dada por concluída. Na última
+  // atividade do módulo ele é CONCLUIR MÓDULO, não PRÓXIMA.
+  await expect(
+    page.getByRole('link', { name: /^(PRÓXIMA|CONCLUIR MÓDULO)$/ }),
+  ).toBeVisible({ timeout: 20_000 });
 };

@@ -98,6 +98,18 @@ describe('contrato do catálogo', () => {
 
     expect(catalog.modules[0]!.activities[1]!.progress).toBeNull();
   });
+
+  it('trata 200 sem catálogo como servidor indisponível', async () => {
+    // Host estático devolve o index.html com 200 quando a chamada relativa cai
+    // no fallback de SPA; sem esta checagem a trilha quebrava em `[...modules]`.
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => '<!doctype html><html><body>SPA</body></html>',
+    } as Response);
+
+    await expect(getCatalog()).rejects.toMatchObject({ status: 0 });
+  });
 });
 
 describe('registro de progresso', () => {

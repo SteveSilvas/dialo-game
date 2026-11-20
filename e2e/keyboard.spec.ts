@@ -54,8 +54,14 @@ test.describe('trilha navegável só com teclado', () => {
 
       await playActivityByKeyboard(page, isValid);
 
-      // A última atividade fecha o módulo: o botão vira CONCLUIR MÓDULO.
+      // A última atividade fecha o módulo: o botão vira CONCLUIR MÓDULO assim
+      // que a checagem do catálogo responde. Esperar o rótulo final antes de
+      // tabular evita a corrida entre a troca do botão e a busca pelo foco.
       const next = slug === 'atividade-05' ? 'CONCLUIR MÓDULO' : 'PRÓXIMA';
+      await expect(page.getByRole('link', { name: next })).toBeVisible({
+        timeout: 20_000,
+      });
+
       await tabTo(page, next);
       await page.keyboard.press('Enter');
     }

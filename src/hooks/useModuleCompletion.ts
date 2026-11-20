@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getCatalog } from '../api/catalog';
 import type { Catalog } from '../api/types';
-import { readGuestProgress } from '../state/guestProgress';
+import { applyGuestProgress, readGuestProgress } from '../state/guestProgress';
 import { localModule } from '../state/localTrail';
 import {
   findNextModule,
@@ -60,13 +60,16 @@ export const useModuleCompletion = (
     if (!result) return { ready: false, complete: false };
 
     if (catalog) {
-      const module = catalog.modules.find((item) => item.slug === moduleSlug);
+      // O servidor não guarda progresso de convidado: sem este merge a
+      // checagem leria tudo zerado e o módulo nunca fecharia.
+      const modules = applyGuestProgress(catalog.modules);
+      const module = modules.find((item) => item.slug === moduleSlug);
       if (!module) return { ready: true, complete: false };
 
       return {
         ready: true,
         complete: summarizeModule(module, result).isComplete,
-        nextModuleSlug: findNextModule(catalog.modules, module)?.slug,
+        nextModuleSlug: findNextModule(modules, module)?.slug,
       };
     }
 
@@ -77,7 +80,7 @@ export const useModuleCompletion = (
 
       return {
         ready: true,
-        complete: summarizeGuestModule(slugs, readGuestProgress()).isComplete,
+        complete: summarizeGuestModule(slugs, readGuestProgress(), result).isComplete,
       };
     }
 

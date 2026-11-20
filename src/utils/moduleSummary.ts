@@ -120,10 +120,20 @@ export const summarizeModule = (
 export const summarizeGuestModule = (
   slugs: string[],
   items: ActivityResult[],
+  lastResult?: ActivityResult,
 ): ModuleSummary => {
-  const results = slugs.map((slug) =>
-    toResult(items.find((item) => item.activitySlug === slug) ?? {}),
-  );
+  const results = slugs.map((slug) => {
+    const saved = toResult(items.find((item) => item.activitySlug === slug) ?? {});
+
+    // A gravação local é assíncrona em relação a esta checagem; aplicar o
+    // resultado recém-concluído evita que o módulo deixe de fechar por correr
+    // antes do `localStorage` ser atualizado.
+    if (lastResult && lastResult.activitySlug === slug) {
+      return mergeResult(saved, toResult(lastResult));
+    }
+
+    return saved;
+  });
 
   const completed = results.filter((result) => result.completed).length;
 

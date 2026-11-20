@@ -115,6 +115,21 @@ describe('resumeTarget', () => {
   it('não inventa alvo quando o catálogo está vazio', () => {
     expect(resumeTarget([])).toBeNull();
   });
+
+  it('não manda a criança para módulo sem tela de atividade', () => {
+    // Módulo 01 concluído e 02 liberado: sem player, "CONTINUAR" cairia na
+    // trilha dizendo que parou numa atividade que não abre.
+    const modules = [
+      buildModule('modulo-01', 1, [activity('atividade-01', 1, true)]),
+      buildModule('modulo-02', 2, [activity('modulo-02-atividade-01', 1)]),
+    ];
+
+    const target = resumeTarget(modules);
+
+    expect(target?.moduleSlug).toBe('modulo-01');
+    expect(target?.replay).toBe(true);
+    expect(target?.href).toBe('/modulo-01/atividade-01');
+  });
 });
 
 describe('summarizeProgress', () => {

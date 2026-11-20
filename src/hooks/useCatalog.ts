@@ -4,8 +4,12 @@ import { getCatalog, recordProgress } from '../api/catalog';
 import { ApiError } from '../api/client';
 import type { Catalog, Module } from '../api/types';
 import { sessionAtom, isAuthenticated } from '../state/session';
-import { readGuestProgress, saveGuestProgress } from '../state/guestProgress';
-import { calculateStars, mergeBestAttempt } from '../utils/scoring';
+import {
+  applyGuestProgress,
+  readGuestProgress,
+  saveGuestProgress,
+} from '../state/guestProgress';
+import { mergeBestAttempt } from '../utils/scoring';
 
 export type ProgressReport = {
   bestScore: number;
@@ -108,42 +112,7 @@ export const useCatalog = () => {
    */
   const modules = useMemo<Module[]>(() => {
     if (!catalog) return [];
-    if (authenticated) return catalog.modules;
-
-    const guest = readGuestProgress();
-    if (guest.length === 0) return catalog.modules;
-
-    return catalog.modules.map((module) => {
-      const activities = module.activities.map((activity) => {
-        const saved = guest.find((item) => item.activitySlug === activity.slug);
-        if (!saved) return activity;
-
-        return {
-          ...activity,
-          progress: {
-            activitySlug: activity.slug,
-            bestScore: saved.bestScore,
-            attempts: saved.attempts,
-            errors: saved.errors,
-            stars: calculateStars(saved.bestScore, saved.errors),
-            completedAt: saved.completed ? new Date().toISOString() : null,
-          },
-        };
-      });
-
-      const required = activities.filter((activity) => activity.isRequired);
-
-      return {
-        ...module,
-        activities,
-        requiredCompleted: required.filter((activity) => activity.progress?.completedAt)
-          .length,
-        stars: activities.reduce(
-          (sum, activity) => sum + (activity.progress?.stars ?? 0),
-          0,
-        ),
-      };
-    });
+    return authenticated ? catalog.modules : applyGuestProgress(catalog.modules);
   }, [catalog, authenticated]);
 
   return { modules, status, reload };

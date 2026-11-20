@@ -1,5 +1,5 @@
-import type { ActivityProgressInput } from '../api/types';
-import { mergeBestAttempt } from '../utils/scoring';
+import type { ActivityProgressInput, Module } from '../api/types';
+import { calculateStars, mergeBestAttempt } from '../utils/scoring';
 
 const STORAGE_KEY = 'dialo:guest-progress:v1';
 
@@ -90,4 +90,46 @@ export const clearGuestProgress = () => {
   } catch {
     // Nada a limpar.
   }
+};
+
+/**
+ * Sobrepõe o progresso do `localStorage` no catálogo do servidor. O servidor
+ * não conhece o convidado, então sem isso a trilha mostraria tudo zerado e a
+ * checagem de fim de módulo nunca fecharia.
+ */
+export const applyGuestProgress = (modules: Module[]): Module[] => {
+  const guest = readGuestProgress();
+  if (guest.length === 0) return modules;
+
+  return modules.map((module) => {
+    const activities = module.activities.map((activity) => {
+      const saved = guest.find((item) => item.activitySlug === activity.slug);
+      if (!saved) return activity;
+
+      return {
+        ...activity,
+        progress: {
+          activitySlug: activity.slug,
+          bestScore: saved.bestScore,
+          attempts: saved.attempts,
+          errors: saved.errors,
+          stars: calculateStars(saved.bestScore, saved.errors),
+          completedAt: saved.completed ? new Date().toISOString() : null,
+        },
+      };
+    });
+
+    const required = activities.filter((activity) => activity.isRequired);
+
+    return {
+      ...module,
+      activities,
+      requiredCompleted: required.filter((activity) => activity.progress?.completedAt)
+        .length,
+      stars: activities.reduce(
+        (sum, activity) => sum + (activity.progress?.stars ?? 0),
+        0,
+      ),
+    };
+  });
 };

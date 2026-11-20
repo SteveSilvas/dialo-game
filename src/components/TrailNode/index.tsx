@@ -13,31 +13,25 @@ export type TrailNodeProps = {
   pulse?: boolean;
 };
 
-const describeState = (
-  module: Module,
-  locked: boolean,
-  lockedReason?: string,
-): string => {
-  if (locked) return `Bloqueado: ${lockedReason ?? 'conclua o módulo anterior'}.`;
+const describeState = (locked: boolean): string =>
+  locked ? 'Bloqueado.' : 'Abrir módulo.';
 
-  switch (module.status) {
-    case 'completed':
-      return `Concluído, ${module.stars} de ${module.maxStars} estrelas. Abrir módulo.`;
-    case 'current':
-      return `Módulo atual, ${module.requiredCompleted} de ${module.requiredTotal} atividades concluídas, ${module.stars} de ${module.maxStars} estrelas. Abrir módulo.`;
-    default:
-      return 'Abrir módulo.';
-  }
-};
+/**
+ * Texto curto de estado, em caixa alta só na tela. O `aria-label` usa a mesma
+ * frase em caixa normal: a WCAG 2.5.3 exige que o texto visível apareça no
+ * nome acessível, e escrever os dois a partir da mesma fonte evita que
+ * divirjam.
+ */
+const describeMeta = (module: Module, locked: boolean, lockedReason?: string): string => {
+  if (locked) return lockedReason ?? 'Conclua o módulo anterior';
 
-const describeMeta = (module: Module): string => {
   if (module.status === 'completed') {
-    return `CONCLUÍDO · ★ ${module.stars}/${module.maxStars}`;
+    return `Concluído · ★ ${module.stars} de ${module.maxStars}`;
   }
   if (module.status === 'current') {
-    return `VOCÊ ESTÁ AQUI · ${module.requiredCompleted}/${module.requiredTotal} · ★ ${module.stars}/${module.maxStars}`;
+    return `Você está aqui · ${module.requiredCompleted} de ${module.requiredTotal} · ★ ${module.stars} de ${module.maxStars}`;
   }
-  return 'DISPONÍVEL';
+  return 'Disponível';
 };
 
 /**
@@ -52,7 +46,8 @@ const TrailNode = ({
   pulse = false,
 }: TrailNodeProps) => {
   const locked = !module.isUnlocked || module.status === 'locked';
-  const label = `Módulo ${module.order}: ${module.title}. ${describeState(module, locked, lockedReason)}`;
+  const meta = describeMeta(module, locked, lockedReason);
+  const label = `Módulo ${module.order}: ${module.title}. ${meta}. ${describeState(locked)}`;
 
   const className = [
     'trail-node',
@@ -74,12 +69,10 @@ const TrailNode = ({
       <span className="trail-node__body">
         <span className="trail-node__title">
           {module.order}. {module.title.toUpperCase()}
-        </span>
+        </span>{' '}
 
         <span className="trail-node__meta" aria-hidden="true">
-          {locked
-            ? (lockedReason?.toUpperCase() ?? 'CONCLUA O MÓDULO ANTERIOR')
-            : describeMeta(module)}
+          {meta.toUpperCase()}
         </span>
       </span>
     </>

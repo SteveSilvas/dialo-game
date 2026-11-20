@@ -7,7 +7,7 @@ import activity01Letras from '../../assets/modulo_01/atividade_01.png';
 import activity02Numeros from '../../assets/modulo_01/atividade_02_numeros.png';
 import { useCatalog } from "../../hooks/useCatalog";
 import { localModule } from "../../state/localTrail";
-import { activityPath, conclusionPath } from "../../utils/paths";
+import { activityPath, conclusionPath, isPlayableModule } from "../../utils/paths";
 import { TRAIL_PATH } from "../../utils/progress";
 
 /**
@@ -53,6 +53,10 @@ const ActivityCard = ({
 }) => {
     const thumb = THUMBNAILS[activity.slug] ?? DEFAULT_THUMBNAIL;
 
+    // Módulo sem tela de atividade não abre card clicável: o link levaria a
+    // um 404 ou de volta à trilha, sem explicar por quê.
+    const playable = isPlayableModule(moduleSlug);
+
     return (
         <div className={`activity-card${activity.locked ? ' activity-card--locked' : ''}`}>
             {activity.locked ? (
@@ -63,6 +67,15 @@ const ActivityCard = ({
                 >
                     <img src={thumb.src} className="box-image" alt="" />
                     <label>🔒</label>
+                </div>
+            ) : !playable ? (
+                <div
+                    className="box-container w-24 h-24 sm:w-28 sm:h-28 opacity-70"
+                    aria-label={`${activity.title} em preparação`}
+                    role="img"
+                >
+                    <img src={thumb.src} className="box-image" alt="" />
+                    <label>EM BREVE</label>
                 </div>
             ) : (
                 <BoxActivity
@@ -182,6 +195,7 @@ const ModuleHome = ({ moduleSlug = 'modulo-01' }: ModuleHomeProps) => {
                         VER CONCLUSÃO
                     </Link>
                 ) : (
+                    isPlayableModule(slug) &&
                     firstActivity && (
                         <Link className="button" to={activityPath(slug, firstActivity.slug)}>
                             INICIAR MÓDULO

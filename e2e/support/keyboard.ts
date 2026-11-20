@@ -103,8 +103,10 @@ export const playActivityByKeyboard = async (
 
   const grid = page.getByRole('group', { name: 'Símbolos da atividade' });
 
+  const nextButton = page.getByRole('link', { name: /^(PRÓXIMA|CONCLUIR MÓDULO)$/ });
+
   for (let step = 0; step < 400; step++) {
-    if (await page.getByRole('link', { name: 'PRÓXIMA' }).isVisible()) break;
+    if (await nextButton.isVisible()) break;
 
     const focused = await readFocus(page, { timeout: 1_000 });
     expect(focused, 'o foco não pode se perder no meio da atividade').not.toBeNull();
@@ -131,7 +133,5 @@ export const playActivityByKeyboard = async (
     }
   }
 
-  await expect(page.getByRole('link', { name: 'PRÓXIMA' })).toBeVisible({
-    timeout: 20_000,
-  });
+  await expect(nextButton).toBeVisible({ timeout: 20_000 });
 };

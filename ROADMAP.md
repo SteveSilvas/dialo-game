@@ -8,10 +8,10 @@ plataforma de alfabetização com trilha de progressão, contas e progresso salv
 > para frente.
 
 **Estado atual:** Módulo 01 completo e publicado em
-[dialo-game.vercel.app](https://dialo-game.vercel.app), com 5 atividades, 64 testes no
+[dialo-game.vercel.app](https://dialo-game.vercel.app), com 5 atividades, 211 testes no
 front e CI com deploy automático.
 
-A **API já existe e está testada** em `apps/api` (.NET 10 + EF Core + PostgreSQL, 75
+A **API já existe e está testada** em `apps/api` (.NET 10 + EF Core + PostgreSQL, 78
 testes): cadastro/login com JWT e Google, catálogo de módulos e atividades, progresso
 por atividade com estrelas calculadas no servidor e desbloqueio entre módulos
 validado na API.

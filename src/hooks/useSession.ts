@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { refreshSession } from '../api/client';
+import { refreshSession, SESSION_EXPIRED_EVENT } from '../api/client';
 import { logout as logoutRequest } from '../api/auth';
 import { sessionAtom } from '../state/session';
 import type { User } from '../api/types';
@@ -36,6 +36,35 @@ export const useSessionRestore = () => {
       );
     })();
   }, [setSession]);
+};
+
+/**
+ * Rebaixa a sessão quando a API recusa o token no meio do jogo. `refreshSession`
+ * devolve `null` tanto para "não havia sessão" quanto para "o servidor não
+ * respondeu"; aqui só o primeiro caso importa, então a checagem é pelo estado
+ * atual — quem estava autenticado e perdeu o token volta a ser visitante.
+ *
+ * O progresso fica no `localStorage` e na fila: a criança continua de onde
+ * parou, agora como convidada, sem perder a rodada.
+ */
+export const useSessionExpiry = () => {
+  const session = useAtomValue(sessionAtom);
+  const setSession = useSetAtom(sessionAtom);
+
+  useEffect(() => {
+    if (session.status !== 'authenticated') return;
+
+    const handleExpired = () => {
+      setSession((current) =>
+        current.status === 'authenticated'
+          ? { status: 'anonymous', user: null }
+          : current,
+      );
+    };
+
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleExpired);
+  }, [session.status, setSession]);
 };
 
 export const useSession = () => {

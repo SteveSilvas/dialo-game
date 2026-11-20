@@ -32,6 +32,13 @@ export class ApiError extends Error {
 let accessToken: string | null = null;
 let refreshInFlight: Promise<AuthResponse | null> | null = null;
 
+/**
+ * Disparado quando a API recusa o token e o refresh não devolve sessão nova.
+ * Quem escuta (o `Layout`) rebaixa a sessão para visitante; o jogo continua,
+ * porque o progresso também vive no aparelho.
+ */
+export const SESSION_EXPIRED_EVENT = 'dialo:session-expired';
+
 export const setAccessToken = (token: string | null) => {
   accessToken = token;
 };
@@ -112,6 +119,9 @@ export const refreshSession = async (): Promise<AuthResponse | null> => {
   if (refreshInFlight) return refreshInFlight;
 
   refreshInFlight = (async () => {
+    // Só anuncia expiração se havia sessão: no primeiro carregamento de quem
+    // nunca entrou, a falha é o estado normal e não deve virar evento.
+    const hadSession = accessToken !== null;
     try {
       const data = (await rawRequest('/auth/refresh', {
         method: 'POST',
@@ -120,6 +130,7 @@ export const refreshSession = async (): Promise<AuthResponse | null> => {
       return data;
     } catch {
       accessToken = null;
+      if (hadSession) window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
       return null;
     } finally {
       refreshInFlight = null;

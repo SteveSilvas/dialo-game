@@ -571,7 +571,19 @@ domínio no deploy, defina-a lá — e libere o domínio do front em
 VITE_API_URL=https://api.dialo.seudominio.com.br
 ```
 
-Ambas são lidas em tempo de build (veja `define` no `vite.config.ts`), então mudar
+`VITE_GOOGLE_CLIENT_ID` habilita o botão "Entrar com Google". Precisa ser o
+**mesmo** client id configurado em `Google__ClientId` na API: o front recebe o
+`idToken` do Google e a API valida a assinatura contra esse id. Sem a variável, o
+botão simplesmente não aparece e o login por senha continua funcionando.
+
+```sh
+VITE_GOOGLE_CLIENT_ID=000000000000-abcdefg.apps.googleusercontent.com
+```
+
+No Google Cloud Console, cadastre a origem do front em *Authorized JavaScript
+origins* (`http://localhost:5173` e o domínio de produção).
+
+Todas são lidas em tempo de build (veja `define` no `vite.config.ts`), então mudar
 o valor exige um novo deploy. O modelo está em `.env.example`.
 
 ### API em produção

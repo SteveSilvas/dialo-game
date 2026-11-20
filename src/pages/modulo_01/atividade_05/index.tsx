@@ -6,7 +6,7 @@ import PanelPoints from "../../../components/PanelPoints";
 import SymbolsGrid from "../../../components/SymbolsGrid";
 import { useActivityProgress } from "../../../hooks/useActivityProgress";
 import { useModuleCompletion } from "../../../hooks/useModuleCompletion";
-import { useProgressReporter } from "../../../hooks/useCatalog";
+import { useProgressReporter } from "../../../hooks/useProgressReporter";
 import { generateAlphabetArray, generateSimbolsArray, shuffleArray } from "../../../utils/functions";
 import type { ActivityResult } from "../../../utils/moduleSummary";
 import { conclusionPath } from "../../../utils/paths";
@@ -33,7 +33,7 @@ const Atividade05 = () => {
         reset,
     } = useActivityProgress(buildOptions, isConsoante, (result) => {
         setLastResult({ activitySlug: ACTIVITY_SLUG, ...result, completed: true });
-        void reportProgress(ACTIVITY_SLUG, { ...result, completed: true });
+        reportProgress(ACTIVITY_SLUG, { ...result, completed: true });
     });
     const [draggingItem, setDraggingItem] = useState<string | null>(null);
 

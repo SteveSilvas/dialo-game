@@ -1,27 +1,10 @@
 import { useCallback, useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { refreshSession } from '../api/client';
-import { importProgress } from '../api/catalog';
 import { logout as logoutRequest } from '../api/auth';
 import { sessionAtom } from '../state/session';
 import type { User } from '../api/types';
-import { clearGuestProgress, readGuestProgress } from '../state/guestProgress';
-
-/**
- * Envia o progresso feito como convidado para a conta recém-logada. A API só
- * melhora o que já existe, então repetir a importação é seguro.
- */
-const migrateGuestProgress = async () => {
-  const items = readGuestProgress();
-  if (items.length === 0) return;
-
-  try {
-    await importProgress(items);
-    clearGuestProgress();
-  } catch {
-    // Mantém o progresso local: a próxima entrada tenta de novo.
-  }
-};
+import { importGuestProgressAtom, resetProgressAtom } from '../state/progress';
 
 // A restauração roda uma vez por carregamento. Cada componente que chama
 // `useSessionRestore` dispararia o seu próprio refresh, e como o refresh
@@ -58,21 +41,26 @@ export const useSessionRestore = () => {
 export const useSession = () => {
   const session = useAtomValue(sessionAtom);
   const setSession = useSetAtom(sessionAtom);
+  const importGuestProgress = useSetAtom(importGuestProgressAtom);
+  const resetProgress = useSetAtom(resetProgressAtom);
 
   const signOut = useCallback(async () => {
     await logoutRequest().catch(() => undefined);
+    // Antes da sessão: o progresso da conta não pode sobrar para o próximo
+    // login no mesmo aparelho.
+    resetProgress();
     setSession({ status: 'anonymous', user: null });
-  }, [setSession]);
+  }, [resetProgress, setSession]);
 
   const signIn = useCallback(
     async (user: User) => {
       // A importação termina antes de a sessão virar autenticada: o catálogo é
       // buscado quando a sessão muda, e buscar antes do import mostraria a
       // trilha zerada por um instante — o progresso "sumiria" na conversão.
-      await migrateGuestProgress();
+      await importGuestProgress();
       setSession({ status: 'authenticated', user });
     },
-    [setSession],
+    [importGuestProgress, setSession],
   );
 
   return { session, signIn, signOut };

@@ -1,5 +1,7 @@
 import type { Activity, Module } from '../api/types';
+import type { ProgressMap } from '../state/progress';
 import { TRAIL_PATH, activityPath, isPlayableModule } from './paths';
+import { calculateStars, mergeBestAttempt } from './scoring';
 
 export { TRAIL_PATH, activityPath };
 
@@ -55,6 +57,63 @@ export const resumeTarget = (modules: readonly Module[]): ResumeTarget | null =>
 
   const replayActivity = byOrder(first.activities)[0];
   return replayActivity ? targetOf(first, replayActivity, true) : null;
+};
+
+/**
+ * Sobrepõe no catálogo o progresso que o servidor ainda não conhece: o
+ * `localStorage` do convidado (onde ele é o jogo inteiro) e a fila de envio de
+ * quem tem conta (o `PUT` pode estar em voo ou ter falhado).
+ *
+ * Nunca piora o que veio do servidor — usa a mesma regra de desempate dele.
+ */
+export const applyProgress = (
+  modules: readonly Module[],
+  progress: ProgressMap,
+): Module[] => {
+  if (Object.keys(progress).length === 0) return [...modules];
+
+  const completedAt = new Date().toISOString();
+
+  return modules.map((module) => {
+    const activities = module.activities.map((activity): Activity => {
+      const saved = progress[activity.slug];
+      if (!saved) return activity;
+
+      const server = activity.progress;
+      const { bestScore, errors } = mergeBestAttempt(
+        server?.bestScore ?? 0,
+        server?.errors ?? 0,
+        saved.bestScore,
+        saved.errors,
+      );
+
+      return {
+        ...activity,
+        progress: {
+          activitySlug: activity.slug,
+          bestScore,
+          attempts: (server?.attempts ?? 0) + saved.attempts,
+          errors,
+          stars: Math.max(server?.stars ?? 0, calculateStars(bestScore, errors)),
+          completedAt:
+            server?.completedAt ?? (saved.completed ? completedAt : null),
+        },
+      };
+    });
+
+    const required = activities.filter((activity) => activity.isRequired);
+
+    return {
+      ...module,
+      activities,
+      requiredCompleted: required.filter((activity) => activity.progress?.completedAt)
+        .length,
+      stars: activities.reduce(
+        (sum, activity) => sum + (activity.progress?.stars ?? 0),
+        0,
+      ),
+    };
+  });
 };
 
 export type ProgressSummary = {

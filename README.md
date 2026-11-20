@@ -353,6 +353,16 @@ mesma regra do servidor (`src/utils/scoring.ts`) e o resultado fica no
 `POST /progress/import` e o servidor fica com a melhor tentativa de cada
 atividade. Por isso a conta é opcional, e não uma barreira na frente do jogo.
 
+**Progresso com escrita otimista.** O resultado vale no aparelho antes de o
+servidor responder: `src/state/progress.ts` grava no `localStorage` e publica o
+novo estado em Jotai, e a trilha lê esse átomo — não há estado de progresso
+paralelo em componente. O que ainda não subiu forma uma fila que
+`useProgressSync` envia em segundo plano, uma atividade por vez. Falha de rede
+interrompe a rodada sem perder nada e a fila volta sozinha, com espera
+crescente, quando a conexão retorna. Um indicador discreto
+(`src/components/SyncIndicator`) mostra "Salvando..." / "Salvo"; para quem joga
+sem conta ele não aparece, porque não há para onde sincronizar.
+
 ### Variáveis de ambiente
 
 Todas seguem o formato `Secao__Chave` do ASP.NET Core.

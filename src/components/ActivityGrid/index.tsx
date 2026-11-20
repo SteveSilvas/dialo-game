@@ -6,7 +6,7 @@ import PanelPoints from '../PanelPoints';
 import SymbolsGrid from '../SymbolsGrid';
 import { useActivityProgress } from '../../hooks/useActivityProgress';
 import { useModuleCompletion } from '../../hooks/useModuleCompletion';
-import { useProgressReporter } from '../../hooks/useCatalog';
+import { useProgressReporter } from '../../hooks/useProgressReporter';
 import type { ActivityResult } from '../../utils/moduleSummary';
 import { conclusionPath } from '../../utils/paths';
 import './index.css';
@@ -50,7 +50,7 @@ const ActivityGrid = ({
     reset,
   } = useActivityProgress(buildOptions, isValid, (result) => {
     setLastResult({ activitySlug, ...result, completed: true });
-    void reportProgress(activitySlug, { ...result, completed: true });
+    reportProgress(activitySlug, { ...result, completed: true });
   });
 
   // A criança escolhe a ordem dentro do módulo, então qualquer atividade pode

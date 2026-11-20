@@ -1,5 +1,5 @@
-import type { ActivityProgressInput, Module } from '../api/types';
-import { calculateStars, mergeBestAttempt } from '../utils/scoring';
+import type { ActivityProgressInput } from '../api/types';
+import { mergeBestAttempt } from '../utils/scoring';
 
 const STORAGE_KEY = 'dialo:guest-progress:v1';
 
@@ -51,9 +51,15 @@ export const readGuestProgress = (): GuestProgress[] => {
   }
 };
 
-const write = (items: GuestProgress[]) => {
+export const writeGuestProgress = (items: GuestProgress[]) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    // Fila vazia sai do storage em vez de virar `[]`: `getItem` nulo é o sinal
+    // de "nada pendente" que a importação e o indicador usam.
+    if (items.length === 0) {
+      localStorage.removeItem(STORAGE_KEY);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
   } catch {
     // Sem storage o jogo continua funcionando, só não guarda o progresso.
   }
@@ -63,12 +69,19 @@ const write = (items: GuestProgress[]) => {
  * Reaproveita a regra de desempate do servidor (`mergeBestAttempt`): repetir
  * uma atividade nunca piora o registro guardado.
  */
-const merge = (current: GuestProgress, next: GuestProgress): GuestProgress => ({
-  activitySlug: current.activitySlug,
-  ...mergeBestAttempt(current.bestScore, current.errors, next.bestScore, next.errors),
-  attempts: current.attempts + next.attempts,
-  completed: current.completed || next.completed,
-});
+export const mergeGuestProgress = (
+  current: GuestProgress | undefined,
+  next: GuestProgress,
+): GuestProgress => {
+  if (!current) return { ...next };
+
+  return {
+    activitySlug: current.activitySlug,
+    ...mergeBestAttempt(current.bestScore, current.errors, next.bestScore, next.errors),
+    attempts: current.attempts + next.attempts,
+    completed: current.completed || next.completed,
+  };
+};
 
 export const saveGuestProgress = (entry: GuestProgress): GuestProgress[] => {
   const items = readGuestProgress();
@@ -77,10 +90,20 @@ export const saveGuestProgress = (entry: GuestProgress): GuestProgress[] => {
   if (index === -1) {
     items.push(entry);
   } else {
-    items[index] = merge(items[index]!, entry);
+    items[index] = mergeGuestProgress(items[index], entry);
   }
 
-  write(items);
+  writeGuestProgress(items);
+  return items;
+};
+
+/**
+ * Descarta o registro de uma atividade que o servidor já confirmou: o
+ * `localStorage` guarda só o que ainda não subiu, não um espelho do servidor.
+ */
+export const removeGuestProgress = (activitySlug: string): GuestProgress[] => {
+  const items = readGuestProgress().filter((item) => item.activitySlug !== activitySlug);
+  writeGuestProgress(items);
   return items;
 };
 
@@ -90,46 +113,4 @@ export const clearGuestProgress = () => {
   } catch {
     // Nada a limpar.
   }
-};
-
-/**
- * Sobrepõe o progresso do `localStorage` no catálogo do servidor. O servidor
- * não conhece o convidado, então sem isso a trilha mostraria tudo zerado e a
- * checagem de fim de módulo nunca fecharia.
- */
-export const applyGuestProgress = (modules: Module[]): Module[] => {
-  const guest = readGuestProgress();
-  if (guest.length === 0) return modules;
-
-  return modules.map((module) => {
-    const activities = module.activities.map((activity) => {
-      const saved = guest.find((item) => item.activitySlug === activity.slug);
-      if (!saved) return activity;
-
-      return {
-        ...activity,
-        progress: {
-          activitySlug: activity.slug,
-          bestScore: saved.bestScore,
-          attempts: saved.attempts,
-          errors: saved.errors,
-          stars: calculateStars(saved.bestScore, saved.errors),
-          completedAt: saved.completed ? new Date().toISOString() : null,
-        },
-      };
-    });
-
-    const required = activities.filter((activity) => activity.isRequired);
-
-    return {
-      ...module,
-      activities,
-      requiredCompleted: required.filter((activity) => activity.progress?.completedAt)
-        .length,
-      stars: activities.reduce(
-        (sum, activity) => sum + (activity.progress?.stars ?? 0),
-        0,
-      ),
-    };
-  });
 };

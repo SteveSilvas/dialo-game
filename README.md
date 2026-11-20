@@ -45,7 +45,8 @@ Hoje o repositório tem duas partes: o **jogo** (Vite + React + TypeScript, publ
 
 ## Como jogar
 
-1. Na tela inicial, toque em **INICIAR**.
+1. Na tela inicial, toque em **INICIAR** (na volta, o botão vira **CONTINUAR** e leva
+   direto à atividade onde a criança parou).
 2. Escolha uma atividade do módulo (letras, números, vogais, consoantes ou o desafio).
 3. Selecione os elementos corretos pedidos no topo da tela.
 4. Acompanhe seus **acertos**, **erros** e **tentativas** no painel de pontos.
@@ -54,6 +55,24 @@ Hoje o repositório tem duas partes: o **jogo** (Vite + React + TypeScript, publ
 O cadastro é opcional. Quem entra com uma conta leva o progresso para outro
 aparelho; quem joga como convidado tem o progresso guardado no navegador e pode
 importá-lo depois, ao criar a conta.
+
+### Rotas
+
+| Rota | Tela |
+| --- | --- |
+| `/` | Início, com o resumo do progresso |
+| `/trilha` | Trilha de módulos e atividades |
+| `/modulo-01` | Home do módulo 01 |
+| `/modulo-01/atividade-01` … `-05` | Atividades do módulo 01 |
+| `/modulo-01/conclusao` | Conclusão do módulo 01 |
+| `/modulo/:moduleSlug` | Home de um módulo novo, sem rota própria |
+| `/modulo/:moduleSlug/conclusao` | Conclusão de um módulo novo |
+| `/entrar` | Login e cadastro |
+| `*` | Página não encontrada |
+
+As URLs ficam em `src/utils/paths.ts`, fonte única usada pela trilha, pela home do
+módulo e pela conclusão. Módulo que ainda não tem tela de atividade (02 e 03) não
+vira link: o card aparece como **EM BREVE**, para a criança não cair num 404.
 
 ## Módulos e atividades
 
@@ -64,8 +83,14 @@ importá-lo depois, ao criar a conta.
   - Atividade 04 — Selecionar as consoantes
   - Atividade 05 — Desafio das consoantes (arrastar-e-soltar)
 
-> Novos módulos e atividades estão em desenvolvimento. A trilha é carregada do
-> catálogo no servidor, então um módulo novo entra no ar sem publicar o front.
+O catálogo do servidor também traz os módulos **02 — Sons das letras** e
+**03 — Sílabas**, com uma atividade cada. Eles existem para a progressão ser
+verificável de ponta a ponta (desbloqueio e bloqueio entre módulos); as telas de
+atividade ainda não foram implementadas, então os cards aparecem como
+**EM BREVE** em vez de virar link.
+
+> Novos módulos entram pela trilha sem publicar o front: a lista vem do catálogo
+> no servidor. A tela de atividade é que precisa de rota própria.
 
 ## Tecnologias
 
@@ -74,7 +99,7 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 <p>
   <a href="https://github.com/SteveSilvas/dialo-game/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/SteveSilvas/dialo-game/actions/workflows/ci.yml/badge.svg" /></a>
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" />
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white" />
   <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white" />
   <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white" />
   <img alt="React Router" src="https://img.shields.io/badge/React_Router-7-CA4245?logo=reactrouter&logoColor=white" />
@@ -89,7 +114,7 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 ### Front-end
 
 - **[React 19](https://react.dev/)** — biblioteca para construção de interfaces.
-- **[TypeScript 5.9](https://www.typescriptlang.org/)** — tipagem estática e segurança no código. Fixado na 5.9: a 7.x é o port nativo, ainda sem a API do compilador que `ts-jest` e `typescript-eslint` usam (ambos exigem `<7`).
+- **[TypeScript 6.0](https://www.typescriptlang.org/)** — tipagem estática e segurança no código. Fixado na 6.0: a 7.x é o port nativo, ainda sem a API do compilador que `ts-jest` e `typescript-eslint` usam (ambos exigem `<7`).
 - **[Vite](https://vite.dev/)** — build e servidor de desenvolvimento ultrarrápidos.
 - **[Tailwind CSS](https://tailwindcss.com/)** — utilitários de estilo e responsividade.
 - **[React Router](https://reactrouter.com/)** — navegação entre módulos e atividades.
@@ -106,7 +131,8 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 - **[PostgreSQL 17](https://www.postgresql.org/)** — banco relacional, com `jsonb` para o conteúdo das atividades.
 - **[Npgsql](https://www.npgsql.org/)** — driver e provider EF Core para PostgreSQL.
 - **JWT + Argon2id** — access token curto e refresh rotativo; senhas com Argon2id (`Konscious.Security.Cryptography`).
-- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 75 testes de unidade e integração.
+- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 78 testes de unidade e integração.
+- **[Playwright](https://playwright.dev/)** + **[axe-core](https://github.com/dequelabs/axe-core)** — E2E da trilha e acessibilidade.
 - **Google Identity Services** — login com Google validado no servidor (`Google.Apis.Auth`).
 
 ## Requisitos
@@ -208,10 +234,26 @@ npm run lint
 npm test
 ```
 
-São 112 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
+São 211 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
 navegação, o fluxo completo de cada atividade (acerto, erro, reinício e conclusão)
 e a integração com a API: cliente HTTP com renovação de token, contratos do
-catálogo, progresso de convidado e a tela de entrada.
+catálogo, progresso de convidado, fim de módulo e a tela de entrada.
+
+### Rode os testes de ponta a ponta
+
+```sh
+npx playwright install chromium   # uma vez
+npm run test:e2e
+```
+
+O Playwright sobe a API e o front construído por conta própria, contra um banco
+`dialo_e2e` recriado a cada execução (é preciso um Postgres em `localhost:5432`;
+`docker compose` em `apps/api` resolve). Os specs ficam em `e2e/` e cobrem o que
+teste de componente não alcança: visitante que joga, cria conta e leva o
+progresso junto; conclusão do módulo 01 liberando o 02 e mantendo o 03
+bloqueado; F5 em rota interna preservando a sessão; a trilha inteira percorrida
+só com teclado; e a auditoria de acessibilidade (axe, WCAG 2.1 AA) nas telas
+principais. O CI roda essa suíte em PRs que tocam o front.
 
 ## API (`apps/api`)
 
@@ -278,7 +320,7 @@ cd apps/api
 dotnet test DialoGame.slnx
 ```
 
-São 75 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
+São 78 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
 desbloqueio de módulo) e integração (auth, catálogo, progresso, rate limiting)
 contra um Postgres real. Cada classe de teste cria um banco próprio e o remove ao
 final.
@@ -338,6 +380,9 @@ Copie `apps/api/.env.example` para começar. Nunca comite o `.env` real.
 | `npm run lint` | Executa o ESLint em todo o projeto. |
 | `npm test` | Executa a suíte de testes com Jest. |
 | `npm run test:watch` | Executa os testes em modo observador. |
+| `npm run test:e2e` | Roda o E2E da trilha com Playwright (API + front). |
+| `npm run test:e2e:ui` | Abre o E2E no modo interativo do Playwright. |
+| `npm run test:e2e:report` | Abre o último relatório HTML do E2E. |
 | `npm run audio:build` | Regera a música de fundo em Opus e MP3 a partir do master. |
 | `npm run audio:opus` | Regera apenas o Opus (`public/audio/fundo.ogg`). |
 | `npm run audio:mp3` | Regera apenas o MP3 de fallback (`public/audio/fundo.mp3`). |
@@ -348,7 +393,7 @@ Na API, os comandos ficam no `dotnet` (rode dentro de `apps/api`):
 | --- | --- |
 | `dotnet run --project src/DialoGame.Api` | Sobe a API em `http://localhost:5099`. |
 | `dotnet build DialoGame.slnx` | Compila a solução inteira. |
-| `dotnet test DialoGame.slnx` | Executa os 75 testes de unidade e integração. |
+| `dotnet test DialoGame.slnx` | Executa os 78 testes de unidade e integração. |
 | `dotnet format --verify-no-changes` | Confere a formatação (o CI reprova se falhar). |
 
 ## Estrutura do projeto
@@ -369,6 +414,8 @@ apps/api/                 # API .NET 10
 └── tests/DialoGame.Tests/        # xUnit: unidade + integração
 
 audio-src/                # Master da música de fundo (entrada do npm run audio:build)
+e2e/                      # E2E com Playwright: specs e helpers (support/)
+playwright.config.ts      # Sobe API + preview e roda a suíte E2E
 public/
 ├── audio/                # Música de fundo comprimida, servida como estático
 └── og-image.png          # Imagem do card de compartilhamento
@@ -377,14 +424,17 @@ src/
 ├── assets/               # Imagens, logos e efeitos sonoros curtos
 ├── components/           # Componentes reutilizáveis (Button, BoxRow, PanelPoints, ActivityGrid...)
 ├── Context/              # Estado global com Jotai
-├── hooks/                # Hooks reutilizáveis (useActivityProgress, useCatalog, useSession)
+├── hooks/                # Hooks (useActivityProgress, useCatalog, useModuleCompletion, useSession)
 ├── pages/                # Telas e atividades do jogo
 │   ├── entrar/           # Login e cadastro
+│   ├── modulo/           # Home e conclusão genéricas de módulo
 │   ├── modulo_01/        # Atividades do módulo 01
+│   ├── trilha/           # Trilha com a progressão entre módulos
 │   └── NotFound/         # Página para rotas não encontradas
 ├── routes/               # Definição das rotas da aplicação
 ├── state/                # Sessão e progresso de convidado (localStorage)
-├── utils/                # Funções auxiliares (validações, sons, geradores, pontuação)
+├── utils/                # Funções auxiliares (validações, sons, pontuação, rotas)
+│   ├── paths.ts          # URLs da trilha (fonte única das rotas)
 │   └── backgroundMusic.ts # Fontes da música de fundo (Opus + MP3)
 ├── index.css             # Tailwind + tema (paleta infantil) e estilos globais
 ├── App.tsx               # Tela inicial
@@ -404,8 +454,8 @@ estático de `public/audio/`, baixado só depois do clique em **INICIAR**.
 | Item | Antes | Depois |
 | --- | --- | --- |
 | Música de fundo | `soudMr.mp3` — 2.347.680 B (160 kbps, estéreo, 24 kHz) | Opus 653.932 B / MP3 587.396 B (mono, 40 kbps) |
-| JS | 284,62 kB (92,73 kB gzip) | 286,17 kB (93,30 kB gzip) |
-| CSS | 13,82 kB (3,52 kB gzip) | 15,41 kB (3,79 kB gzip) |
+| JS | 284,62 kB (92,73 kB gzip) | 316,79 kB (102,96 kB gzip) |
+| CSS | 13,82 kB (3,52 kB gzip) | 22,36 kB (5,24 kB gzip) |
 | Baixado na home antes do gesto | 2,24 MB de áudio | 0 B de áudio |
 
 O navegador só pede um dos dois arquivos: ~654 kB no Opus, ~587 kB no MP3.
@@ -500,17 +550,16 @@ acontece no startup, e não na primeira requisição.
 
 ## Roadmap
 
-O Módulo 01 está completo e o front **já conversa com a API**: a trilha vem do
-catálogo do servidor, cada atividade concluída é registrada em
-`PUT /progress/activities/{slug}` e o progresso de convidado é importado ao
-entrar na conta. Sem conta, ou sem rede, o jogo segue funcionando e guarda o
-progresso no navegador.
+O Módulo 01 está completo, com as cinco atividades e a tela de conclusão. A
+trilha, as contas (JWT e Google) e o progresso em Postgres já estão no ar: cada
+atividade concluída é registrada em `PUT /progress/activities/{slug}` e o
+progresso de convidado é importado ao entrar na conta. Sem conta, ou sem rede, o
+jogo segue funcionando e guarda o progresso no navegador.
 
-O próximo passo é abrir os módulos seguintes no catálogo e levar as novas
-atividades para a mesma trilha.
+O que falta é conteúdo: os módulos 02 e 03 já estão no catálogo para a progressão
+ser verificável, mas ainda não têm tela de atividade. O próximo passo é
+implementar essas telas e seguir a ordem pedagógica da trilha.
 
-A trilha com progressão entre módulos, contas com JWT, login Google e progresso
-salvo em Postgres já está no ar; o que resta é conteúdo e as telas de conclusão.
 O detalhamento está em **[ROADMAP.md](./ROADMAP.md)**, com as issues abertas no
 GitHub. O histórico de auditoria e refatorações fica em
 [docs/historico-tecnico.md](./docs/historico-tecnico.md).
@@ -521,12 +570,17 @@ consequências aceitas — está em
 
 ## Autor
 
-**Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, em São Paulo, Brasil.
+**Steve Silva** — Desenvolvedor Full Stack na **Infotecdevs**, São Paulo, Brasil.
 
-Trabalho com desenvolvimento web de ponta a ponta: interface, estado, testes e
-deploy. Meu dia a dia é React e TypeScript no front e .NET com C# no back — que é
-exatamente o par de stacks deste projeto. O DIALO GAME reúne esse trabalho
-aplicado a um problema real de educação infantil.
+Trabalho com desenvolvimento de ponta a ponta: interface, estado, testes e
+deploy. No dia a dia uso **React + TypeScript** no front e **.NET com C#** no
+back — o mesmo par de stacks deste projeto, que é a razão de ele existir como
+front e API no mesmo repositório.
+
+Boa parte dos meus projetos é de ferramentas educacionais, e o DIALO GAME é o
+que mais junta essas duas frentes: pedagogia de verdade no conteúdo e engenharia
+no que sustenta a criança jogando (progresso que não se perde, acessibilidade,
+funcionar offline).
 
 - GitHub: [@SteveSilvas](https://github.com/SteveSilvas)
 - Outros projetos: [github.com/SteveSilvas?tab=repositories](https://github.com/SteveSilvas?tab=repositories)

@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { TiArrowLeftThick, TiArrowRightThick, TiHome, TiRefresh } from 'react-icons/ti';
 import BoxRow from '../BoxRow';
 import CustomButton from '../Button';
 import PanelPoints from '../PanelPoints';
 import SymbolsGrid from '../SymbolsGrid';
 import { useActivityProgress } from '../../hooks/useActivityProgress';
+import { useModuleCompletion } from '../../hooks/useModuleCompletion';
 import { useProgressReporter } from '../../hooks/useCatalog';
+import type { ActivityResult } from '../../utils/moduleSummary';
+import { conclusionPath } from '../../utils/paths';
 import './index.css';
 
 interface ActivityGridProps {
@@ -15,6 +19,8 @@ interface ActivityGridProps {
   isValid: (option: string) => boolean;
   backHref: string;
   nextHref: string;
+  /** Módulo dono da atividade, para fechar o módulo quando ela for a última. */
+  moduleSlug?: string;
 }
 
 /**
@@ -28,8 +34,10 @@ const ActivityGrid = ({
   isValid,
   backHref,
   nextHref,
+  moduleSlug = 'modulo-01',
 }: ActivityGridProps) => {
   const reportProgress = useProgressReporter();
+  const [lastResult, setLastResult] = useState<ActivityResult | null>(null);
 
   const {
     options,
@@ -41,8 +49,20 @@ const ActivityGrid = ({
     selectOption,
     reset,
   } = useActivityProgress(buildOptions, isValid, (result) => {
+    setLastResult({ activitySlug, ...result, completed: true });
     void reportProgress(activitySlug, { ...result, completed: true });
   });
+
+  // A criança escolhe a ordem dentro do módulo, então qualquer atividade pode
+  // ser a que fecha. A checagem só sai quando a atividade termina, uma vez por
+  // conclusão.
+  const completion = useModuleCompletion(moduleSlug, lastResult);
+  const moduleFinished = finish && completion.complete;
+
+  const handleReset = () => {
+    setLastResult(null);
+    reset();
+  };
 
   return (
     <main className="page px-2 py-4 gap-2 sm:gap-4">
@@ -58,7 +78,7 @@ const ActivityGrid = ({
 
         <CustomButton
           className="refresh-button min-w-0 h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20"
-          onClick={reset}
+          onClick={handleReset}
           ariaLabel="Reiniciar atividade"
           leftIcon={
             <TiRefresh
@@ -73,6 +93,7 @@ const ActivityGrid = ({
         items={options}
         removing={removing}
         onSelect={selectOption}
+        label="Símbolos da atividade"
       />
 
       <BoxRow justifyContent="space-evenly" width="80%">
@@ -94,16 +115,29 @@ const ActivityGrid = ({
             />
           }
         />
-        {finish && (
+        {moduleFinished ? (
           <CustomButton
-            text="PRÓXIMA"
-            href={nextHref}
+            text="CONCLUIR MÓDULO"
+            href={conclusionPath(moduleSlug)}
+            state={{ lastResult }}
             rightIcon={
               <TiArrowRightThick
                 style={{ fontSize: '3rem', color: 'var(--ink)' }}
               />
             }
           />
+        ) : (
+          finish && (
+            <CustomButton
+              text="PRÓXIMA"
+              href={nextHref}
+              rightIcon={
+                <TiArrowRightThick
+                  style={{ fontSize: '3rem', color: 'var(--ink)' }}
+                />
+              }
+            />
+          )
         )}
       </BoxRow>
     </main>

@@ -3,8 +3,12 @@ import errorSong from '../assets/error-8-206492.mp3';
 import successSong from '../assets/goodresult-82807.mp3';
 import selectSong from '../assets/select-sound-121244.mp3';
 import { playSound } from '../utils/sounds';
+import { prefersReducedMotion } from '../utils/motion';
 
 const REMOVAL_DELAY_MS = 1000;
+// Com movimento reduzido a animação do CSS é quase instantânea; esperar 1 s
+// deixaria o item "fantasma" na grade e o jogo mais lento do que o necessário.
+const REDUCED_MOTION_REMOVAL_DELAY_MS = 0;
 
 /**
  * Concentra a lógica de pontuação compartilhada pelas atividades do módulo 01:
@@ -85,7 +89,7 @@ export const useActivityProgress = (
         setOptionsFound((found) => [...found, option]);
         setOptions((current) => current.filter((item) => item !== option));
         setRemoving((current) => current.filter((item) => item !== option));
-      }, REMOVAL_DELAY_MS),
+      }, prefersReducedMotion() ? REDUCED_MOTION_REMOVAL_DELAY_MS : REMOVAL_DELAY_MS),
     );
   };
 

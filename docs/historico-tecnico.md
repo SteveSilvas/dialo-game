@@ -188,6 +188,13 @@ registram o que foi feito e o que restou de manutenção pontual.
 - [x] **Home do módulo vem da API** — títulos, ordem, estrelas e desbloqueio saem do
       catálogo. Sem resposta da API, cai na trilha local e avisa que o progresso fica
       no aparelho.
+- [x] **Home com mapa de progresso e retomada** — a capa agora mostra o resumo da
+      trilha (módulos concluídos, estrelas e atividades) e o botão principal vira
+      **CONTINUAR**, apontando para a primeira atividade pendente do primeiro módulo
+      liberado. Quem já concluiu tudo vê **JOGAR DE NOVO**; quem nunca jogou vê
+      **INICIAR**. A regra fica em `src/utils/progress.ts` (puro, testado), fora do
+      componente, e o convite a criar conta aparece só para o visitante, sem bloquear
+      o jogo. Módulo bloqueado é ignorado: o servidor recusaria o progresso com 403.
 - [x] **Tela de entrada** (`/entrar`) com login e cadastro, mostrando a mensagem que o
       servidor devolve (senha inválida, usuário em uso, servidor fora do ar).
 - [x] **Relatório duplicado ao concluir** — depois de a criança acertar tudo, a grade
@@ -219,6 +226,18 @@ registram o que foi feito e o que restou de manutenção pontual.
       liberado é `<a href>` com `aria-label` completo, a trilha abre centralizada no
       módulo atual e `prefers-reduced-motion` desliga a pulsação e o deslizamento.
 - [ ] Tela de conclusão de módulo (parabéns / resumo de pontos) em vez de voltar direto.
+- [x] Tela de conclusão de módulo (parabéns / resumo de pontos) em vez de voltar direto.
+      `/modulo-01/conclusao` (e `/modulo/:slug/conclusao`) mostra estrelas do módulo,
+      acertos, erros e atividades concluídas. O resumo vem do catálogo, com o resultado
+      da última atividade aplicado por `mergeBestAttempt` para a tela não depender do
+      tempo da API; sem rede, sai da trilha local e do progresso no `localStorage`.
+      A celebração só anima quando o sistema não pede menos movimento, e o anúncio
+      fica em `role="status"` (`aria-live="polite"`). "PRÓXIMO MÓDULO" aparece quando o
+      seguinte já está liberado; "VOLTAR À TRILHA" e o início estão sempre presentes,
+      então a criança nunca fica presa. A última atividade concluída — qualquer uma,
+      já que a ordem dentro do módulo é livre — troca "PRÓXIMA" por "CONCLUIR MÓDULO".
+      Coberto por `moduleSummary.test.ts`, `conclusao/index.test.tsx`,
+      `atividade_05/index.test.tsx` e `atividade_04/index.test.tsx`.
 - [x] `meta description` e tags Open Graph no `index.html` para compartilhamento.
       Inclui `og:image` 1200×630 (`public/og-image.png`, 160 kB), `og:image:alt`,
       `theme-color` e `twitter:card`. A URL absoluta vem de `VITE_SITE_URL`, aplicada
@@ -227,6 +246,9 @@ registram o que foi feito e o que restou de manutenção pontual.
       `src/components/DocumentTitle` mapeia cada rota; rota desconhecida vira
       "Página não encontrada | Dialo Game".
 - [ ] Módulo 02 (as rotas `modulo-02` já foram previstas e hoje caem no 404).
+      A home de módulo já é genérica (`src/pages/modulo`, servida em `/modulo/:slug`),
+      então o "PRÓXIMO MÓDULO" da tela de conclusão tem destino real assim que o
+      conteúdo do módulo 02 existir; o módulo 01 mantém o endereço curto `/modulo-01`.
 
 ### 6. Qualidade e entrega
 

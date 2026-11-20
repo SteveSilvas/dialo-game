@@ -46,7 +46,7 @@ const TrailActivityNode = ({ activity, href, position }: TrailActivityNodeProps)
 
       <span className="trail-activity__order" aria-hidden="true">
         {position}
-      </span>
+      </span>{' '}
 
       <span className="trail-activity__title" aria-hidden="true">
         {activity.title.toUpperCase()}

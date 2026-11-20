@@ -5,16 +5,23 @@ import CustomButton from "../../../components/Button";
 import PanelPoints from "../../../components/PanelPoints";
 import SymbolsGrid from "../../../components/SymbolsGrid";
 import { useActivityProgress } from "../../../hooks/useActivityProgress";
+import { useModuleCompletion } from "../../../hooks/useModuleCompletion";
 import { useProgressReporter } from "../../../hooks/useCatalog";
 import { generateAlphabetArray, generateSimbolsArray, shuffleArray } from "../../../utils/functions";
+import type { ActivityResult } from "../../../utils/moduleSummary";
+import { conclusionPath } from "../../../utils/paths";
 import { isConsoante } from "../../../utils/validations";
 import './index.css';
+
+const MODULE_SLUG = 'modulo-01';
+const ACTIVITY_SLUG = 'atividade-05';
 
 const buildOptions = (): string[] =>
     shuffleArray([...generateAlphabetArray(), ...generateSimbolsArray()]);
 
 const Atividade05 = () => {
     const reportProgress = useProgressReporter();
+    const [lastResult, setLastResult] = useState<ActivityResult | null>(null);
     const {
         options,
         optionsFound,
@@ -25,9 +32,16 @@ const Atividade05 = () => {
         selectOption,
         reset,
     } = useActivityProgress(buildOptions, isConsoante, (result) => {
-        void reportProgress('atividade-05', { ...result, completed: true });
+        setLastResult({ activitySlug: ACTIVITY_SLUG, ...result, completed: true });
+        void reportProgress(ACTIVITY_SLUG, { ...result, completed: true });
     });
     const [draggingItem, setDraggingItem] = useState<string | null>(null);
+
+    // Última atividade do módulo: concluí-la fecha o módulo e abre a tela de
+    // conclusão. Se as outras atividades ainda não foram feitas, o botão segue
+    // sendo "PRÓXIMA" e a criança volta à trilha.
+    const completion = useModuleCompletion(MODULE_SLUG, lastResult);
+    const moduleFinished = finish && completion.complete;
 
     const handleDrop = () => {
         if (draggingItem) {
@@ -35,6 +49,11 @@ const Atividade05 = () => {
         }
         setDraggingItem(null);
     }
+
+    const handleReset = () => {
+        setLastResult(null);
+        reset();
+    };
 
     return (
         <main className="page px-2 py-4 gap-2 sm:gap-4">
@@ -47,7 +66,7 @@ const Atividade05 = () => {
 
                 <CustomButton
                     className="refresh-button min-w-0"
-                    onClick={reset}
+                    onClick={handleReset}
                     ariaLabel="Reiniciar atividade"
                     leftIcon={
                         <TiRefresh
@@ -67,6 +86,7 @@ const Atividade05 = () => {
                     draggable
                     onDragStart={setDraggingItem}
                     onSelect={selectOption}
+                    label="Símbolos da atividade"
                 />
                 <div
                     className="caixa-letras-escolhidas-atividade-05"
@@ -77,6 +97,7 @@ const Atividade05 = () => {
                         items={optionsFound}
                         removing={removing}
                         className="caixa-letras-escolhidas-grid"
+                        label="Letras guardadas na caixa"
                     />
                 </div>
             </section>
@@ -97,10 +118,11 @@ const Atividade05 = () => {
                         />
                     }
                 />
-                {finish && (
+                {moduleFinished ? (
                     <CustomButton
-                        text="PRÓXIMA"
-                        href="/modulo-01"
+                        text="CONCLUIR MÓDULO"
+                        href={conclusionPath(MODULE_SLUG)}
+                        state={{ lastResult }}
                         rightIcon={
                             <TiArrowRightThick
                                 className="text-2xl sm:text-3xl"
@@ -108,6 +130,19 @@ const Atividade05 = () => {
                             />
                         }
                     />
+                ) : (
+                    finish && (
+                        <CustomButton
+                            text="PRÓXIMA"
+                            href="/modulo-01"
+                            rightIcon={
+                                <TiArrowRightThick
+                                    className="text-2xl sm:text-3xl"
+                                    style={{ color: 'var(--ink)' }}
+                                />
+                            }
+                        />
+                    )
                 )}
             </BoxRow>
         </main>

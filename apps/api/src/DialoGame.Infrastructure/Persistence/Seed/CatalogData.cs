@@ -91,6 +91,59 @@ public static class CatalogData
                     }),
             ],
         },
+
+        // Módulos 02 e 03 entram com o conteúdo mínimo para a progressão ser
+        // verificável de ponta a ponta: sem um segundo e um terceiro módulo não
+        // existe "desbloqueou" nem "segue bloqueado" para testar. As atividades
+        // pedagógicas completas são a Fase 4 (issues #29 e #30).
+        new Module
+        {
+            Slug = "modulo-02",
+            Order = 2,
+            Title = "Sons das letras",
+            Description = "Reconhecer o som inicial das palavras e as rimas.",
+            Concept = "Consciência fonológica",
+            Activities =
+            [
+                Activity(
+                    slug: "modulo-02-atividade-01",
+                    order: 1,
+                    title: "Com que som começa?",
+                    type: ActivityType.SelectSymbols,
+                    config: new
+                    {
+                        predicate = "initialSound",
+                        prompt = "BOLA",
+                        answer = "b",
+                        distractors = new[] { "d", "p", "t" },
+                        targetCount = 1,
+                    }),
+            ],
+        },
+
+        new Module
+        {
+            Slug = "modulo-03",
+            Order = 3,
+            Title = "Sílabas",
+            Description = "Contar sílabas e juntar pedaços para formar palavras.",
+            Concept = "Consciência silábica",
+            Activities =
+            [
+                Activity(
+                    slug: "modulo-03-atividade-01",
+                    order: 1,
+                    title: "Junte as sílabas",
+                    type: ActivityType.BuildWord,
+                    config: new
+                    {
+                        predicate = "syllableJoin",
+                        word = "BALA",
+                        syllables = new[] { "BA", "LA" },
+                        targetCount = 1,
+                    }),
+            ],
+        },
     ];
 
     private static Activity Activity(

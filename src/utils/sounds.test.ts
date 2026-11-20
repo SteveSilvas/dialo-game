@@ -45,7 +45,7 @@ describe('playSound', () => {
     }
 
     expect(instances).toHaveLength(1);
-    expect(instances[0].play).toHaveBeenCalledTimes(1);
+    expect(instances[0]!.play).toHaveBeenCalledTimes(1);
     expect(onUnhandledRejection).not.toHaveBeenCalled();
   });
 
@@ -58,7 +58,7 @@ describe('playSound', () => {
 
     expect(AudioMock).toHaveBeenCalledTimes(1);
     expect(instances).toHaveLength(1);
-    expect(instances[0].play).toHaveBeenCalledTimes(2);
+    expect(instances[0]!.play).toHaveBeenCalledTimes(2);
   });
 
   it('cria uma instância por src distinto', async () => {
@@ -74,7 +74,7 @@ describe('playSound', () => {
       '/audio/clique.mp3',
       '/audio/acerto.mp3',
     ]);
-    expect(instances[0].play).toHaveBeenCalledTimes(2);
-    expect(instances[1].play).toHaveBeenCalledTimes(1);
+    expect(instances[0]!.play).toHaveBeenCalledTimes(2);
+    expect(instances[1]!.play).toHaveBeenCalledTimes(1);
   });
 });

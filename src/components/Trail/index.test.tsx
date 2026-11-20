@@ -76,7 +76,7 @@ describe('Trail', () => {
     renderTrail();
 
     expect(
-      screen.getByRole('group', { name: /Bloqueado: Conclua o módulo 2: Módulo 2/i }),
+      screen.getByRole('group', { name: /Conclua o módulo 2: Módulo 2/i }),
     ).toBeInTheDocument();
   });
 
@@ -88,7 +88,9 @@ describe('Trail', () => {
     // Módulo 1 (concluído) e módulo 2 (atual) abrem ramos; o bloqueado não.
     expect(activityLinks).toHaveLength(2);
     expect(activityLinks[0]).toHaveAttribute('href', '/modulo-01/atividade-01');
-    expect(activityLinks[1]).toHaveAttribute('href', '/modulo-02/atividade-01');
+    // Sem tela de player, a atividade do módulo 2 volta para a trilha em vez de
+    // levar a criança a um 404.
+    expect(activityLinks[1]).toHaveAttribute('href', '/trilha');
     expect(screen.queryByRole('link', { name: /Módulo 3/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /modulo-03/ })).not.toBeInTheDocument();
   });

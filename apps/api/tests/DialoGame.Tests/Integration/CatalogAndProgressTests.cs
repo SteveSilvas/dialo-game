@@ -72,9 +72,10 @@ public class CatalogAndProgressTests(ApiFactory factory) : IClassFixture<ApiFact
         await DialoGame.Infrastructure.Persistence.Seed.ModuleSeeder.SeedAsync(db);
 
         var modules = await db.Modules.Include(m => m.Activities).ToListAsync();
-        modules.Should().HaveCount(1);
-        modules[0].Activities.Should().HaveCount(5);
-        modules[0].Activities.Select(a => a.Slug).Should().OnlyHaveUniqueItems();
+        modules.Should().HaveCount(3);
+        modules.Select(m => m.Slug).Should().BeEquivalentTo("modulo-01", "modulo-02", "modulo-03");
+        modules.Single(m => m.Slug == "modulo-01").Activities.Should().HaveCount(5);
+        modules.SelectMany(m => m.Activities).Select(a => a.Slug).Should().OnlyHaveUniqueItems();
     }
 
     [Fact]
@@ -231,6 +232,58 @@ public class CatalogAndProgressTests(ApiFactory factory) : IClassFixture<ApiFact
         var module = await GetModuleAsync(client, "modulo-01");
         module.GetProperty("status").GetString().Should().Be("completed");
         module.GetProperty("requiredCompleted").GetInt32().Should().Be(5);
+    }
+
+    [Fact]
+    public async Task Modulo01ConcluidoDesbloqueiaOModulo02EMantemOModulo03Bloqueado()
+    {
+        var client = await AuthenticatedClientAsync();
+
+        var before = await client.GetAsync("/catalog");
+        var beforeBody = await before.ReadJsonAsync();
+        var initialModules = beforeBody.RootElement.GetProperty("modules").EnumerateArray().ToList();
+        initialModules.Single(m => m.GetProperty("slug").GetString() == "modulo-01")
+            .GetProperty("status").GetString().Should().Be("current");
+        initialModules.Single(m => m.GetProperty("slug").GetString() == "modulo-02")
+            .GetProperty("status").GetString().Should().Be("locked");
+        initialModules.Single(m => m.GetProperty("slug").GetString() == "modulo-03")
+            .GetProperty("status").GetString().Should().Be("locked");
+
+        foreach (var slug in new[] { "atividade-01", "atividade-02", "atividade-03", "atividade-04", "atividade-05" })
+        {
+            var put = await client.PutAsJsonAsync($"/progress/activities/{slug}", new
+            {
+                bestScore = 4,
+                attempts = 1,
+                errors = 0,
+                completed = true,
+            });
+            put.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        // Só o módulo 02 abre: a trilha é sequencial, e o 03 depende do 02.
+        (await GetModuleAsync(client, "modulo-01"))
+            .GetProperty("status").GetString().Should().Be("completed");
+        (await GetModuleAsync(client, "modulo-02"))
+            .GetProperty("status").GetString().Should().Be("current");
+        (await GetModuleAsync(client, "modulo-03"))
+            .GetProperty("status").GetString().Should().Be("locked");
+    }
+
+    [Fact]
+    public async Task ProgressoEmModuloBloqueadoERecusado()
+    {
+        var client = await AuthenticatedClientAsync();
+
+        var response = await client.PutAsJsonAsync("/progress/activities/modulo-02-atividade-01", new
+        {
+            bestScore = 1,
+            attempts = 1,
+            errors = 0,
+            completed = true,
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

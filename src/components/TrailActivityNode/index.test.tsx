@@ -25,6 +25,28 @@ const renderNode = (activity: Activity) =>
     </MemoryRouter>,
   );
 
+/**
+ * Mesma comparação da regra `label-content-name-mismatch` do axe: o texto
+ * visível, sem pontuação, precisa aparecer como subsequência contígua dentro
+ * do nome acessível.
+ */
+const containsVisibleLabel = (name: string, visible: string): boolean => {
+  const tokenize = (text: string) =>
+    text
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
+
+  const nameTokens = tokenize(name);
+  const labelTokens = tokenize(visible);
+  if (labelTokens.length === 0) return true;
+
+  return nameTokens.some((_, start) =>
+    labelTokens.every((token, offset) => nameTokens[start + offset] === token),
+  );
+};
+
 describe('TrailActivityNode', () => {
   it('atividade não iniciada: link real com nome acessível', () => {
     renderNode(buildActivity());
@@ -35,6 +57,15 @@ describe('TrailActivityNode', () => {
     expect(link).toHaveAccessibleName(
       'Atividade 1: Selecionar as letras. Não iniciada.',
     );
+  });
+
+  it('o nome acessível contém o texto visível (WCAG 2.5.3)', () => {
+    renderNode(buildActivity());
+
+    const link = screen.getByRole('link', { name: /Atividade 1/i });
+    const name = link.getAttribute('aria-label')!;
+
+    expect(containsVisibleLabel(name, link.textContent!)).toBe(true);
   });
 
   it('atividade em andamento: distingue de não iniciada', () => {

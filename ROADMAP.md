@@ -8,10 +8,10 @@ plataforma de alfabetização com trilha de progressão, contas e progresso salv
 > para frente.
 
 **Estado atual:** Módulo 01 completo e publicado em
-[dialo-game.vercel.app](https://dialo-game.vercel.app), com 5 atividades, 64 testes no
+[dialo-game.vercel.app](https://dialo-game.vercel.app), com 5 atividades, 211 testes no
 front e CI com deploy automático.
 
-A **API já existe e está testada** em `apps/api` (.NET 10 + EF Core + PostgreSQL, 75
+A **API já existe e está testada** em `apps/api` (.NET 10 + EF Core + PostgreSQL, 78
 testes): cadastro/login com JWT e Google, catálogo de módulos e atividades, progresso
 por atividade com estrelas calculadas no servidor e desbloqueio entre módulos
 validado na API.
@@ -303,9 +303,8 @@ ao abrir.
 Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 
 **Estado:** as fases 0, 1 e 2 estão concluídas. A fase 3 está parcial — a home do
-módulo, a escolha livre de atividade e a trilha vertical desenhada existem; faltam
-a tela de conclusão de módulo e o mapa de progresso na home. As fases 4 e 5 seguem
-abertas.
+módulo, a escolha livre de atividade, a trilha vertical desenhada, a tela de
+conclusão de módulo e o mapa de progresso na home existem. As fases 4 e 5 seguemabertas.
 
 ### Fase 0 — Fundação (P0) ✅
 
@@ -341,9 +340,8 @@ abertas.
 | --- | --- |
 | Componente de trilha vertical | Árvore com estados e caminho desenhado |
 | Página do módulo com atividades | Escolha livre dentro do módulo |
-| Conclusão de módulo | Tela de parabéns, estrelas e "próximo módulo" |
-| Mapa de progresso na home | Visão geral e retomada |
-
+| Conclusão de módulo ✅ | Tela de parabéns, estrelas e "próximo módulo" |
+| Mapa de progresso na home ✅ | Visão geral e retomada |
 ### Fase 4 — Conteúdo pedagógico (P1)
 
 | Issue | Entrega |
@@ -354,14 +352,14 @@ abertas.
 | Módulo 05 — ler frases | Fluência e compreensão |
 | Módulo 06 — escrever | Produção escrita |
 
-### Fase 5 — Qualidade e operação (P1/P2)
+### Fase 5 — Qualidade e operação (P1/P2) — parcial
 
 | Issue | Entrega |
 | --- | --- |
 | CI do backend | Lint, testes e migrations em PR |
 | Deploy da API + CORS | Ambiente, segredos e origens permitidas |
 | Rate limiting e observabilidade | Proteção de login e logs estruturados |
-| Acessibilidade e E2E da trilha | Teclado, leitor de tela e Playwright |
+| Acessibilidade e E2E da trilha | Teclado, leitor de tela e Playwright — feito: `playwright.config.ts`, specs em `e2e/` (convidado → conta, progressão, F5, teclado, axe WCAG 2.1 AA) e job `e2e` no CI |
 
 ---
 

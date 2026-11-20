@@ -10,23 +10,24 @@ import type { Module } from '../../api/types';
 import TrailNode from '../TrailNode';
 import TrailActivityNode from '../TrailActivityNode';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { activityPath, modulePath } from '../../utils/paths';
 import { buildTrailPath, type TrailBox, type TrailSegment } from './path';
 import './index.css';
 
 export type TrailProps = {
   /** Módulos na ordem da trilha. A ordem de exibição é `module.order`. */
   modules: Module[];
-  /** Destino de um módulo. Por padrão `/:slug`. */
+  /** Destino de um módulo. Por padrão `modulePath(slug)`. */
   moduleHref?: (module: Module) => string;
-  /** Destino de uma atividade. Por padrão `/:moduleSlug/:activitySlug`. */
+  /** Destino de uma atividade. Por padrão `activityPath(slug, activitySlug)`. */
   activityHref?: (module: Module, activitySlug: string) => string;
   /** Centraliza o módulo atual ao abrir. */
   autoScroll?: boolean;
 };
 
-const defaultModuleHref = (module: Module) => `/${module.slug}`;
+const defaultModuleHref = (module: Module) => modulePath(module.slug);
 const defaultActivityHref = (module: Module, activitySlug: string) =>
-  `/${module.slug}/${activitySlug}`;
+  activityPath(module.slug, activitySlug);
 
 const toBox = (element: Element, origin: DOMRect): TrailBox => {
   const rect = element.getBoundingClientRect();

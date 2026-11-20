@@ -188,4 +188,28 @@ describe('useActivityProgress', () => {
     expect(clearSpy).toHaveBeenCalled();
     clearSpy.mockRestore();
   });
+
+  it('remove o símbolo na hora quando o sistema pede movimento reduzido', () => {
+    const matchMedia = jest.fn().mockReturnValue({ matches: true });
+    window.matchMedia = matchMedia as unknown as typeof window.matchMedia;
+
+    try {
+      const { result } = setup();
+
+      act(() => {
+        result.current.selectOption('A');
+      });
+
+      // Sem esperar a animação: ela é quase instantânea nesse modo.
+      act(() => {
+        jest.advanceTimersByTime(0);
+      });
+
+      expect(result.current.options).toEqual(['B', 'C']);
+      expect(result.current.optionsFound).toEqual(['A']);
+    } finally {
+      // @ts-expect-error volta ao jsdom sem matchMedia para os outros testes.
+      delete window.matchMedia;
+    }
+  });
 });

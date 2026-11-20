@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -40,6 +40,90 @@ jobs:
       - name: Auditoria de dependências (informativa)
         run: npm audit --audit-level=high
         continue-on-error: true
+
+  changes:
+    name: Detecta mudanças no front
+    runs-on: ubuntu-latest
+    outputs:
+      front: ${{ steps.filter.outputs.front }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Comparar com a base do PR
+        id: filter
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "front=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Só o que pode mudar o comportamento do front justifica a suíte E2E.
+          base="origin/${{ github.base_ref }}"
+          changed=$(git diff --name-only "$base"...HEAD)
+
+          if echo "$changed" | grep -Eq '^(src/|e2e/|public/|apps/api/src/|playwright\.config\.ts|vite\.config\.ts|package(-lock)?\.json|index\.html)'; then
+            echo "front=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "front=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  e2e:
+    name: E2E da trilha (Playwright)
+    needs: changes
+    if: needs.changes.outputs.front == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: dialo_game
+          POSTGRES_USER: dialo
+          POSTGRES_PASSWORD: dialo_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dialo -d dialo_game"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      ConnectionStrings__Default: Host=127.0.0.1;Port=5432;Database=dialo_game;Username=dialo;Password=dialo_dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar navegador do Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Rodar E2E
+        run: npm run test:e2e
+
+      - name: Publicar relatório
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
   api:
     name: API .NET (build, format e testes)
@@ -65,10 +149,10 @@ jobs:
       ConnectionStrings__Default: Host=127.0.0.1;Port=5432;Database=dialo_game;Username=dialo;Password=dialo_dev
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configurar .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 

@@ -72,13 +72,19 @@ describe('TrailNode', () => {
   });
 
   it('trata como bloqueado o módulo que a API marcou como não liberado', () => {
-    // `status` e `isUnlocked` podem divergir; o desbloqueio do servidor manda.
+    // `status` e `isUnlocked` podem divergir; o desbloqueio do servidor manda,
+    // inclusive no visual: nada de "VOCÊ ESTÁ AQUI" num nó que não navega.
     renderNode(buildModule({ status: 'current', isUnlocked: false }));
 
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('group', { name: /Bloqueado: conclua o módulo anterior/i }),
-    ).toHaveAttribute('aria-disabled', 'true');
+
+    const node = screen.getByRole('group', {
+      name: /Bloqueado: conclua o módulo anterior/i,
+    });
+    expect(node).toHaveAttribute('aria-disabled', 'true');
+    expect(node).toHaveClass('trail-node--locked');
+    expect(node).not.toHaveTextContent(/VOCÊ ESTÁ AQUI/);
+    expect(node).toHaveTextContent(/CONCLUA O MÓDULO ANTERIOR/);
   });
 
   it('não pulsa quando o movimento reduzido está ligado', () => {

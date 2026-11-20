@@ -228,4 +228,5 @@ registram o que foi feito e o que restou de manutenção pontual.
       com badge de status no README.
 - [x] Deploy automático no Vercel a partir do `master` (cada PR gera preview).
       O `Dockerfile` + `nginx.conf` continuam válidos para hospedagem em container.
-- [ ] Adicionar `strict` já está ativo; avaliar `noUncheckedIndexedAccess` no tsconfig.
+- [x] `noUncheckedIndexedAccess` ativo no `tsconfig.app.json`; os acessos
+      indexados de `src/utils/functions.ts` e do estado local foram ajustados.

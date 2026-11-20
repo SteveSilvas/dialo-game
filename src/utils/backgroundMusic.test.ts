@@ -7,8 +7,8 @@ const AUDIO_BUDGET_BYTES = 700_000;
 describe('BACKGROUND_MUSIC_SOURCES', () => {
   it('oferece Opus como primeira opção e MP3 como fallback', () => {
     expect(BACKGROUND_MUSIC_SOURCES).toHaveLength(2);
-    expect(BACKGROUND_MUSIC_SOURCES[0].type).toBe('audio/ogg; codecs=opus');
-    expect(BACKGROUND_MUSIC_SOURCES[1].type).toBe('audio/mpeg');
+    expect(BACKGROUND_MUSIC_SOURCES[0]!.type).toBe('audio/ogg; codecs=opus');
+    expect(BACKGROUND_MUSIC_SOURCES[1]!.type).toBe('audio/mpeg');
   });
 
   it('serve os arquivos de public/, fora do bundle JS', () => {

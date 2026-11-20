@@ -89,7 +89,7 @@ describe('progresso de convidado', () => {
       completed: true,
     });
 
-    expect(readGuestProgress()[0].errors).toBe(2);
+    expect(readGuestProgress()[0]!.errors).toBe(2);
   });
 
   it('mantém a conclusão depois de uma tentativa pior', () => {
@@ -108,7 +108,7 @@ describe('progresso de convidado', () => {
       completed: false,
     });
 
-    expect(readGuestProgress()[0].completed).toBe(true);
+    expect(readGuestProgress()[0]!.completed).toBe(true);
   });
 
   it('ignora conteúdo corrompido no storage', () => {

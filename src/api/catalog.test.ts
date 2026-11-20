@@ -72,8 +72,8 @@ describe('contrato do catálogo', () => {
     fetchMock.mockResolvedValue(jsonResponse(catalogPayload));
 
     const catalog = await getCatalog();
-    const module = catalog.modules[0];
-    const activity = module.activities[0];
+    const module = catalog.modules[0]!;
+    const activity = module.activities[0]!;
 
     expect(module).toMatchObject({
       slug: 'modulo-01',
@@ -96,7 +96,7 @@ describe('contrato do catálogo', () => {
 
     const catalog = await getCatalog();
 
-    expect(catalog.modules[0].activities[1].progress).toBeNull();
+    expect(catalog.modules[0]!.activities[1]!.progress).toBeNull();
   });
 });
 

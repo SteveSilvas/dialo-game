@@ -54,6 +54,12 @@ describe('generateRandomNumbersArray', () => {
     const numeros = generateRandomNumbersArray(50, 5, 6);
     expect([...numeros].sort((a, b) => a - b)).toEqual([5, 6]);
   });
+
+  it('nunca devolve posições vazias', () => {
+    const numeros = generateRandomNumbersArray(33, 1, 33);
+    expect(numeros).toHaveLength(33);
+    expect(numeros.every((numero) => Number.isInteger(numero))).toBe(true);
+  });
 });
 
 describe('shuffleArray', () => {

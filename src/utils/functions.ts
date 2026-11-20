@@ -9,7 +9,10 @@ export const generateRandomNumbersArray = (length: number, min: number, max: num
     const total = Math.min(length, pool.length);
     for (let i = 0; i < total; i++) {
         const index = Math.floor(Math.random() * pool.length);
-        randomNumbers.push(pool.splice(index, 1)[0]);
+        const [sorteado] = pool.splice(index, 1);
+        if (sorteado !== undefined) {
+            randomNumbers.push(sorteado);
+        }
     }
     return randomNumbers;
 }
@@ -30,7 +33,9 @@ export const shuffleArray = <T,>(items: T[]): T[] => {
     const result = [...items];
     for (let i = result.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
+        const atual = result[i]!;
+        result[i] = result[j]!;
+        result[j] = atual;
     }
     return result;
 }

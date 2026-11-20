@@ -11,15 +11,15 @@ const THEME_CSS = readFileSync(join(__dirname, '../index.css'), 'utf8');
 const readVar = (name: string): string => {
   const match = THEME_CSS.match(new RegExp(`${name}:\\s*(#[0-9a-fA-F]{6})`));
   if (!match) throw new Error(`Cor não encontrada no tema: ${name}`);
-  return match[1];
+  return match[1]!;
 };
 
 const relativeLuminance = (hex: string): number => {
   const value = hex.replace('#', '');
-  const channels = [0, 2, 4].map((i) => parseInt(value.slice(i, i + 2), 16) / 255);
-  const [r, g, b] = channels.map((c) =>
-    c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4,
-  );
+  const linearize = (channel: number) =>
+    channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  const channels = [0, 2, 4].map((i) => linearize(parseInt(value.slice(i, i + 2), 16) / 255));
+  const [r = 0, g = 0, b = 0] = channels;
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
 

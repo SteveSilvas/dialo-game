@@ -13,23 +13,20 @@ export type TrailNodeProps = {
   pulse?: boolean;
 };
 
-const describeState = (locked: boolean): string =>
-  locked ? 'Bloqueado.' : 'Abrir módulo.';
-
 /**
- * Texto curto de estado, em caixa alta só na tela. O `aria-label` usa a mesma
- * frase em caixa normal: a WCAG 2.5.3 exige que o texto visível apareça no
- * nome acessível, e escrever os dois a partir da mesma fonte evita que
- * divirjam.
+ * Uma única frase descreve o estado, e dela saem as duas versões: a visível
+ * (caixa alta) e o `aria-label`. Manter as duas na mesma fonte evita que
+ * divirjam — a WCAG 2.5.3 exige que o texto visível apareça no nome acessível,
+ * e o axe reprova o nó quando os dois contam histórias diferentes.
  */
 const describeMeta = (module: Module, locked: boolean, lockedReason?: string): string => {
   if (locked) return lockedReason ?? 'Conclua o módulo anterior';
 
   if (module.status === 'completed') {
-    return `Concluído · ★ ${module.stars} de ${module.maxStars}`;
+    return `Concluído · ${module.stars} de ${module.maxStars} estrelas`;
   }
   if (module.status === 'current') {
-    return `Você está aqui · ${module.requiredCompleted} de ${module.requiredTotal} · ★ ${module.stars} de ${module.maxStars}`;
+    return `Você está aqui · ${module.requiredCompleted} de ${module.requiredTotal} atividades concluídas · ${module.stars} de ${module.maxStars} estrelas`;
   }
   return 'Disponível';
 };
@@ -47,7 +44,7 @@ const TrailNode = ({
 }: TrailNodeProps) => {
   const locked = !module.isUnlocked || module.status === 'locked';
   const meta = describeMeta(module, locked, lockedReason);
-  const label = `Módulo ${module.order}: ${module.title}. ${meta}. ${describeState(locked)}`;
+  const label = `Módulo ${module.order}: ${module.title}. ${meta}. ${locked ? 'Bloqueado.' : 'Abrir módulo.'}`;
 
   const className = [
     'trail-node',

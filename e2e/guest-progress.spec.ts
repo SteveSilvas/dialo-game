@@ -70,7 +70,7 @@ test.describe('visitante joga, cria conta e mantém o progresso', () => {
     // O nó do módulo na trilha carrega progresso e estrelas no nome acessível;
     // as 3 estrelas da atividade importada já aparecem contadas.
     await expect(
-      page.getByRole('link', { name: /1 de 5 atividades concluídas, 3 de 15 estrelas/ }),
+      page.getByRole('link', { name: /1 de 5 atividades concluídas.*3 de 15 estrelas/ }),
     ).toBeVisible({ timeout: 15_000 });
   });
 });

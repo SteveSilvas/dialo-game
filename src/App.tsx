@@ -27,7 +27,9 @@ function App() {
   const allDone = started && resume?.replay === true;
 
   const primaryText = allDone ? 'JOGAR DE NOVO' : started ? 'CONTINUAR' : 'INICIAR';
-  const primaryHref = resume?.href ?? TRAIL_PATH;
+  // Quem ainda não jogou nada entra pela trilha: pular direto para a primeira
+  // atividade esconde o mapa e o módulo onde a criança está.
+  const primaryHref = started && resume ? resume.href : TRAIL_PATH;
 
   const handleStartSound = () => {
     setSound({ isActive: true });

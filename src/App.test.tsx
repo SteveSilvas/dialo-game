@@ -154,10 +154,10 @@ describe('Home com mapa de progresso', () => {
     expect(
       screen.getByRole('link', { name: 'Entrar ou criar conta' }),
     ).toHaveAttribute('href', '/entrar');
-    // O jogo continua acessível para quem não tem conta.
+    // O jogo continua acessível para quem não tem conta, entrando pela trilha.
     expect(screen.getByRole('link', { name: /INICIAR/i })).toHaveAttribute(
       'href',
-      '/modulo-01/atividade-01',
+      '/trilha',
     );
   });
 

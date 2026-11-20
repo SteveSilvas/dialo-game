@@ -56,7 +56,7 @@ describe('TrailNode', () => {
     expect(link).toHaveAttribute('href', '/modulo-02');
     expect(link).toHaveAttribute('data-state', 'completed');
     expect(link).toHaveAccessibleName(
-      'Módulo 1: Sons das letras. Concluído · ★ 4 de 15. Abrir módulo.',
+      'Módulo 1: Sons das letras. Concluído · 4 de 15 estrelas. Abrir módulo.',
     );
     expect(screen.getByText(/CONCLUÍDO/)).toBeInTheDocument();
   });
@@ -79,7 +79,7 @@ describe('TrailNode', () => {
     expect(link).toHaveClass('trail-node--current');
     expect(link).toHaveClass('trail-node--pulse');
     expect(link).toHaveAccessibleName(
-      'Módulo 2: Sons das letras. Você está aqui · 2 de 5 · ★ 4 de 15. Abrir módulo.',
+      'Módulo 2: Sons das letras. Você está aqui · 2 de 5 atividades concluídas · 4 de 15 estrelas. Abrir módulo.',
     );
     expect(container.querySelector('.trail-node__icon svg')).toBeInTheDocument();
   });

@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { getCatalog } from '../api/catalog';
 import type { Catalog } from '../api/types';
-import { applyGuestProgress, readGuestProgress } from '../state/guestProgress';
+import { progressAtom } from '../state/progress';
 import { localModule } from '../state/localTrail';
+import { applyProgress } from '../utils/progress';
+import { useProgressHydration } from './useProgressHydration';
 import {
   findNextModule,
   summarizeGuestModule,
@@ -30,6 +33,8 @@ export const useModuleCompletion = (
   moduleSlug: string,
   result: ActivityResult | null,
 ): ModuleCompletion => {
+  useProgressHydration();
+  const progress = useAtomValue(progressAtom);
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [offline, setOffline] = useState(false);
 
@@ -60,9 +65,9 @@ export const useModuleCompletion = (
     if (!result) return { ready: false, complete: false };
 
     if (catalog) {
-      // O servidor não guarda progresso de convidado: sem este merge a
+      // O servidor não conhece o que ainda está no aparelho: sem este merge a
       // checagem leria tudo zerado e o módulo nunca fecharia.
-      const modules = applyGuestProgress(catalog.modules);
+      const modules = applyProgress(catalog.modules, progress);
       const module = modules.find((item) => item.slug === moduleSlug);
       if (!module) return { ready: true, complete: false };
 
@@ -80,10 +85,11 @@ export const useModuleCompletion = (
 
       return {
         ready: true,
-        complete: summarizeGuestModule(slugs, readGuestProgress(), result).isComplete,
+        complete: summarizeGuestModule(slugs, Object.values(progress), result)
+          .isComplete,
       };
     }
 
     return { ready: false, complete: false };
-  }, [catalog, offline, moduleSlug, result]);
+  }, [catalog, offline, moduleSlug, progress, result]);
 };

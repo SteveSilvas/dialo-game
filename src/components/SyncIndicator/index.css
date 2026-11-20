@@ -1,0 +1,12 @@
+.sync-indicator {
+  margin: 0;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--ink);
+  opacity: 0.75;
+}
+
+.sync-indicator--offline {
+  /* Nunca esconde a informação: quem joga precisa saber que ainda não subiu. */
+  opacity: 1;
+}

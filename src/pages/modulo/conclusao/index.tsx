@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocation, useParams } from 'react-router-dom';
 import { TiArrowLeftThick, TiArrowRightThick, TiHome } from 'react-icons/ti';
 import BoxRow from '../../../components/BoxRow';
@@ -6,7 +7,8 @@ import CustomButton from '../../../components/Button';
 import LabelValue from '../../../components/LabelValue';
 import { useCatalog } from '../../../hooks/useCatalog';
 import { useReducedMotion } from '../../../hooks/useReducedMotion';
-import { readGuestProgress } from '../../../state/guestProgress';
+import { progressAtom } from '../../../state/progress';
+import { useProgressHydration } from '../../../hooks/useProgressHydration';
 import { localModule } from '../../../state/localTrail';
 import {
   findNextModule,
@@ -51,6 +53,8 @@ const ModuleConclusion = ({ moduleSlug = 'modulo-01' }: ModuleConclusionProps) =
   const lastResult = (state as ConclusionState)?.lastResult;
 
   const { modules, status } = useCatalog();
+  useProgressHydration();
+  const progress = useAtomValue(progressAtom);
   const module = modules.find((item) => item.slug === slug);
   const local = localModule(slug);
   const reducedMotion = useReducedMotion();
@@ -66,9 +70,9 @@ const ModuleConclusion = ({ moduleSlug = 'modulo-01' }: ModuleConclusionProps) =
     // progresso guardado no aparelho.
     const slugs = (local?.activities ?? []).map((activity) => activity.slug);
     return slugs.length > 0
-      ? summarizeGuestModule(slugs, readGuestProgress())
+      ? summarizeGuestModule(slugs, Object.values(progress))
       : null;
-  }, [module, lastResult, local, status]);
+  }, [module, lastResult, local, status, progress]);
 
   const isComplete = summary?.isComplete ?? false;
   const remaining = summary ? summary.total - summary.completed : 0;

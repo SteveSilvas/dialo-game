@@ -1,4 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { createStore, Provider } from 'jotai';
+import type { ReactNode } from 'react';
 import { useModuleCompletion } from './useModuleCompletion';
 import { saveGuestProgress } from '../state/guestProgress';
 import { setAccessToken } from '../api/client';
@@ -51,6 +53,11 @@ const result = {
   completed: true,
 };
 
+/** Store próprio por teste: o padrão é compartilhado entre arquivos. */
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <Provider store={createStore()}>{children}</Provider>
+);
+
 beforeEach(() => {
   setAccessToken(null);
   fetchMock.mockReset();
@@ -71,7 +78,7 @@ describe('useModuleCompletion', () => {
       completed: true,
     });
 
-    const { result: hook } = renderHook(() => useModuleCompletion('modulo-01', result));
+    const { result: hook } = renderHook(() => useModuleCompletion('modulo-01', result), { wrapper });
 
     await waitFor(() => expect(hook.current.ready).toBe(true));
     expect(hook.current.complete).toBe(true);
@@ -80,7 +87,7 @@ describe('useModuleCompletion', () => {
   it('não fecha o módulo quando ainda falta uma atividade', async () => {
     fetchMock.mockResolvedValue(jsonResponse({ modules: [modulePayload(false)] }));
 
-    const { result: hook } = renderHook(() => useModuleCompletion('modulo-01', result));
+    const { result: hook } = renderHook(() => useModuleCompletion('modulo-01', result), { wrapper });
 
     await waitFor(() => expect(hook.current.ready).toBe(true));
     expect(hook.current.complete).toBe(false);
@@ -107,6 +114,7 @@ describe('useModuleCompletion', () => {
         errors: 0,
         completed: true,
       }),
+      { wrapper },
     );
 
     await waitFor(() => expect(hook.current.ready).toBe(true));

@@ -1,7 +1,8 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { Provider } from 'jotai';
 import type { ReactNode } from 'react';
-import { useCatalog, useProgressReporter } from './useCatalog';
+import { useCatalog } from './useCatalog';
+import { useProgressReporter } from './useProgressReporter';
 import { sessionAtom } from '../state/session';
 import { saveGuestProgress } from '../state/guestProgress';
 import { setAccessToken } from '../api/client';
@@ -125,43 +126,45 @@ describe('useCatalog', () => {
   });
 });
 
+const report = {
+  bestScore: 5,
+  attempts: 6,
+  errors: 1,
+  completed: true,
+};
+
 describe('useProgressReporter', () => {
   it('grava localmente quando não há conta', async () => {
     const { wrapper } = setup(false);
 
     const { result } = renderHook(() => useProgressReporter(), { wrapper });
 
-    await act(async () => {
-      await result.current('atividade-01', {
-        bestScore: 5,
-        attempts: 6,
-        errors: 1,
-        completed: true,
-      });
+    act(() => {
+      result.current('atividade-01', report);
     });
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(localStorage.getItem('dialo:guest-progress:v1')).toContain('atividade-01');
   });
 
-  it('envia para a API quando há conta', async () => {
+  it('envia para a API quando há conta e limpa a fila', async () => {
     fetchMock.mockResolvedValue(jsonResponse({ activitySlug: 'atividade-01' }));
     setAccessToken('token');
     const { wrapper } = setup(true);
 
     const { result } = renderHook(() => useProgressReporter(), { wrapper });
 
-    await act(async () => {
-      await result.current('atividade-01', {
-        bestScore: 5,
-        attempts: 6,
-        errors: 1,
-        completed: true,
-      });
+    act(() => {
+      result.current('atividade-01', report);
     });
 
-    expect(fetchMock.mock.calls[0][0]).toContain('/progress/activities/atividade-01');
-    expect(localStorage.getItem('dialo:guest-progress:v1')).toBeNull();
+    await waitFor(() =>
+      expect(fetchMock.mock.calls[0][0]).toContain('/progress/activities/atividade-01'),
+    );
+    // O que o servidor confirmou sai do aparelho.
+    await waitFor(() =>
+      expect(localStorage.getItem('dialo:guest-progress:v1')).toBeNull(),
+    );
   });
 
   it('guarda localmente quando a API cai, para não perder a tentativa', async () => {
@@ -171,15 +174,11 @@ describe('useProgressReporter', () => {
 
     const { result } = renderHook(() => useProgressReporter(), { wrapper });
 
-    await act(async () => {
-      await result.current('atividade-01', {
-        bestScore: 5,
-        attempts: 6,
-        errors: 1,
-        completed: true,
-      });
+    act(() => {
+      result.current('atividade-01', report);
     });
 
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     expect(localStorage.getItem('dialo:guest-progress:v1')).toContain('atividade-01');
   });
 
@@ -190,15 +189,11 @@ describe('useProgressReporter', () => {
 
     const { result } = renderHook(() => useProgressReporter(), { wrapper });
 
-    await act(async () => {
-      await result.current('atividade-01', {
-        bestScore: 5,
-        attempts: 6,
-        errors: 1,
-        completed: true,
-      });
+    act(() => {
+      result.current('atividade-01', report);
     });
 
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     expect(localStorage.getItem('dialo:guest-progress:v1')).toBeNull();
   });
 });

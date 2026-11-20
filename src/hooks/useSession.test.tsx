@@ -3,6 +3,7 @@ import { createStore, Provider } from 'jotai';
 import type { ReactNode } from 'react';
 import { useSession } from './useSession';
 import { sessionAtom } from '../state/session';
+import { progressAtom, reportProgressAtom } from '../state/progress';
 import { setAccessToken } from '../api/client';
 import type { User } from '../api/types';
 
@@ -16,7 +17,8 @@ jest.mock('../api/client', () => ({
   refreshSession: jest.fn(),
 }));
 
-jest.mock('../api/auth', () => ({ logout: jest.fn() }));
+const logout = jest.fn();
+jest.mock('../api/auth', () => ({ logout: (...args: unknown[]) => logout(...args) }));
 
 const STORAGE_KEY = 'dialo:guest-progress:v1';
 const user: User = {
@@ -51,6 +53,8 @@ const guestEntry = {
 beforeEach(() => {
   importProgress.mockReset();
   importProgress.mockResolvedValue({ imported: 1 });
+  logout.mockReset();
+  logout.mockResolvedValue(undefined);
   setAccessToken(null);
   localStorage.clear();
 });
@@ -115,6 +119,25 @@ describe('useSession', () => {
     // A criança entra mesmo assim; o progresso local fica para a próxima vez.
     expect(store.get(sessionAtom).status).toBe('authenticated');
     expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull();
+  });
+
+  it('esquece o progresso da conta ao sair, para não vazar entre crianças', async () => {
+    const { result, store } = renderSession();
+    store.set(reportProgressAtom, {
+      activitySlug: 'atividade-01',
+      report: { bestScore: 5, attempts: 5, errors: 0, completed: true },
+      sync: false,
+    });
+    expect(store.get(progressAtom)['atividade-01']).toBeDefined();
+
+    await act(async () => {
+      await result.current.signOut();
+    });
+
+    // O aparelho é compartilhado: as estrelas de quem saiu não podem aparecer
+    // no catálogo de quem entrar depois.
+    expect(store.get(progressAtom)).toEqual({});
+    expect(store.get(sessionAtom).status).toBe('anonymous');
   });
 
   it('não chama a importação quando não há progresso de convidado', async () => {

@@ -90,7 +90,7 @@ describe('useCatalog', () => {
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
     await waitFor(() => expect(result.current.status).toBe('ready'));
-    expect(result.current.modules[0].slug).toBe('modulo-01');
+    expect(result.current.modules[0]!.slug).toBe('modulo-01');
   });
 
   it('aplica o progresso local do convidado sobre a trilha', async () => {
@@ -108,10 +108,10 @@ describe('useCatalog', () => {
 
     await waitFor(() => expect(result.current.status).toBe('ready'));
 
-    const activity = result.current.modules[0].activities[0];
+    const activity = result.current.modules[0]!.activities[0]!;
     expect(activity.progress?.stars).toBe(3);
-    expect(result.current.modules[0].requiredCompleted).toBe(1);
-    expect(result.current.modules[0].stars).toBe(3);
+    expect(result.current.modules[0]!.requiredCompleted).toBe(1);
+    expect(result.current.modules[0]!.stars).toBe(3);
   });
 
   it('marca offline quando a API não responde e não quebra a tela', async () => {

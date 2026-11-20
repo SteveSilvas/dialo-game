@@ -77,7 +77,7 @@ export const saveGuestProgress = (entry: GuestProgress): GuestProgress[] => {
   if (index === -1) {
     items.push(entry);
   } else {
-    items[index] = merge(items[index], entry);
+    items[index] = merge(items[index]!, entry);
   }
 
   write(items);

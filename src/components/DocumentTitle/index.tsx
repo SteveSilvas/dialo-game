@@ -7,7 +7,9 @@ const SITE_NAME = 'Dialo Game';
 const TITLES: Array<[matches: (pathname: string) => boolean, title: string]> = [
   [(path) => path === '/', 'Alfabetização infantil com jogos interativos'],
   [(path) => path === '/entrar', 'Entrar'],
+  [(path) => /\/conclusao\/?$/.test(path), 'Módulo concluído'],
   [(path) => path === '/modulo-01' || path === '/modulo-01/', 'Módulo 1 — Reconhecer letras'],
+  [(path) => /^\/modulo\/[^/]+\/?$/.test(path), 'Módulo'],
   [(path) => path === '/modulo-01/atividade-01', 'Atividade 1 — Selecionar as letras'],
   [(path) => path === '/modulo-01/atividade-02', 'Atividade 2 — Selecionar os números'],
   [(path) => path === '/modulo-01/atividade-03', 'Atividade 3 — Selecionar as vogais'],

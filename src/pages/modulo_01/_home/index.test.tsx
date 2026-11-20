@@ -113,3 +113,24 @@ describe('home do módulo', () => {
     ).toHaveAttribute('href', '/modulo-01/atividade-01');
   });
 });
+
+describe('home de módulo concluído', () => {
+  it('leva à tela de conclusão em vez de recomeçar as atividades', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        modules: [
+          {
+            ...buildModule(true),
+            status: 'completed',
+            requiredCompleted: 2,
+          },
+        ],
+      }),
+    );
+
+    renderHome();
+
+    const link = await screen.findByRole('link', { name: 'VER CONCLUSÃO' });
+    expect(link).toHaveAttribute('href', '/modulo-01/conclusao');
+  });
+});

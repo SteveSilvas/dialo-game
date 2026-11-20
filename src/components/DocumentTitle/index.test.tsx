@@ -31,6 +31,11 @@ describe('DocumentTitle', () => {
     expect(document.title).toBe('Módulo 1 — Reconhecer letras | Dialo Game');
   });
 
+  it('anuncia a conclusão do módulo na aba', () => {
+    renderAt('/modulo-01/conclusao');
+    expect(document.title).toBe('Módulo concluído | Dialo Game');
+  });
+
   it('marca rotas desconhecidas como não encontradas', () => {
     renderAt('/rota-que-nao-existe');
     expect(document.title).toBe('Página não encontrada | Dialo Game');

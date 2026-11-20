@@ -97,7 +97,8 @@ atividade ainda não foram implementadas, então os cards aparecem como
 Front-end enxuto, focado em performance e experiência de uso, com um back-end .NET que concentra as regras que não podem ficar no cliente:
 
 <p>
-  <a href="https://github.com/SteveSilvas/dialo-game/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/SteveSilvas/dialo-game/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/SteveSilvas/dialo-game/actions/workflows/ci.yml"><img alt="CI Front" src="https://github.com/SteveSilvas/dialo-game/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/SteveSilvas/dialo-game/actions/workflows/api.yml"><img alt="CI API" src="https://github.com/SteveSilvas/dialo-game/actions/workflows/api.yml/badge.svg" /></a>
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white" />
   <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white" />
@@ -301,13 +302,18 @@ cd apps/api
 # cria uma migration a partir de uma mudança no modelo
 dotnet ef migrations add NomeDaMigration \
   --project src/DialoGame.Infrastructure \
-  --startup-project src/DialoGame.Api
+  --startup-project src/DialoGame.Infrastructure
 
 # aplica no banco configurado
 dotnet ef database update \
   --project src/DialoGame.Infrastructure \
-  --startup-project src/DialoGame.Api
+  --startup-project src/DialoGame.Infrastructure
 ```
+
+O projeto de inicialização é a própria `DialoGame.Infrastructure`, e não a API:
+o `DesignTimeDbContextFactory` mora lá, junto do pacote de design. A API não
+referencia `Microsoft.EntityFrameworkCore.Design`, então usá-la como startup
+project faz o `dotnet ef` falhar.
 
 Em produção, prefira rodar `database update` no pipeline com
 `ApplyMigrationsOnStartup=false`: assim a API não altera schema sozinha a cada
@@ -324,6 +330,32 @@ São 78 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
 desbloqueio de módulo) e integração (auth, catálogo, progresso, rate limiting)
 contra um Postgres real. Cada classe de teste cria um banco próprio e o remove ao
 final.
+
+### CI
+
+São dois workflows, um por runtime, para que o resultado de cada um apareça
+separado no README e no PR:
+
+| Workflow | O que roda |
+| --- | --- |
+| `ci.yml` (front) | ESLint, Jest, build do Vite e E2E do Playwright em PRs que tocam o front. |
+| `api.yml` (API) | `dotnet format`, build, `dotnet test`, migrations do zero e build da imagem Docker. |
+
+No `api.yml`, o passo de migrations derruba o banco (`database drop`), aplica
+tudo com `database update` e depois confere que nada ficou pendente. Um segundo
+passo, `has-pending-model-changes`, reprova quando o modelo mudou sem uma
+migration nova — o caso que passa no build e quebra no deploy.
+
+Os dois usam cache: `setup-node` cuida do npm e `actions/cache` guarda
+`~/.nuget/packages` com chave derivada dos `.csproj` e do `Directory.Build.props`.
+
+**Bloquear merge com CI vermelho** não se faz no workflow: é configuração de
+branch protection no repositório. Em **Settings → Branches**, adicione uma regra
+para `master` com *Require status checks to pass before merging* e selecione os
+checks `Lint, testes e build`, `E2E da trilha (Playwright)` e
+`API .NET (format, build, testes e migrations)`. Isso exige permissão de admin —
+o token de automação do bot recebe `403` na API de branch protection, então a
+regra precisa ser criada no painel.
 
 ### Endpoints
 
@@ -443,7 +475,7 @@ src/
 
 Na raiz ficam os arquivos de entrega do front: `vercel.json` (deploy no Vercel),
 `Dockerfile` + `nginx.conf` + `docker-compose.yml` (deploy em container) e
-`.github/workflows/ci.yml` (lint, testes e build dos dois runtimes).
+`.github/workflows/` (lint, testes e build dos dois runtimes).
 
 ## Performance do bundle
 

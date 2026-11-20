@@ -1,0 +1,123 @@
+name: CI API
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-api-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ConnectionStrings__Default: Host=127.0.0.1;Port=5432;Database=dialo_game;Username=dialo;Password=dialo_dev
+
+jobs:
+  api:
+    name: API .NET (format, build, testes e migrations)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: dialo_game
+          POSTGRES_USER: dialo
+          POSTGRES_PASSWORD: dialo_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dialo -d dialo_game"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      # A chave vem dos arquivos que declaram pacotes: mudar uma versão no
+      # Directory.Build.props ou em um .csproj invalida o cache.
+      - name: Cache do NuGet
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('apps/api/**/*.csproj', 'apps/api/Directory.Build.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      # A versão do CLI é a mesma do pacote que o build usa, lida da fonte única.
+      - name: Instalar ferramenta do EF Core
+        run: |
+          version=$(sed -n 's:.*<EfCoreVersion>\(.*\)</EfCoreVersion>.*:\1:p' Directory.Build.props)
+          dotnet tool install --global dotnet-ef --version "$version"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Restaurar dependências
+        run: dotnet restore DialoGame.slnx
+
+      - name: Verificar formatação
+        run: dotnet format --verify-no-changes --no-restore
+
+      - name: Build
+        run: dotnet build DialoGame.slnx --no-restore -c Release
+
+      - name: Testes
+        run: dotnet test DialoGame.slnx --no-build -c Release --logger "console;verbosity=normal"
+
+      # Derrubar o banco antes garante que o passo seguinte aplica as migrations
+      # em um schema vazio, e não aproveita um banco que já existia.
+      - name: Derrubar o banco
+        run: |
+          dotnet ef database drop --force \
+            --project src/DialoGame.Infrastructure \
+            --startup-project src/DialoGame.Infrastructure \
+            --no-build --configuration Release
+
+      - name: Aplicar migrations do zero
+        run: |
+          dotnet ef database update \
+            --project src/DialoGame.Infrastructure \
+            --startup-project src/DialoGame.Infrastructure \
+            --no-build --configuration Release
+
+      - name: Conferir migrations aplicadas
+        run: |
+          dotnet ef migrations list \
+            --project src/DialoGame.Infrastructure \
+            --startup-project src/DialoGame.Infrastructure \
+            --no-build --configuration Release | tee migrations.txt
+
+          if grep -q "(Pending)" migrations.txt; then
+            echo "::error::Há migrations pendentes depois do database update."
+            exit 1
+          fi
+
+      # Modelo alterado sem migration nova passa no build e quebra no deploy.
+      - name: Conferir modelo x migrations
+        run: |
+          dotnet ef migrations has-pending-model-changes \
+            --project src/DialoGame.Infrastructure \
+            --startup-project src/DialoGame.Infrastructure \
+            --no-build --configuration Release
+
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build da imagem da API
+        uses: docker/build-push-action@v7
+        with:
+          context: apps/api
+          file: apps/api/Dockerfile
+          push: false
+          load: false
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max

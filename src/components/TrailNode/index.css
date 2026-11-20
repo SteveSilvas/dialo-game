@@ -1,0 +1,133 @@
+@layer components {
+  .trail-node {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: min(100%, 22rem);
+    min-height: 5.5rem;
+    padding: 0.75rem 1rem;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    border-radius: 1.25rem;
+    background-color: var(--infantil-6);
+    color: var(--ink);
+    text-align: left;
+    text-decoration: none;
+    box-shadow: 0 0.35rem 0.6rem rgba(33, 53, 71, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* Alvo de toque confortável no mobile: 5.5rem de altura mínima. */
+  @media (min-width: 640px) {
+    .trail-node {
+      min-height: 6.5rem;
+      padding: 1rem 1.25rem;
+    }
+  }
+
+  .trail-node--completed {
+    background-color: var(--infantil-4);
+  }
+
+  .trail-node--current {
+    background-color: var(--infantil-2);
+    border-color: var(--infantil-6);
+  }
+
+  .trail-node--locked {
+    background-color: #e7e7e7;
+    border-color: rgba(33, 53, 71, 0.2);
+    color: var(--ink);
+    box-shadow: none;
+  }
+
+  a.trail-node:hover,
+  a.trail-node:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 0.9rem rgba(33, 53, 71, 0.35);
+    text-decoration: none;
+  }
+
+  a.trail-node:focus-visible {
+    outline: 4px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .trail-node__icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 100%;
+    background-color: var(--infantil-6);
+    color: var(--ink);
+    font-size: 1.75rem;
+  }
+
+  .trail-node--locked .trail-node__icon {
+    background-color: transparent;
+  }
+
+  .trail-node__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .trail-node__title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 640px) {
+    .trail-node__title {
+      font-size: 1.25rem;
+    }
+  }
+
+  .trail-node__meta {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  @media (min-width: 640px) {
+    .trail-node__meta {
+      font-size: 0.9rem;
+    }
+  }
+
+  /* A pulsação é só reforço: o estado já aparece na cor, no ícone e no texto.
+     Quem pediu menos movimento não recebe a classe (ver `usePrefersReducedMotion`),
+     e o `prefers-reduced-motion` global também zera a animação. */
+  .trail-node--pulse::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 1.5rem;
+    border: 3px solid var(--infantil-2);
+    animation: trail-pulse 1.8s ease-out infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes trail-pulse {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+
+  70% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import CustomButton from "../../../components/Button";
-import { TiHome } from "react-icons/ti";
+import { TiArrowBack, TiHome } from "react-icons/ti";
 import BoxActivity from "../../../components/BoxActivity";
 import BoxRow from "../../../components/BoxRow";
 import activity01Letras from '../../../assets/modulo_01/atividade_01.png';
@@ -146,6 +146,9 @@ const Modulo01Home = () => {
             </BoxRow>
 
             <BoxRow justifyContent="center" width="100%" gap="1rem">
+                <Link className="button" to="/trilha" aria-label="Voltar para a trilha">
+                    <TiArrowBack className="text-2xl sm:text-3xl" aria-hidden="true" />
+                </Link>
                 <CustomButton
                     href="/"
                     ariaLabel="Ir para o início"

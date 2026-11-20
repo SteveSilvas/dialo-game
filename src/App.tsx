@@ -29,7 +29,7 @@ function App() {
       <div className="card">
         <CustomButton
           text="INICIAR"
-          href="/modulo-01"
+          href="/trilha"
           onClick={handleStartSound}
           className="text-base sm:text-lg"
           rightIcon={

@@ -1,0 +1,95 @@
+@layer components {
+  /* Ramo de atividade: pastilha compacta para várias caberem na mesma linha,
+     como os "●  ●  ●" do mapa, e ainda assim com 44 px de altura de toque. */
+  .trail-activity {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    max-width: 12rem;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.6rem;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 999px;
+    background-color: var(--infantil-6);
+    color: var(--ink);
+    text-decoration: none;
+    box-shadow: 0 0.2rem 0.35rem rgba(33, 53, 71, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  @media (min-width: 640px) {
+    .trail-activity {
+      gap: 0.5rem;
+      max-width: 14rem;
+      min-height: 3rem;
+      padding: 0.4rem 0.85rem;
+    }
+  }
+
+  .trail-activity--completed {
+    background-color: var(--infantil-4);
+  }
+
+  .trail-activity--started {
+    background-color: var(--infantil-1);
+  }
+
+  a.trail-activity:hover,
+  a.trail-activity:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 0.35rem 0.6rem rgba(33, 53, 71, 0.3);
+    text-decoration: none;
+  }
+
+  a.trail-activity:focus-visible {
+    outline: 4px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  .trail-activity__icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 100%;
+    background-color: var(--infantil-6);
+    font-size: 1rem;
+  }
+
+  .trail-activity__order {
+    flex: 0 0 auto;
+    font-size: 0.85rem;
+    font-weight: 800;
+  }
+
+  /* O título usa reticências quando falta espaço: o nome completo continua no
+     `aria-label`, e o ramo nunca empurra a linha para fora da tela. */
+  .trail-activity__title {
+    flex: 1 1 auto;
+    overflow: hidden;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 640px) {
+    .trail-activity__title {
+      font-size: 0.95rem;
+    }
+  }
+
+  .trail-activity__stars {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.05rem;
+    font-size: 0.8rem;
+    color: var(--infantil-2);
+  }
+}

@@ -1,0 +1,110 @@
+@layer components {
+  /* Rolagem própria da trilha: o cabeçalho e o botão de voltar continuam à
+     vista enquanto a criança desce os módulos. */
+  .trail {
+    width: 100%;
+    max-height: min(78vh, 46rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 1rem;
+    background-color: var(--infantil-3);
+  }
+
+  .trail__stage {
+    position: relative;
+    width: 100%;
+    padding: 1.25rem 0.75rem 2.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .trail__stage {
+      padding: 1.75rem 1.25rem 3rem;
+    }
+  }
+
+  .trail__path {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .trail__path path {
+    stroke: var(--ink);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-opacity: 0.45;
+  }
+
+  .trail__list,
+  .trail__branches {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .trail__list {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .trail__list {
+      gap: 4.5rem;
+    }
+  }
+
+  .trail__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .trail__node {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Duas atividades por linha no celular (título legível) e linhas livres a
+     partir de 480 px. O tronco do SVG corre na faixa à esquerda, daí o recuo. */
+  .trail__branches {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 34rem;
+    margin-top: 2.5rem;
+    padding-left: 1.5rem;
+  }
+
+  @media (min-width: 480px) {
+    .trail__branches {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .trail__branches {
+      gap: 0.65rem;
+      max-width: 40rem;
+      margin-top: 3rem;
+    }
+  }
+
+  .trail__branch {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+}

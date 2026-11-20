@@ -210,6 +210,14 @@ registram o que foi feito e o que restou de manutenção pontual.
 
 - [x] Persistir o progresso (acertos, atividades concluídas) — na conta via API e, sem
       conta, no `localStorage` (ver *Integração front ↔ API*).
+- [x] **Trilha vertical** (`/trilha`) — `Trail` desenha o caminho num SVG medido do
+      DOM (`Trail/path.ts`), então ele acompanha a altura real dos nós e o número de
+      linhas de atividades. O tronco corre pela lateral para não cruzar nó nenhum, e
+      cada linha ganha barra e pino até as atividades. `TrailNode` cobre os três
+      estados (concluído com check e estrelas, atual pulsando, bloqueado com cadeado e
+      motivo em texto); `TrailActivityNode` mostra o estado por atividade. Cada nó
+      liberado é `<a href>` com `aria-label` completo, a trilha abre centralizada no
+      módulo atual e `prefers-reduced-motion` desliga a pulsação e o deslizamento.
 - [ ] Tela de conclusão de módulo (parabéns / resumo de pontos) em vez de voltar direto.
 - [x] `meta description` e tags Open Graph no `index.html` para compartilhamento.
       Inclui `og:image` 1200×630 (`public/og-image.png`, 160 kB), `og:image:alt`,

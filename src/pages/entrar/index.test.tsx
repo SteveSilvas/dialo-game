@@ -35,7 +35,7 @@ describe('página de entrada', () => {
     expect(screen.getByRole('heading', { name: 'ENTRAR' })).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Continuar sem conta' }),
-    ).toHaveAttribute('href', '/modulo-01');
+    ).toHaveAttribute('href', '/trilha');
   });
 
   it('alterna para o cadastro e mostra os campos extras', async () => {

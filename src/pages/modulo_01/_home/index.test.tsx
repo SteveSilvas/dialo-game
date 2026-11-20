@@ -100,6 +100,14 @@ describe('home do módulo', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('oferece o caminho de volta para a trilha', () => {
+    renderHome();
+
+    expect(
+      screen.getByRole('link', { name: 'Voltar para a trilha' }),
+    ).toHaveAttribute('href', '/trilha');
+  });
+
   it('cai na trilha local quando a API não responde', async () => {
     fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
 

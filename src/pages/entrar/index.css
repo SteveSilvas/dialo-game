@@ -60,3 +60,20 @@
   margin: 0 auto;
   text-align: center;
 }
+
+.login-google {
+  display: flex;
+  justify-content: center;
+  min-height: 2.75rem;
+}
+
+.login-google[data-disabled] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.login-google-fallback {
+  text-align: center;
+  max-width: 22rem;
+  margin: 0 auto;
+}

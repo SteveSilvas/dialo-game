@@ -45,7 +45,8 @@ Hoje o repositório tem duas partes: o **jogo** (Vite + React + TypeScript, publ
 
 ## Como jogar
 
-1. Na tela inicial, toque em **INICIAR**.
+1. Na tela inicial, toque em **INICIAR** (na volta, o botão vira **CONTINUAR** e leva
+   direto à atividade onde a criança parou).
 2. Escolha uma atividade do módulo (letras, números, vogais, consoantes ou o desafio).
 3. Selecione os elementos corretos pedidos no topo da tela.
 4. Acompanhe seus **acertos**, **erros** e **tentativas** no painel de pontos.

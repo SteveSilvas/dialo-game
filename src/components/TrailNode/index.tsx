@@ -30,6 +30,16 @@ const describeState = (
   }
 };
 
+const describeMeta = (module: Module): string => {
+  if (module.status === 'completed') {
+    return `CONCLUÍDO · ★ ${module.stars}/${module.maxStars}`;
+  }
+  if (module.status === 'current') {
+    return `VOCÊ ESTÁ AQUI · ${module.requiredCompleted}/${module.requiredTotal} · ★ ${module.stars}/${module.maxStars}`;
+  }
+  return 'DISPONÍVEL';
+};
+
 /**
  * Nó de módulo da trilha. O estado é identificado primeiro pela cor e pelo
  * ícone, para a criança que ainda não lê saber onde está; o texto curto e o
@@ -56,9 +66,9 @@ const TrailNode = ({
   const content = (
     <>
       <span className="trail-node__icon" aria-hidden="true">
-        {module.status === 'completed' && <TiTick />}
-        {module.status === 'current' && <TiMediaPlay />}
         {locked && <TiLockClosed />}
+        {!locked && module.status === 'completed' && <TiTick />}
+        {!locked && module.status === 'current' && <TiMediaPlay />}
       </span>
 
       <span className="trail-node__body">
@@ -67,11 +77,9 @@ const TrailNode = ({
         </span>
 
         <span className="trail-node__meta" aria-hidden="true">
-          {module.status === 'completed' &&
-            `CONCLUÍDO · ★ ${module.stars}/${module.maxStars}`}
-          {module.status === 'current' &&
-            `VOCÊ ESTÁ AQUI · ${module.requiredCompleted}/${module.requiredTotal} · ★ ${module.stars}/${module.maxStars}`}
-          {locked && (lockedReason?.toUpperCase() ?? 'CONCLUA O MÓDULO ANTERIOR')}
+          {locked
+            ? (lockedReason?.toUpperCase() ?? 'CONCLUA O MÓDULO ANTERIOR')
+            : describeMeta(module)}
         </span>
       </span>
     </>

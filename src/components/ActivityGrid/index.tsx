@@ -93,6 +93,7 @@ const ActivityGrid = ({
         items={options}
         removing={removing}
         onSelect={selectOption}
+        label="Símbolos da atividade"
       />
 
       <BoxRow justifyContent="space-evenly" width="80%">

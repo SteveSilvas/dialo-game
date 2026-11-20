@@ -107,7 +107,8 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 - **[PostgreSQL 17](https://www.postgresql.org/)** — banco relacional, com `jsonb` para o conteúdo das atividades.
 - **[Npgsql](https://www.npgsql.org/)** — driver e provider EF Core para PostgreSQL.
 - **JWT + Argon2id** — access token curto e refresh rotativo; senhas com Argon2id (`Konscious.Security.Cryptography`).
-- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 75 testes de unidade e integração.
+- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 78 testes de unidade e integração.
+- **[Playwright](https://playwright.dev/)** + **[axe-core](https://github.com/dequelabs/axe-core)** — E2E da trilha e acessibilidade.
 - **Google Identity Services** — login com Google validado no servidor (`Google.Apis.Auth`).
 
 ## Requisitos
@@ -209,10 +210,26 @@ npm run lint
 npm test
 ```
 
-São 112 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
+São 128 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
 navegação, o fluxo completo de cada atividade (acerto, erro, reinício e conclusão)
 e a integração com a API: cliente HTTP com renovação de token, contratos do
 catálogo, progresso de convidado e a tela de entrada.
+
+### Rode os testes de ponta a ponta
+
+```sh
+npx playwright install chromium   # uma vez
+npm run test:e2e
+```
+
+O Playwright sobe a API e o front construído por conta própria, contra um banco
+`dialo_e2e` recriado a cada execução (é preciso um Postgres em `localhost:5432`;
+`docker compose` em `apps/api` resolve). Os specs ficam em `e2e/` e cobrem o que
+teste de componente não alcança: visitante que joga, cria conta e leva o
+progresso junto; conclusão do módulo 01 liberando o 02 e mantendo o 03
+bloqueado; F5 em rota interna preservando a sessão; a trilha inteira percorrida
+só com teclado; e a auditoria de acessibilidade (axe, WCAG 2.1 AA) nas telas
+principais. O CI roda essa suíte em PRs que tocam o front.
 
 ## API (`apps/api`)
 
@@ -279,7 +296,7 @@ cd apps/api
 dotnet test DialoGame.slnx
 ```
 
-São 75 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
+São 78 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
 desbloqueio de módulo) e integração (auth, catálogo, progresso, rate limiting)
 contra um Postgres real. Cada classe de teste cria um banco próprio e o remove ao
 final.
@@ -339,6 +356,9 @@ Copie `apps/api/.env.example` para começar. Nunca comite o `.env` real.
 | `npm run lint` | Executa o ESLint em todo o projeto. |
 | `npm test` | Executa a suíte de testes com Jest. |
 | `npm run test:watch` | Executa os testes em modo observador. |
+| `npm run test:e2e` | Roda o E2E da trilha com Playwright (API + front). |
+| `npm run test:e2e:ui` | Abre o E2E no modo interativo do Playwright. |
+| `npm run test:e2e:report` | Abre o último relatório HTML do E2E. |
 | `npm run audio:build` | Regera a música de fundo em Opus e MP3 a partir do master. |
 | `npm run audio:opus` | Regera apenas o Opus (`public/audio/fundo.ogg`). |
 | `npm run audio:mp3` | Regera apenas o MP3 de fallback (`public/audio/fundo.mp3`). |
@@ -349,7 +369,7 @@ Na API, os comandos ficam no `dotnet` (rode dentro de `apps/api`):
 | --- | --- |
 | `dotnet run --project src/DialoGame.Api` | Sobe a API em `http://localhost:5099`. |
 | `dotnet build DialoGame.slnx` | Compila a solução inteira. |
-| `dotnet test DialoGame.slnx` | Executa os 75 testes de unidade e integração. |
+| `dotnet test DialoGame.slnx` | Executa os 78 testes de unidade e integração. |
 | `dotnet format --verify-no-changes` | Confere a formatação (o CI reprova se falhar). |
 
 ## Estrutura do projeto
@@ -370,6 +390,8 @@ apps/api/                 # API .NET 10
 └── tests/DialoGame.Tests/        # xUnit: unidade + integração
 
 audio-src/                # Master da música de fundo (entrada do npm run audio:build)
+e2e/                      # E2E com Playwright: specs e helpers (support/)
+playwright.config.ts      # Sobe API + preview e roda a suíte E2E
 public/
 ├── audio/                # Música de fundo comprimida, servida como estático
 └── og-image.png          # Imagem do card de compartilhamento

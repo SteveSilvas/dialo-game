@@ -352,14 +352,14 @@ conclusão de módulo e o mapa de progresso na home existem. As fases 4 e 5 segu
 | Módulo 05 — ler frases | Fluência e compreensão |
 | Módulo 06 — escrever | Produção escrita |
 
-### Fase 5 — Qualidade e operação (P1/P2)
+### Fase 5 — Qualidade e operação (P1/P2) — parcial
 
 | Issue | Entrega |
 | --- | --- |
 | CI do backend | Lint, testes e migrations em PR |
 | Deploy da API + CORS | Ambiente, segredos e origens permitidas |
 | Rate limiting e observabilidade | Proteção de login e logs estruturados |
-| Acessibilidade e E2E da trilha | Teclado, leitor de tela e Playwright |
+| Acessibilidade e E2E da trilha | Teclado, leitor de tela e Playwright — feito: `playwright.config.ts`, specs em `e2e/` (convidado → conta, progressão, F5, teclado, axe WCAG 2.1 AA) e job `e2e` no CI |
 
 ---
 

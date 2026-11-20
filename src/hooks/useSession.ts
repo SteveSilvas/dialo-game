@@ -66,8 +66,11 @@ export const useSession = () => {
 
   const signIn = useCallback(
     async (user: User) => {
-      setSession({ status: 'authenticated', user });
+      // A importação termina antes de a sessão virar autenticada: o catálogo é
+      // buscado quando a sessão muda, e buscar antes do import mostraria a
+      // trilha zerada por um instante — o progresso "sumiria" na conversão.
       await migrateGuestProgress();
+      setSession({ status: 'authenticated', user });
     },
     [setSession],
   );

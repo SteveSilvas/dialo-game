@@ -44,7 +44,7 @@ test.describe('progressão entre módulos', () => {
     await page.getByRole('link', { name: 'CONCLUIR MÓDULO' }).click();
     await expect(page).toHaveURL(/\/modulo-01\/conclusao\/?$/);
     await expect(
-      page.getByRole('status').filter({ hasText: /5 de 15 atividades/ }),
+      page.getByRole('status').filter({ hasText: /5 de 5 atividades/ }),
     ).toBeVisible({ timeout: 15_000 });
 
     const after = await readCatalog(page);

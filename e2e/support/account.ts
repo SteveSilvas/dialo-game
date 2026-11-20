@@ -22,7 +22,7 @@ export const registerViaUi = async (
 
   // O cadastro redireciona para o módulo; chegar aqui é o sinal de que o
   // token foi aceito e a sessão está no estado autenticado.
-  await expect(page).toHaveURL(/\/modulo-01\/?$/);
+  await expect(page).toHaveURL(/\/trilha\/?$/);
   return credentials;
 };
 
@@ -39,5 +39,5 @@ export const loginViaUi = async (
   await page.getByLabel('Senha').fill(credentials.password);
   await page.getByRole('button', { name: 'ENTRAR' }).click();
 
-  await expect(page).toHaveURL(/\/modulo-01\/?$/);
+  await expect(page).toHaveURL(/\/trilha\/?$/);
 };

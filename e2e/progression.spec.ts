@@ -17,7 +17,7 @@ test.describe('progressão entre módulos', () => {
     await page.getByLabel('Nome de usuário').fill(uniqueUsername('prog'));
     await page.getByLabel('Senha').fill(password);
     await page.getByRole('button', { name: 'CRIAR CONTA' }).click();
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
+    await expect(page).toHaveURL(/\/trilha\/?$/);
   });
 
   test('concluir o módulo 01 libera o 02 e mantém o 03 bloqueado', async ({ page }) => {
@@ -39,12 +39,13 @@ test.describe('progressão entre módulos', () => {
       await playActivity(page, isValid);
     }
 
-    // Fim da trilha: PRÓXIMA da atividade 05 leva de volta ao módulo.
-    await page.getByRole('link', { name: 'PRÓXIMA' }).click();
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
-    await expect(page.getByText(/5\/5 atividades concluídas/)).toBeVisible({
-      timeout: 15_000,
-    });
+    // Fim do módulo: a última atividade troca PRÓXIMA por CONCLUIR MÓDULO,
+    // que abre a tela de conclusão com o resumo das cinco atividades.
+    await page.getByRole('link', { name: 'CONCLUIR MÓDULO' }).click();
+    await expect(page).toHaveURL(/\/modulo-01\/conclusao\/?$/);
+    await expect(
+      page.getByRole('status').filter({ hasText: /5 de 15 atividades/ }),
+    ).toBeVisible({ timeout: 15_000 });
 
     const after = await readCatalog(page);
     expect(after.get('modulo-01')?.status).toBe('completed');

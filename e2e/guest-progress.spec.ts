@@ -12,7 +12,7 @@ test.describe('visitante joga, cria conta e mantém o progresso', () => {
   test('importa o progresso do convidado ao criar a conta', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: 'INICIAR' }).click();
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
+    await expect(page).toHaveURL(/\/trilha\/?$/);
 
     await page.getByRole('link', { name: /LETRAS/i }).click();
     await expect(page).toHaveURL(/\/modulo-01\/atividade-01$/);
@@ -35,7 +35,7 @@ test.describe('visitante joga, cria conta e mantém o progresso', () => {
     await page.getByLabel('Senha').fill(password);
     await page.getByRole('button', { name: 'CRIAR CONTA' }).click();
 
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
+    await expect(page).toHaveURL(/\/trilha\/?$/);
     await page.goto('/');
     await expect(statusWithText(page, new RegExp(username))).toBeVisible();
 
@@ -65,13 +65,12 @@ test.describe('visitante joga, cria conta e mantém o progresso', () => {
 
     // Sem reload: a importação roda antes da sessão virar autenticada, então o
     // primeiro catálogo buscado já vem com o progresso.
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
-    await expect(statusWithText(page, /1\/5 atividades concluídas/)).toBeVisible({
-      timeout: 15_000,
-    });
+    await expect(page).toHaveURL(/\/trilha\/?$/);
 
-    // A trilha mostra o total de estrelas do módulo; o que importa aqui é que
-    // as 3 estrelas da atividade importada já estejam contadas.
-    await expect(statusWithText(page, /\b3 de \d+ estrelas/)).toBeVisible();
+    // O nó do módulo na trilha carrega progresso e estrelas no nome acessível;
+    // as 3 estrelas da atividade importada já aparecem contadas.
+    await expect(
+      page.getByRole('link', { name: /1 de 5 atividades concluídas, 3 de 15 estrelas/ }),
+    ).toBeVisible({ timeout: 15_000 });
   });
 });

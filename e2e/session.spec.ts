@@ -16,7 +16,7 @@ test.describe('recarregar a página preserva a sessão', () => {
     await page.getByLabel('Nome de usuário').fill(username);
     await page.getByLabel('Senha').fill(password);
     await page.getByRole('button', { name: 'CRIAR CONTA' }).click();
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
+    await expect(page).toHaveURL(/\/trilha\/?$/);
 
     await recordProgress(page, 'atividade-01', {
       bestScore: 8,
@@ -46,7 +46,7 @@ test.describe('recarregar a página preserva a sessão', () => {
     await page.getByLabel('Nome de usuário').fill(username);
     await page.getByLabel('Senha').fill(password);
     await page.getByRole('button', { name: 'CRIAR CONTA' }).click();
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
+    await expect(page).toHaveURL(/\/trilha\/?$/);
 
     await page.goto('/');
     await expect(statusWithText(page, username)).toBeVisible();

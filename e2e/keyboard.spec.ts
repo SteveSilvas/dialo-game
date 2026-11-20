@@ -19,11 +19,11 @@ test.describe('trilha navegável só com teclado', () => {
     await page.goto('/');
 
     const start = await tabTo(page, 'INICIAR');
-    expect(start.href).toBe('/modulo-01');
+    expect(start.href).toBe('/trilha');
     expect(start.focusVisible, 'o foco do teclado precisa ser visível').toBe(true);
 
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
+    await expect(page).toHaveURL(/\/trilha\/?$/);
 
     const letters = await tabTo(page, /LETRAS/i);
     expect(letters.href).toBe('/modulo-01/atividade-01');
@@ -54,11 +54,13 @@ test.describe('trilha navegável só com teclado', () => {
 
       await playActivityByKeyboard(page, isValid);
 
-      await tabTo(page, 'PRÓXIMA');
+      // A última atividade fecha o módulo: o botão vira CONCLUIR MÓDULO.
+      const next = slug === 'atividade-05' ? 'CONCLUIR MÓDULO' : 'PRÓXIMA';
+      await tabTo(page, next);
       await page.keyboard.press('Enter');
     }
 
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
+    await expect(page).toHaveURL(/\/modulo-01\/conclusao\/?$/);
   });
 
   test('a tela de entrada é navegável e anuncia o erro', async ({ page }) => {

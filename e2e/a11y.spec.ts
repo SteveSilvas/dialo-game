@@ -26,11 +26,28 @@ test.describe('acessibilidade (axe, WCAG 2.1 AA)', () => {
     await expectNoA11yViolations(page, { screen: 'cadastro' });
   });
 
+  test('trilha de módulos', async ({ page }) => {
+    await page.goto('/trilha');
+    await expect(page.getByRole('heading', { name: 'SUA TRILHA' })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Trilha de módulos' })).toBeVisible();
+
+    await expectNoA11yViolations(page, { screen: 'trilha' });
+  });
+
   test('home do módulo', async ({ page }) => {
     await page.goto('/modulo-01');
     await expect(page.getByRole('heading', { name: /RECONHECER/ })).toBeVisible();
 
     await expectNoA11yViolations(page, { screen: 'home do módulo' });
+  });
+
+  test('conclusão de módulo', async ({ page }) => {
+    await page.goto('/modulo-01/conclusao');
+    await expect(
+      page.getByRole('heading', { name: /PARABÉNS|AINDA FALTA POUCO/ }),
+    ).toBeVisible();
+
+    await expectNoA11yViolations(page, { screen: 'conclusão de módulo' });
   });
 
   test('atividade em andamento e concluída', async ({ page }) => {
@@ -78,7 +95,7 @@ test.describe('acessibilidade (axe, WCAG 2.1 AA)', () => {
     await page.getByLabel('Nome de usuário').fill(uniqueUsername('axe'));
     await page.getByLabel('Senha').fill(password);
     await page.getByRole('button', { name: 'CRIAR CONTA' }).click();
-    await expect(page).toHaveURL(/\/modulo-01\/?$/);
+    await expect(page).toHaveURL(/\/trilha\/?$/);
 
     await page.goto('/');
     await expect(page.getByRole('status')).toBeVisible();

@@ -303,7 +303,7 @@ ao abrir.
 Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 
 **Estado:** as fases 0, 1 e 2 estão concluídas. A fase 3 está parcial — a home do
-módulo e a escolha livre de atividade existem; faltam a trilha vertical desenhada,
+módulo, a escolha livre de atividade e a trilha vertical desenhada existem; faltam
 a tela de conclusão de módulo e o mapa de progresso na home. As fases 4 e 5 seguem
 abertas.
 

@@ -21,6 +21,11 @@ describe('DocumentTitle', () => {
     );
   });
 
+  it('dá um título próprio para a trilha', () => {
+    renderAt('/trilha');
+    expect(document.title).toBe('Sua trilha | Dialo Game');
+  });
+
   it('dá um título próprio para cada atividade', () => {
     renderAt('/modulo-01/atividade-03');
     expect(document.title).toBe('Atividade 3 — Selecionar as vogais | Dialo Game');

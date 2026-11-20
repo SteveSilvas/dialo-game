@@ -188,6 +188,13 @@ registram o que foi feito e o que restou de manutenção pontual.
 - [x] **Home do módulo vem da API** — títulos, ordem, estrelas e desbloqueio saem do
       catálogo. Sem resposta da API, cai na trilha local e avisa que o progresso fica
       no aparelho.
+- [x] **Home com mapa de progresso e retomada** — a capa agora mostra o resumo da
+      trilha (módulos concluídos, estrelas e atividades) e o botão principal vira
+      **CONTINUAR**, apontando para a primeira atividade pendente do primeiro módulo
+      liberado. Quem já concluiu tudo vê **JOGAR DE NOVO**; quem nunca jogou vê
+      **INICIAR**. A regra fica em `src/utils/progress.ts` (puro, testado), fora do
+      componente, e o convite a criar conta aparece só para o visitante, sem bloquear
+      o jogo. Módulo bloqueado é ignorado: o servidor recusaria o progresso com 403.
 - [x] **Tela de entrada** (`/entrar`) com login e cadastro, mostrando a mensagem que o
       servidor devolve (senha inválida, usuário em uso, servidor fora do ar).
 - [x] **Relatório duplicado ao concluir** — depois de a criança acertar tudo, a grade

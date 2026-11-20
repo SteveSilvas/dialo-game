@@ -303,8 +303,8 @@ ao abrir.
 Cada linha vira uma issue no GitHub. Ordem = ordem de dependência.
 
 **Estado:** as fases 0, 1 e 2 estão concluídas. A fase 3 está parcial — a home do
-módulo, a escolha livre de atividade e a trilha vertical desenhada existem; faltam
-a tela de conclusão de módulo e o mapa de progresso na home. As fases 4 e 5 seguem
+módulo, a escolha livre de atividade, a trilha vertical desenhada, a tela de
+conclusão de módulo e o mapa de progresso na home existem. As fases 4 e 5 seguem
 abertas.
 
 ### Fase 0 — Fundação (P0) ✅
@@ -342,7 +342,7 @@ abertas.
 | Componente de trilha vertical | Árvore com estados e caminho desenhado |
 | Página do módulo com atividades | Escolha livre dentro do módulo |
 | Conclusão de módulo | Tela de parabéns, estrelas e "próximo módulo" |
-| Mapa de progresso na home | Visão geral e retomada |
+| Mapa de progresso na home | Visão geral e retomada ✅ |
 
 ### Fase 4 — Conteúdo pedagógico (P1)
 

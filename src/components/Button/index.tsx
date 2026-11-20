@@ -13,6 +13,8 @@ interface ButtonProps {
     rightIcon?: React.JSX.Element;
     ariaLabel?: string;
     ariaPressed?: boolean;
+    /** Estado entregue à rota pelo `Link` (ex.: o resultado da atividade). */
+    state?: unknown;
 }
 const CustomButton: React.FC<ButtonProps> = ({
     text,
@@ -22,7 +24,8 @@ const CustomButton: React.FC<ButtonProps> = ({
     leftIcon,
     rightIcon,
     ariaLabel,
-    ariaPressed
+    ariaPressed,
+    state
 }) => {
 
     const handleClick = () => {
@@ -47,6 +50,7 @@ const CustomButton: React.FC<ButtonProps> = ({
                 className={className ?? 'flex-center button'}
                 onClick={handleClick}
                 aria-label={ariaLabel}
+                state={state}
                 style={{
                     display: 'grid',
                     gridTemplateColumns: gridColumns,

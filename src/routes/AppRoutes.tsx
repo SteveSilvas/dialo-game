@@ -11,6 +11,8 @@ import NotFound from '../pages/NotFound';
 import DocumentTitle from '../components/DocumentTitle';
 import Entrar from '../pages/entrar';
 import Trilha from '../pages/trilha';
+import ModuleHome from '../pages/modulo';
+import ModuleConclusion from '../pages/modulo/conclusao';
 
 
 const AppRoutes = () => {
@@ -28,6 +30,13 @@ const AppRoutes = () => {
                     <Route path="/modulo-01/atividade-03" element={<Atividade03 />} />
                     <Route path="/modulo-01/atividade-04" element={<Atividade04 />} />
                     <Route path="/modulo-01/atividade-05" element={<Atividade05 />} />
+                    <Route
+                        path="/modulo-01/conclusao"
+                        element={<ModuleConclusion moduleSlug="modulo-01" />}
+                    />
+                    {/* Módulos novos entram pela mesma tela, sem rota por módulo. */}
+                    <Route path="/modulo/:moduleSlug" element={<ModuleHome />} />
+                    <Route path="/modulo/:moduleSlug/conclusao" element={<ModuleConclusion />} />
                     <Route path="*" element={<NotFound />} />
                 </Route>
             </Routes>

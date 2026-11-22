@@ -44,7 +44,7 @@ const targetOf = (
  */
 export const resumeTarget = (modules: readonly Module[]): ResumeTarget | null => {
   const playable = byOrder(modules).filter(
-    (module) => module.isUnlocked && isPlayableModule(module.slug),
+    (module) => module.isUnlocked && isPlayableModule(module),
   );
 
   for (const module of playable) {

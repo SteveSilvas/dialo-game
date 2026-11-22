@@ -1,5 +1,4 @@
 import {
-  TRAIL_PATH,
   activityPath,
   isModuleCompleted,
   resumeTarget,
@@ -61,8 +60,8 @@ describe('activityPath', () => {
     expect(activityPath('modulo-01', 'atividade-02')).toBe('/modulo-01/atividade-02');
   });
 
-  it('cai na trilha quando o módulo ainda não tem rotas próprias', () => {
-    expect(activityPath('modulo-02', 'atividade-01')).toBe(TRAIL_PATH);
+  it('usa a rota genérica quando o módulo não tem telas próprias', () => {
+    expect(activityPath('modulo-02', 'atividade-01')).toBe('/modulo/modulo-02/atividade-01');
   });
 });
 

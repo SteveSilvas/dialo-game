@@ -57,7 +57,7 @@ test.describe('progressão entre módulos', () => {
 
   test('o módulo 02 liberado aceita progresso de verdade', async ({ page }) => {
     // "Desbloqueado" só vale se o servidor aceitar a atividade: o catálogo é uma
-    // promessa, e o 403 é quem a cumpre ou quebra. A tela do módulo 02 é a Fase 4.
+    // promessa, e o 403 é quem a cumpre ou quebra.
     const token = await accessToken(page);
     const record = (slug: string) =>
       page.request.put(`${API_URL}/progress/activities/${slug}`, {
@@ -82,9 +82,17 @@ test.describe('progressão entre módulos', () => {
     expect(unlocked.get('modulo-03')?.status).toBe('locked');
     expect((await record('modulo-03-atividade-01')).status()).toBe(403);
 
-    // O módulo 02 tem uma atividade obrigatória: concluí-la move a corrente
-    // para o 03, o que prova que o desbloqueio do 02 não foi só de fachada.
-    expect((await record('modulo-02-atividade-01')).status()).toBe(200);
+    // Concluir as cinco atividades do 02 move a corrente para o 03, o que prova
+    // que o desbloqueio do 02 não foi só de fachada.
+    for (const slug of [
+      'modulo-02-atividade-01',
+      'modulo-02-atividade-02',
+      'modulo-02-atividade-03',
+      'modulo-02-atividade-04',
+      'modulo-02-atividade-05',
+    ]) {
+      expect((await record(slug)).status(), `progresso de ${slug}`).toBe(200);
+    }
 
     const afterModuleTwo = await readCatalog(page);
     expect(afterModuleTwo.get('modulo-02')?.status).toBe('completed');

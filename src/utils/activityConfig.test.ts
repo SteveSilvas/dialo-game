@@ -103,3 +103,80 @@ describe('parseActivityConfig', () => {
     expect(canRenderConfig(config)).toBe(false);
   });
 });
+
+describe('parseActivityConfig — selectPicture', () => {
+  const picture = (config: unknown) => parseActivityConfig(activity('selectPicture', config));
+
+  const valid = {
+    prompt: 'QUAL FIGURA COMEÇA COM O MESMO SOM?',
+    speak: 'Bola',
+    answer: 'Bala',
+    options: [
+      { label: 'Bala', emoji: '🍬' },
+      { label: 'Dado', emoji: '🎲' },
+    ],
+  };
+
+  it('lê a config de escolher figura', () => {
+    const config = picture(valid);
+
+    expect(config).toEqual({
+      kind: 'selectPicture',
+      prompt: 'QUAL FIGURA COMEÇA COM O MESMO SOM?',
+      speak: 'Bola',
+      answer: 'Bala',
+      options: [
+        { label: 'Bala', emoji: '🍬' },
+        { label: 'Dado', emoji: '🎲' },
+      ],
+    });
+    expect(isSupportedConfig(config)).toBe(true);
+    expect(canRenderConfig(config)).toBe(true);
+  });
+
+  it('usa a resposta como fala quando a config não traz speak', () => {
+    const config = picture({ ...valid, speak: undefined });
+
+    expect(config.kind === 'selectPicture' && config.speak).toBe('Bala');
+  });
+
+  it('aceita opção sem figura, que fica só com o rótulo', () => {
+    const config = picture({
+      ...valid,
+      options: [{ label: 'Bala' }, { label: 'Dado' }],
+    });
+
+    expect(config.kind === 'selectPicture' && config.options[0]!.emoji).toBeNull();
+  });
+
+  it('recusa config cuja resposta não está entre as opções', () => {
+    const config = picture({
+      ...valid,
+      options: [{ label: 'Dado' }, { label: 'Pato' }],
+    });
+
+    expect(config.kind).toBe('unsupported');
+    expect(canRenderConfig(config)).toBe(false);
+  });
+
+  it('recusa config com menos de duas opções', () => {
+    const config = picture({ ...valid, options: [{ label: 'Bala' }] });
+
+    expect(config.kind).toBe('unsupported');
+  });
+
+  it('recusa opção sem rótulo', () => {
+    const config = picture({
+      ...valid,
+      options: [{ label: 'Bala' }, { emoji: '🎲' }],
+    });
+
+    expect(config.kind).toBe('unsupported');
+  });
+
+  it('recusa config sem resposta', () => {
+    const config = picture({ ...valid, answer: undefined });
+
+    expect(config.kind).toBe('unsupported');
+  });
+});

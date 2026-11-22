@@ -16,9 +16,21 @@ const installAudioMock = (playImpl: () => Promise<void> = () => Promise.resolve(
   return { AudioMock, instances };
 };
 
-const loadPlaySound = async (): Promise<typeof import('./sounds').playSound> => {
+/**
+ * Recarrega o módulo junto do átomo: `jest.resetModules()` cria um store novo,
+ * então o estado precisa ser escrito no mesmo grafo de módulos que o
+ * `playSound` recarregado enxerga.
+ */
+const loadPlaySound = async () => {
   jest.resetModules();
-  return (await import('./sounds')).playSound;
+  const { playSound } = await import('./sounds');
+  const { getDefaultStore } = await import('jotai');
+  const { soundAtom } = await import('../Context/SoundAtom');
+
+  return {
+    playSound,
+    setSound: (isActive: boolean) => getDefaultStore().set(soundAtom, { isActive }),
+  };
 };
 
 describe('playSound', () => {
@@ -29,10 +41,34 @@ describe('playSound', () => {
     jest.restoreAllMocks();
   });
 
+  it('não toca nada quando o som do jogo está desligado', async () => {
+    const { AudioMock } = installAudioMock();
+    const { playSound, setSound } = await loadPlaySound();
+
+    setSound(false);
+    playSound('/audio/clique.mp3');
+
+    expect(AudioMock).not.toHaveBeenCalled();
+  });
+
+  it('volta a tocar quando a criança religa o som', async () => {
+    const { instances } = installAudioMock();
+    const { playSound, setSound } = await loadPlaySound();
+
+    setSound(false);
+    playSound('/audio/clique.mp3');
+    setSound(true);
+    playSound('/audio/clique.mp3');
+
+    expect(instances).toHaveLength(1);
+    expect(instances[0]!.play).toHaveBeenCalledTimes(1);
+  });
+
   it('não gera unhandled rejection quando play() é bloqueado pelo navegador', async () => {
     const blocked = new Error('NotAllowedError: autoplay bloqueado');
     const { instances } = installAudioMock(() => Promise.reject(blocked));
-    const playSound = await loadPlaySound();
+    const { playSound, setSound } = await loadPlaySound();
+    setSound(true);
 
     const onUnhandledRejection = jest.fn();
     process.on('unhandledRejection', onUnhandledRejection);
@@ -51,7 +87,8 @@ describe('playSound', () => {
 
   it('reutiliza a mesma instância de Audio para o mesmo src', async () => {
     const { AudioMock, instances } = installAudioMock();
-    const playSound = await loadPlaySound();
+    const { playSound, setSound } = await loadPlaySound();
+    setSound(true);
 
     playSound('/audio/clique.mp3');
     playSound('/audio/clique.mp3');
@@ -63,7 +100,8 @@ describe('playSound', () => {
 
   it('cria uma instância por src distinto', async () => {
     const { AudioMock, instances } = installAudioMock();
-    const playSound = await loadPlaySound();
+    const { playSound, setSound } = await loadPlaySound();
+    setSound(true);
 
     playSound('/audio/clique.mp3');
     playSound('/audio/acerto.mp3');

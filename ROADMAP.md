@@ -249,13 +249,14 @@ o que está bloqueado, mas quem valida é a API — caso contrário, basta edita
 | # | Módulo | Conceito | Exemplo de atividade |
 | --- | --- | --- | --- |
 | 01 | Reconhecer símbolos ✅ | Princípio alfabético | Achar letras, números, vogais, consoantes |
-| 02 | Sons das letras | Consciência fonológica | "Com que som começa *bola*?"; rimas |
-| 03 | Sílabas | Consciência silábica | Contar sílabas; juntar `ba` + `la` = `bala` |
+| 02 | Sons das letras ✅ | Consciência fonológica | "Com que som começa *bola*?"; rimas |
+| 03 | Sílabas ✅ | Consciência silábica | Contar sílabas; juntar `ba` + `la` = `bala` |
 | 04 | Formar palavras | Síntese | Montar palavra a partir de sílabas/imagem |
 | 05 | Ler frases | Fluência e compreensão | Associar frase a imagem; ordem da frase |
 | 06 | Escrever | Produção escrita | Completar palavra; escrever o que vê |
 
-O Módulo 01 é o único pronto. Os demais são o escopo deste roadmap.
+Os módulos 01, 02 e 03 estão jogáveis; o conteúdo de 02 e 03 ainda aguarda revisão
+de educador. Os módulos 04, 05 e 06 são o escopo restante deste roadmap.
 
 ---
 

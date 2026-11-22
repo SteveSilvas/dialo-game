@@ -16,4 +16,7 @@ public enum ActivityType
 
     /// <summary>Ler e responder sobre uma frase.</summary>
     ReadSentence = 3,
+
+    /// <summary>Ouvir uma palavra e escolher a figura que corresponde ao som.</summary>
+    SelectPicture = 4,
 }

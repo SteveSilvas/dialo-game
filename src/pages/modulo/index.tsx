@@ -46,16 +46,15 @@ const ActivityCard = ({
     activity,
     moduleSlug,
     maxStars,
+    playable,
 }: {
     activity: TrailActivity;
     moduleSlug: string;
     maxStars: number;
+    /** Módulo tem ao menos uma atividade que o front sabe renderizar. */
+    playable: boolean;
 }) => {
     const thumb = THUMBNAILS[activity.slug] ?? DEFAULT_THUMBNAIL;
-
-    // Módulo sem tela de atividade não abre card clicável: o link levaria a
-    // um 404 ou de volta à trilha, sem explicar por quê.
-    const playable = isPlayableModule(moduleSlug);
 
     return (
         <div className={`activity-card${activity.locked ? ' activity-card--locked' : ''}`}>
@@ -125,6 +124,8 @@ const ModuleHome = ({ moduleSlug = 'modulo-01' }: ModuleHomeProps) => {
         }));
 
     const maxStars = module?.maxStars ?? 3;
+    // Sem catálogo (offline), a trilha local é jogável por definição.
+    const playable = module ? isPlayableModule(module) : Boolean(local);
     const isOffline = status === 'offline';
     const firstActivity = activities[0];
     const isComplete = Boolean(
@@ -163,6 +164,7 @@ const ModuleHome = ({ moduleSlug = 'modulo-01' }: ModuleHomeProps) => {
                         activity={activity}
                         moduleSlug={slug}
                         maxStars={maxStars}
+                        playable={playable}
                     />
                 ))}
             </BoxRow>
@@ -174,6 +176,7 @@ const ModuleHome = ({ moduleSlug = 'modulo-01' }: ModuleHomeProps) => {
                         activity={activity}
                         moduleSlug={slug}
                         maxStars={maxStars}
+                        playable={playable}
                     />
                 ))}
             </BoxRow>
@@ -195,7 +198,7 @@ const ModuleHome = ({ moduleSlug = 'modulo-01' }: ModuleHomeProps) => {
                         VER CONCLUSÃO
                     </Link>
                 ) : (
-                    isPlayableModule(slug) &&
+                    playable &&
                     firstActivity && (
                         <Link className="button" to={activityPath(slug, firstActivity.slug)}>
                             INICIAR MÓDULO

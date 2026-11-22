@@ -13,6 +13,7 @@ import Entrar from '../pages/entrar';
 import Trilha from '../pages/trilha';
 import ModuleHome from '../pages/modulo';
 import ModuleConclusion from '../pages/modulo/conclusao';
+import ActivityPage from '../pages/atividade';
 
 
 const AppRoutes = () => {
@@ -37,6 +38,7 @@ const AppRoutes = () => {
                     {/* Módulos novos entram pela mesma tela, sem rota por módulo. */}
                     <Route path="/modulo/:moduleSlug" element={<ModuleHome />} />
                     <Route path="/modulo/:moduleSlug/conclusao" element={<ModuleConclusion />} />
+                    <Route path="/modulo/:moduleSlug/:activitySlug" element={<ActivityPage />} />
                     <Route path="*" element={<NotFound />} />
                 </Route>
             </Routes>

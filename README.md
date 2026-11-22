@@ -66,31 +66,74 @@ importá-lo depois, ao criar a conta.
 | `/modulo-01/atividade-01` … `-05` | Atividades do módulo 01 |
 | `/modulo-01/conclusao` | Conclusão do módulo 01 |
 | `/modulo/:moduleSlug` | Home de um módulo novo, sem rota própria |
+| `/modulo/:moduleSlug/:activitySlug` | Atividade de um módulo novo, escolhida pelo `type` |
 | `/modulo/:moduleSlug/conclusao` | Conclusão de um módulo novo |
 | `/entrar` | Login e cadastro |
 | `*` | Página não encontrada |
 
 As URLs ficam em `src/utils/paths.ts`, fonte única usada pela trilha, pela home do
-módulo e pela conclusão. Módulo que ainda não tem tela de atividade (02 e 03) não
-vira link: o card aparece como **EM BREVE**, para a criança não cair num 404.
+módulo e pela conclusão. Um módulo é considerado jogável quando tem ao menos uma
+atividade que o front sabe desenhar; módulo sem nenhuma aparece como **EM BREVE**
+em vez de virar link, para a criança não cair num 404. Essa checagem é derivada do
+`configJson` da atividade (`src/utils/activityConfig.ts`), e não de uma lista fixa
+de módulos — a lista antiga precisava ser lembrada a cada módulo novo.
 
 ## Módulos e atividades
 
-- **Módulo 01 — Reconhecer símbolos**
+- **Módulo 01 — Reconhecer símbolos** (telas escritas à mão)
   - Atividade 01 — Selecionar as letras
   - Atividade 02 — Selecionar os números
   - Atividade 03 — Selecionar as vogais
   - Atividade 04 — Selecionar as consoantes
   - Atividade 05 — Desafio das consoantes (arrastar-e-soltar)
+- **Módulo 03 — Sílabas** (tela genérica pronta; **ainda bloqueado**, veja abaixo)
+  - Atividade 01 — Junte as sílabas (`BA` + `LA` = `BALA`)
+  - Atividade 02 — Três sílabas (`BANANA`)
+  - Atividade 03 — Palavra de quatro sílabas (`BORBOLETA`)
+  - Atividade 04 — Sílabas com acento (`PÁSSARO`)
+  - Atividade 05 — Palavra comprida (`JACARÉ`)
 
-O catálogo do servidor também traz os módulos **02 — Sons das letras** e
-**03 — Sílabas**, com uma atividade cada. Eles existem para a progressão ser
-verificável de ponta a ponta (desbloqueio e bloqueio entre módulos); as telas de
-atividade ainda não foram implementadas, então os cards aparecem como
-**EM BREVE** em vez de virar link.
+O módulo **02 — Sons das letras** já está no catálogo, com uma atividade de som
+inicial, mas ainda aparece como **EM BREVE**: reconhecer som exige áudio das
+palavras, e o projeto só tem efeitos curtos em `src/assets/`. Publicar o módulo sem
+áudio daria um exercício que não pode ser resolvido por quem não sabe ler.
 
-> Novos módulos entram pela trilha sem publicar o front: a lista vem do catálogo
-> no servidor. A tela de atividade é que precisa de rota própria.
+> **Limitação conhecida (bug aberto).** O desbloqueio é sequencial: o módulo 03 só
+> abre depois do 02. Como o 02 não é jogável, o módulo 03 — mesmo com as cinco
+> atividades prontas — **fica inalcançável** em qualquer conta e também no modo
+> convidado. Verificado contra a API: completar as cinco atividades do módulo 01
+> deixa `modulo-02: current` e `modulo-03: locked`. Isso contraria o princípio
+> "nada de becos sem saída" do [ROADMAP.md](./ROADMAP.md). As saídas são dar áudio
+> ao módulo 02, trocar a ordem dos dois no catálogo (sílabas antes de sons) ou
+> ensinar a trilha a pular módulo sem atividade jogável — a decisão é pedagógica e
+> não foi tomada aqui.
+
+> As atividades do módulo 03 ainda **não foram revisadas por educador** — é o
+> pré-requisito registrado na issue #30 antes de usar o módulo em sala de aula. O
+> código está pronto e testado; o conteúdo é um ponto de partida.
+
+## Como uma atividade é montada
+
+A tela de atividade é **dirigida por dados**: a API manda `type` e `configJson`, e o
+front escolhe o componente.
+
+```jsonc
+// GET /catalog → activities[0]
+{
+  "slug": "modulo-03-atividade-01",
+  "type": "buildWord",
+  "configJson": "{\"word\":\"BALA\",\"syllables\":[\"BA\",\"LA\"]}"
+}
+```
+
+`src/utils/activityConfig.ts` valida a config e devolve um tipo conhecido, ou
+`unsupported`. A validação não é zelo excessivo: sílabas que não remontam a palavra
+produziriam uma atividade **impossível de concluir**, e é melhor marcá-la
+indisponível do que deixar a criança presa.
+
+Para adicionar um tipo novo, são três passos: um parser em `activityConfig.ts`, o
+componente da atividade e uma entrada em `RENDERABLE_KINDS`. Enquanto o componente
+não existir, a atividade fica visível no catálogo mas não vira link.
 
 ## Tecnologias
 
@@ -235,10 +278,11 @@ npm run lint
 npm test
 ```
 
-São 211 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
-navegação, o fluxo completo de cada atividade (acerto, erro, reinício e conclusão)
-e a integração com a API: cliente HTTP com renovação de token, contratos do
-catálogo, progresso de convidado, fim de módulo e a tela de entrada.
+São 254 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
+navegação, o fluxo completo de cada atividade (acerto, erro, reinício e conclusão),
+o parser de `configJson` (incluindo config inconsistente) e a integração com a
+API: cliente HTTP com renovação de token, contratos do catálogo, progresso de
+convidado, fim de módulo e a tela de entrada.
 
 ### Rode os testes de ponta a ponta
 
@@ -464,10 +508,12 @@ public/
 src/
 ├── api/                  # Cliente HTTP e contratos da API (client, auth, catalog, types)
 ├── assets/               # Imagens, logos e efeitos sonoros curtos
-├── components/           # Componentes reutilizáveis (Button, BoxRow, PanelPoints, ActivityGrid...)
+├── components/           # Componentes reutilizáveis (Button, BoxRow, PanelPoints, ActivityGrid,
+│                         #   BuildWordActivity — montagem de palavra dirigida por config)
 ├── Context/              # Estado global com Jotai
 ├── hooks/                # Hooks (useActivityProgress, useCatalog, useModuleCompletion, useSession)
 ├── pages/                # Telas e atividades do jogo
+│   ├── atividade/        # Atividade genérica: escolhe o componente pelo type da API
 │   ├── entrar/           # Login e cadastro
 │   ├── modulo/           # Home e conclusão genéricas de módulo
 │   ├── modulo_01/        # Atividades do módulo 01
@@ -476,6 +522,7 @@ src/
 ├── routes/               # Definição das rotas da aplicação
 ├── state/                # Sessão e progresso de convidado (localStorage)
 ├── utils/                # Funções auxiliares (validações, sons, pontuação, rotas)
+│   ├── activityConfig.ts # Parser do configJson e checagem do que o front desenha
 │   ├── paths.ts          # URLs da trilha (fonte única das rotas)
 │   └── backgroundMusic.ts # Fontes da música de fundo (Opus + MP3)
 ├── index.css             # Tailwind + tema (paleta infantil) e estilos globais
@@ -598,9 +645,11 @@ atividade concluída é registrada em `PUT /progress/activities/{slug}` e o
 progresso de convidado é importado ao entrar na conta. Sem conta, ou sem rede, o
 jogo segue funcionando e guarda o progresso no navegador.
 
-O que falta é conteúdo: os módulos 02 e 03 já estão no catálogo para a progressão
-ser verificável, mas ainda não têm tela de atividade. O próximo passo é
-implementar essas telas e seguir a ordem pedagógica da trilha.
+O que falta é conteúdo. O módulo 03 já joga de ponta a ponta pela tela genérica;
+o que resta da Fase 4 são os módulos 02 (sons), 04 (formar palavras), 05 (ler
+frases) e 06 (escrever). Os dois bloqueios reais são conhecidos: o módulo 02 precisa
+de áudio das palavras, e todos precisam das atividades definidas com um educador
+antes de virarem conteúdo de sala de aula.
 
 O detalhamento está em **[ROADMAP.md](./ROADMAP.md)**, com as issues abertas no
 GitHub. O histórico de auditoria e refatorações fica em

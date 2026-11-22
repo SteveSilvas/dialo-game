@@ -126,8 +126,12 @@ public static class CatalogData
             Slug = "modulo-03",
             Order = 3,
             Title = "Sílabas",
-            Description = "Contar sílabas e juntar pedaços para formar palavras.",
+            Description = "Juntar pedaços para formar palavras.",
             Concept = "Consciência silábica",
+            // Módulo 03 da Fase 4 (#30). As atividades são de montar palavra:
+            // a resposta é verificável pela própria palavra, sem depender de
+            // áudio nem de julgamento do enunciado. As de contar e separar
+            // sílabas ficam para quando houver componente próprio.
             Activities =
             [
                 Activity(
@@ -137,10 +141,53 @@ public static class CatalogData
                     type: ActivityType.BuildWord,
                     config: new
                     {
-                        predicate = "syllableJoin",
+                        prompt = "MONTE A PALAVRA: BALA",
                         word = "BALA",
                         syllables = new[] { "BA", "LA" },
-                        targetCount = 1,
+                    }),
+                Activity(
+                    slug: "modulo-03-atividade-02",
+                    order: 2,
+                    title: "Três sílabas",
+                    type: ActivityType.BuildWord,
+                    config: new
+                    {
+                        prompt = "MONTE A PALAVRA: BANANA",
+                        word = "BANANA",
+                        syllables = new[] { "BA", "NA", "NA" },
+                    }),
+                Activity(
+                    slug: "modulo-03-atividade-03",
+                    order: 3,
+                    title: "Palavra de quatro sílabas",
+                    type: ActivityType.BuildWord,
+                    config: new
+                    {
+                        prompt = "MONTE A PALAVRA: BORBOLETA",
+                        word = "BORBOLETA",
+                        syllables = new[] { "BOR", "BO", "LE", "TA" },
+                    }),
+                Activity(
+                    slug: "modulo-03-atividade-04",
+                    order: 4,
+                    title: "Sílabas com acento",
+                    type: ActivityType.BuildWord,
+                    config: new
+                    {
+                        prompt = "MONTE A PALAVRA: PÁSSARO",
+                        word = "PÁSSARO",
+                        syllables = new[] { "PÁS", "SA", "RO" },
+                    }),
+                Activity(
+                    slug: "modulo-03-atividade-05",
+                    order: 5,
+                    title: "Palavra comprida",
+                    type: ActivityType.BuildWord,
+                    config: new
+                    {
+                        prompt = "MONTE A PALAVRA: JACARÉ",
+                        word = "JACARÉ",
+                        syllables = new[] { "JA", "CA", "RÉ" },
                     }),
             ],
         },

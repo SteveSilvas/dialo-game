@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import BuildWordActivity from '../../components/BuildWordActivity';
+import CompleteWordActivity from '../../components/CompleteWordActivity';
 import SelectPictureActivity from '../../components/SelectPictureActivity';
 import { getCatalog } from '../../api/catalog';
 import type { Activity, Module } from '../../api/types';
@@ -106,6 +107,20 @@ const ActivityPage = () => {
   if (config.kind === 'buildWord') {
     return (
       <BuildWordActivity
+        key={activity.slug}
+        moduleSlug={module.slug}
+        activitySlug={activity.slug}
+        nextHref={nextHref}
+        backHref={modulePath(module.slug)}
+        config={config}
+      />
+    );
+  }
+
+  if (config.kind === 'completeWord') {
+    return (
+      <CompleteWordActivity
+        key={activity.slug}
         moduleSlug={module.slug}
         activitySlug={activity.slug}
         nextHref={nextHref}
@@ -118,6 +133,7 @@ const ActivityPage = () => {
   if (config.kind === 'selectPicture') {
     return (
       <SelectPictureActivity
+        key={activity.slug}
         moduleSlug={module.slug}
         activitySlug={activity.slug}
         nextHref={nextHref}

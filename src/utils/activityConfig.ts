@@ -44,10 +44,30 @@ export type SelectPictureConfig = {
   options: SelectPictureOption[];
 };
 
+export type CompleteWordConfig = {
+  kind: 'completeWord';
+  prompt: string;
+  /** Palavra alvo, em maiúsculas. */
+  word: string;
+  /** Sílabas na ordem correta. */
+  syllables: string[];
+  /** Posição da sílaba escondida. */
+  missingIndex: number;
+  /** Sílaba que falta. */
+  answer: string;
+  /** Sílabas candidatas, incluindo a resposta. */
+  options: string[];
+  /** Palavra falada, para quem ainda não lê. */
+  speak: string;
+  /** Figura da palavra, quando houver. */
+  emoji: string | null;
+};
+
 export type ActivityConfig =
   | SelectSymbolsConfig
   | BuildWordConfig
   | SelectPictureConfig
+  | CompleteWordConfig
   | UnsupportedConfig;
 
 const isStringArray = (value: unknown): value is string[] =>
@@ -141,10 +161,71 @@ const parseSelectPicture = (raw: Record<string, unknown>): ActivityConfig => {
   return { kind: 'selectPicture', prompt, speak: speak ?? answer, answer, options };
 };
 
+const parseCompleteWord = (raw: Record<string, unknown>): ActivityConfig => {
+  const prompt = readString(raw, 'prompt');
+  const word = readString(raw, 'word');
+  const syllables = raw.syllables;
+  const missingIndex = raw.missingIndex;
+  const answer = readString(raw, 'answer');
+  const options = raw.options;
+
+  if (!prompt) return { kind: 'unsupported', reason: 'completeWord sem prompt' };
+  if (!word) return { kind: 'unsupported', reason: 'completeWord sem palavra' };
+  if (!isStringArray(syllables)) {
+    return { kind: 'unsupported', reason: 'completeWord sem sílabas' };
+  }
+  // O componente esconde uma posição e espera que a criança a preencha; se as
+  // sílabas não remontarem a palavra, o "buraco" aponta para uma palavra que
+  // não existe e a atividade fica sem resposta certa.
+  if (!syllablesMatchWord(word, syllables)) {
+    return { kind: 'unsupported', reason: 'sílabas não formam a palavra' };
+  }
+  if (
+    typeof missingIndex !== 'number' ||
+    !Number.isInteger(missingIndex) ||
+    missingIndex < 0 ||
+    missingIndex >= syllables.length
+  ) {
+    return { kind: 'unsupported', reason: 'completeWord com posição inválida' };
+  }
+  if (!answer) return { kind: 'unsupported', reason: 'completeWord sem resposta' };
+  if (!isStringArray(options) || options.length < 2) {
+    return { kind: 'unsupported', reason: 'completeWord precisa de ao menos duas opções' };
+  }
+  const hidden = syllables[missingIndex];
+  if (!hidden) {
+    return { kind: 'unsupported', reason: 'completeWord com posição inválida' };
+  }
+  if (!options.some((option) => option.toUpperCase() === answer.toUpperCase())) {
+    return { kind: 'unsupported', reason: 'completeWord com resposta fora das opções' };
+  }
+  // A resposta é a sílaba da posição escondida: se divergir, a tela mostra um
+  // buraco que a opção "certa" não fecha.
+  if (hidden.toUpperCase() !== answer.toUpperCase()) {
+    return {
+      kind: 'unsupported',
+      reason: 'completeWord com resposta diferente da sílaba que falta',
+    };
+  }
+
+  return {
+    kind: 'completeWord',
+    prompt,
+    word: word.toUpperCase(),
+    syllables: syllables.map((s) => s.toUpperCase()),
+    missingIndex,
+    answer: answer.toUpperCase(),
+    options: options.map((option) => option.toUpperCase()),
+    speak: readString(raw, 'speak') ?? word,
+    emoji: readString(raw, 'emoji'),
+  };
+};
+
 const PARSERS: Record<ActivityType, (raw: Record<string, unknown>) => ActivityConfig> = {
   selectSymbols: parseSelectSymbols,
   buildWord: parseBuildWord,
   selectPicture: parseSelectPicture,
+  completeWord: parseCompleteWord,
   // Tipos ainda sem componente no front. O catálogo pode anunciá-los antes de a
   // tela existir; a atividade aparece como indisponível em vez de quebrar.
   dragSymbols: () => ({ kind: 'unsupported', reason: 'dragSymbols sem componente' }),
@@ -171,7 +252,11 @@ export const parseActivityConfig = (activity: Activity): ActivityConfig => {
 /** `true` quando o `configJson` está bem formado e o tipo é conhecido. */
 export const isSupportedConfig = (
   config: ActivityConfig,
-): config is SelectSymbolsConfig | BuildWordConfig | SelectPictureConfig =>
+): config is
+  | SelectSymbolsConfig
+  | BuildWordConfig
+  | SelectPictureConfig
+  | CompleteWordConfig =>
   config.kind !== 'unsupported';
 
 /**
@@ -183,6 +268,7 @@ export const isSupportedConfig = (
 const RENDERABLE_KINDS: ReadonlySet<ActivityConfig['kind']> = new Set([
   'buildWord',
   'selectPicture',
+  'completeWord',
 ]);
 
 export const canRenderConfig = (config: ActivityConfig): boolean =>

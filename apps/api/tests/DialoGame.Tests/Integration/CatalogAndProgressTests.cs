@@ -72,8 +72,9 @@ public class CatalogAndProgressTests(ApiFactory factory) : IClassFixture<ApiFact
         await DialoGame.Infrastructure.Persistence.Seed.ModuleSeeder.SeedAsync(db);
 
         var modules = await db.Modules.Include(m => m.Activities).ToListAsync();
-        modules.Should().HaveCount(3);
-        modules.Select(m => m.Slug).Should().BeEquivalentTo("modulo-01", "modulo-02", "modulo-03");
+        modules.Should().HaveCount(4);
+        modules.Select(m => m.Slug).Should()
+            .BeEquivalentTo("modulo-01", "modulo-02", "modulo-03", "modulo-04");
         modules.Single(m => m.Slug == "modulo-01").Activities.Should().HaveCount(5);
         modules.SelectMany(m => m.Activities).Select(a => a.Slug).Should().OnlyHaveUniqueItems();
     }
@@ -334,5 +335,131 @@ public class CatalogAndProgressTests(ApiFactory factory) : IClassFixture<ApiFact
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var body = await response.ReadJsonAsync();
         body.RootElement.GetProperty("imported").GetInt32().Should().Be(0);
+    }
+    [Fact]
+    public void ConfigDeCompleteWordApontaParaUmaPalavraPossivel()
+    {
+        var modules = DialoGame.Infrastructure.Persistence.Seed.CatalogData.Build();
+        var activities = modules
+            .SelectMany(m => m.Activities.Select(a => (Module: m, Activity: a)))
+            .Where(x => x.Activity.Type == DialoGame.Domain.Enums.ActivityType.CompleteWord)
+            .ToList();
+
+        activities.Should().NotBeEmpty("o módulo 04 depende deste tipo de atividade");
+
+        foreach (var (module, activity) in activities)
+        {
+            var config = activity.Config.RootElement;
+            var word = config.GetProperty("word").GetString()!;
+            var syllables = config.GetProperty("syllables").EnumerateArray()
+                .Select(s => s.GetString()!).ToList();
+            var missingIndex = config.GetProperty("missingIndex").GetInt32();
+            var answer = config.GetProperty("answer").GetString()!;
+            var options = config.GetProperty("options").EnumerateArray()
+                .Select(o => o.GetString()!).ToList();
+
+            // As sílabas precisam remontar a palavra: é o que a tela desenha.
+            string.Concat(syllables).Should().Be(word,
+                $"{activity.Slug}: sílabas não formam a palavra");
+
+            missingIndex.Should().BeInRange(0, syllables.Count - 1,
+                $"{activity.Slug}: posição escondida fora do intervalo");
+
+            // A resposta é a sílaba da posição escondida; sem isso a opção
+            // "certa" não fecha o buraco que a criança vê.
+            syllables[missingIndex].Should().Be(answer,
+                $"{activity.Slug}: resposta diferente da sílaba que falta");
+
+            options.Should().Contain(answer,
+                $"{activity.Slug}: a resposta precisa estar entre as opções");
+            options.Should().OnlyHaveUniqueItems(
+                $"{activity.Slug}: opções repetidas não distinguem nada");
+            options.Should().HaveCountGreaterThan(1,
+                $"{activity.Slug}: uma opção só não é escolha");
+        }
+    }
+
+    [Fact]
+    public void PalavrasDoModulo04NaoSeRepetemNosModulosAnteriores()
+    {
+        var modules = DialoGame.Infrastructure.Persistence.Seed.CatalogData.Build();
+
+        static IEnumerable<string> WordsOf(DialoGame.Domain.Entities.Module module) =>
+            module.Activities
+                .Select(a => a.Config.RootElement)
+                .Where(c => c.TryGetProperty("word", out _))
+                .Select(c => c.GetProperty("word").GetString()!)
+                .Select(w => w.ToUpperInvariant());
+
+        var previous = modules
+            .Where(m => m.Order < 4)
+            .SelectMany(WordsOf)
+            .ToHashSet();
+
+        var current = modules
+            .Where(m => m.Order == 4)
+            .SelectMany(WordsOf)
+            .ToList();
+
+        current.Should().NotBeEmpty();
+        current.Should().OnlyHaveUniqueItems("repetir a palavra no mesmo módulo entrega a resposta");
+        current.Should().NotIntersectWith(previous,
+            "repetir a palavra de um módulo anterior faz a criança decorar em vez de ler");
+    }
+
+    [Fact]
+    public void DistratoresDoModulo04DiferemSoNaVogal()
+    {
+        var activities = DialoGame.Infrastructure.Persistence.Seed.CatalogData.Build()
+            .Where(m => m.Order == 4)
+            .SelectMany(m => m.Activities)
+            .Where(a => a.Type == DialoGame.Domain.Enums.ActivityType.CompleteWord)
+            .ToList();
+
+        activities.Should().NotBeEmpty();
+
+        foreach (var activity in activities)
+        {
+            var config = activity.Config.RootElement;
+            var answer = config.GetProperty("answer").GetString()!;
+            var options = config.GetProperty("options").EnumerateArray()
+                .Select(o => o.GetString()!)
+                .ToList();
+
+            var consonants = options
+                .Select(o => o.TrimEnd('A', 'E', 'I', 'O', 'U'))
+                .Distinct()
+                .ToList();
+
+            // A discriminação fina é o que separa este módulo do "qual sílaba
+            // combina": se o distrator muda a consoante, a criança acerta pelo
+            // desenho da sílaba sem ouvir diferença nenhuma.
+            consonants.Should().HaveCount(1,
+                $"{activity.Slug}: os distratores de '{answer}' devem diferir só na vogal");
+        }
+    }
+
+    [Fact]
+    public void Modulo04NaoRepeteAMesmaPosicaoNaMesmaExtensao()
+    {
+        var shapes = DialoGame.Infrastructure.Persistence.Seed.CatalogData.Build()
+            .Where(m => m.Order == 4)
+            .SelectMany(m => m.Activities)
+            .Where(a => a.Type == DialoGame.Domain.Enums.ActivityType.CompleteWord)
+            .Select(a =>
+            {
+                var config = a.Config.RootElement;
+                var syllables = config.GetProperty("syllables").GetArrayLength();
+                var missing = config.GetProperty("missingIndex").GetInt32();
+                return (a.Slug, Shape: (syllables, missing));
+            })
+            .ToList();
+
+        shapes.Should().NotBeEmpty();
+
+        // Duas atividades com a mesma extensão e a mesma posição escondida são a
+        // mesma tarefa com outra palavra: a criança não avança, só troca o item.
+        shapes.Select(s => s.Shape).Should().OnlyHaveUniqueItems(
+            "cada atividade do módulo 04 precisa mudar a posição escondida ou a extensão da palavra");
     }
 }

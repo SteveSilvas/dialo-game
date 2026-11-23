@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAtom } from 'jotai';
-import { TiArrowLeftThick, TiArrowRightThick, TiHome, TiRefresh, TiVolume } from 'react-icons/ti';
+import { TiArrowLeftThick, TiArrowRightThick, TiHome, TiRefresh } from 'react-icons/ti';
 import BoxRow from '../BoxRow';
+import ListenButton from '../ListenButton';
 import CustomButton from '../Button';
 import PanelPoints from '../PanelPoints';
 import { useModuleCompletion } from '../../hooks/useModuleCompletion';
@@ -12,7 +12,6 @@ import { shuffleArray } from '../../utils/functions';
 import { prefersReducedMotion } from '../../utils/motion';
 import { playSound } from '../../utils/sounds';
 import { getSpeechStatus, speak, stopSpeaking } from '../../utils/speech';
-import { soundAtom } from '../../Context/SoundAtom';
 import errorSong from '../../assets/error-8-206492.mp3';
 import successSong from '../../assets/goodresult-82807.mp3';
 import selectSong from '../../assets/select-sound-121244.mp3';
@@ -48,7 +47,6 @@ const SelectPictureActivity = ({
 }: SelectPictureActivityProps) => {
   const reportProgress = useProgressReporter();
   const speechAvailable = getSpeechStatus() === 'available';
-  const [sound, setSound] = useAtom(soundAtom);
 
   const [round, setRound] = useState(0);
   const options = useMemo(
@@ -116,16 +114,6 @@ const SelectPictureActivity = ({
     setChosen(label);
   };
 
-  /**
-   * O som do jogo também silencia a fala. Em vez de deixar um botão que não faz
-   * nada, ouvir religa o áudio: nesta atividade a palavra falada é o exercício,
-   * não ambiência, e sem ela não há o que resolver.
-   */
-  const replay = () => {
-    if (!sound.isActive) setSound({ isActive: true });
-    speak(config.speak);
-  };
-
   // Fala sozinho ao abrir: quem ainda não lê não descobriria o botão. Se o
   // navegador bloquear a fala sem gesto, o botão continua ali para a criança
   // tocar.
@@ -167,27 +155,7 @@ const SelectPictureActivity = ({
         {config.prompt}
       </h1>
 
-      {/* O botão de ouvir fica sempre visível: repetir o som é a ação principal
-          de quem está resolvendo, e esconder isso atrás de um gesto extra
-          atrapalha justamente quem tem mais dificuldade. */}
-      <button
-        type="button"
-        className="listen-button"
-        onClick={replay}
-        aria-label={
-          speechAvailable ? `Ouvir: ${config.speak}` : 'Som indisponível neste aparelho'
-        }
-        disabled={!speechAvailable}
-      >
-        <TiVolume aria-hidden="true" className="listen-button__icon" />
-        <span>
-          {!speechAvailable
-            ? 'SOM INDISPONÍVEL'
-            : sound.isActive
-              ? 'OUVIR DE NOVO'
-              : 'ATIVAR SOM E OUVIR'}
-        </span>
-      </button>
+      <ListenButton text={config.speak} />
 
       {!speechAvailable && (
         <p className="select-picture-note" role="status">

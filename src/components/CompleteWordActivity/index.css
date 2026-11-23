@@ -1,0 +1,118 @@
+.complete-word-header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-inline: 0.5rem;
+}
+
+.complete-word-title {
+  text-align: center;
+}
+
+.complete-word-figure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4.5rem;
+  line-height: 1;
+  min-height: 5rem;
+}
+
+.complete-word-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background-color: var(--infantil-6);
+  border: 2px dashed var(--infantil-1);
+  transition: border-color 150ms ease;
+}
+
+.complete-word-slots--wrong {
+  border-color: #a4161a;
+}
+
+.complete-word-slot {
+  min-width: 3.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  background-color: transparent;
+}
+
+/* O buraco é o foco da atividade: precisa ser visível como ausência, não como
+   uma sílaba de cor diferente. */
+.complete-word-slot--blank {
+  border: 2px dashed var(--ink);
+  color: #6b7280;
+}
+
+.complete-word-slot--filled {
+  border-style: solid;
+  border-color: var(--infantil-2);
+  background-color: var(--infantil-2);
+  color: var(--ink);
+}
+
+.complete-word-feedback {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #a4161a;
+}
+
+.syllable-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.syllable-option {
+  min-width: 4.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid var(--infantil-1);
+  border-radius: 1rem;
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  background-color: var(--infantil-6);
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.syllable-option:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.syllable-option:focus-visible {
+  outline: 3px solid var(--infantil-2);
+  outline-offset: 2px;
+}
+
+.syllable-option:disabled {
+  cursor: default;
+  transform: none;
+  opacity: 0.35;
+}
+
+.syllable-option--correct:disabled {
+  opacity: 1;
+  background-color: var(--infantil-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .syllable-option,
+  .complete-word-slots {
+    transition: none;
+  }
+}

@@ -5,7 +5,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "author": "Steve Silva <steve.silva@gpssa.com.br> (https://github.com/SteveSilvas)",
+  "author": "Steve Silva <steve.evets00@gmail.com> (https://github.com/SteveSilvas)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

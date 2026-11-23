@@ -98,6 +98,16 @@ de módulos — a lista antiga precisava ser lembrada a cada módulo novo.
   - Atividade 03 — Palavra de quatro sílabas (`BORBOLETA`)
   - Atividade 04 — Sílabas com acento (`PÁSSARO`)
   - Atividade 05 — Palavra comprida (`JACARÉ`)
+- **Módulo 04 — Formar palavras** (tela genérica, com fala)
+  - Atividade 01 — A primeira sílaba (`JA`_`NELA`, 3 sílabas)
+  - Atividade 02 — A sílaba do meio (`SA`_`PA`_`TO`, 3 sílabas)
+  - Atividade 03 — A última sílaba (`CA`_`VA`_`LO`, 3 sílabas)
+  - Atividade 04 — Palavra de duas sílabas (`VE`_`LA`)
+  - Atividade 05 — Palavra de quatro sílabas (`TAR`_`TA`_`RU`_`GA`)
+
+  Os distratores diferem só na vogal (`LO`/`LA`/`LE`), e cada atividade muda a
+  posição escondida ou a extensão da palavra — sem isso a criança só troca o
+  item e não muda a tarefa. Nenhuma palavra repete as dos módulos 02 e 03.
 
 ### O áudio do módulo 02
 
@@ -126,9 +136,9 @@ O que isso resolve e o que não resolve:
 > ruim no aparelho usado em sala, trocar por áudio gravado é a correção — o
 > componente isola a chamada de fala justamente para permitir essa troca.
 
-> As atividades dos módulos 02 e 03 ainda **não foram revisadas por educador** — é
-> o pré-requisito registrado nas issues #29 e #30 antes de usar em sala de aula. O
-> código está pronto e testado; o conteúdo é um ponto de partida.
+> As atividades dos módulos 02, 03 e 04 ainda **não foram revisadas por educador**
+> — é o pré-requisito registrado nas issues #29, #30 e #31 antes de usar em sala de
+> aula. O código está pronto e testado; o conteúdo é um ponto de partida.
 
 ## Como uma atividade é montada
 
@@ -193,7 +203,7 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 - **[PostgreSQL 17](https://www.postgresql.org/)** — banco relacional, com `jsonb` para o conteúdo das atividades.
 - **[Npgsql](https://www.npgsql.org/)** — driver e provider EF Core para PostgreSQL.
 - **JWT + Argon2id** — access token curto e refresh rotativo; senhas com Argon2id (`Konscious.Security.Cryptography`).
-- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 78 testes de unidade e integração.
+- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 82 testes de unidade e integração.
 - **[Playwright](https://playwright.dev/)** + **[axe-core](https://github.com/dequelabs/axe-core)** — E2E da trilha e acessibilidade.
 - **Google Identity Services** — login com Google validado no servidor (`Google.Apis.Auth`).
 
@@ -296,7 +306,7 @@ npm run lint
 npm test
 ```
 
-São 286 testes com Jest e Testing Library, cobrindo validações, sorteio, som
+São 329 testes com Jest e Testing Library, cobrindo validações, sorteio, som
 (inclusive o mudo), navegação, o fluxo completo de cada atividade (acerto, erro,
 reinício e conclusão), o parser de `configJson` (incluindo config inconsistente)
 e a integração com a API: cliente HTTP com renovação de token, contratos do
@@ -314,9 +324,11 @@ O Playwright sobe a API e o front construído por conta própria, contra um banc
 `docker compose` em `apps/api` resolve). Os specs ficam em `e2e/` e cobrem o que
 teste de componente não alcança: visitante que joga, cria conta e leva o
 progresso junto; conclusão do módulo 01 liberando o 02 e mantendo o 03
-bloqueado; F5 em rota interna preservando a sessão; a trilha inteira percorrida
-só com teclado; e a auditoria de acessibilidade (axe, WCAG 2.1 AA) nas telas
-principais. O CI roda essa suíte em PRs que tocam o front.
+bloqueado; o módulo 04 abrindo só depois do 03, recusando o distrator e
+concluindo pela tela de fim de módulo; navegação entre atividades sem herdar
+contadores da anterior; F5 em rota interna preservando a sessão; a trilha inteira
+percorrida só com teclado; e a auditoria de acessibilidade (axe, WCAG 2.1 AA) nas
+telas principais. São 26 testes. O CI roda essa suíte em PRs que tocam o front.
 
 ## API (`apps/api`)
 
@@ -388,7 +400,7 @@ cd apps/api
 dotnet test DialoGame.slnx
 ```
 
-São 78 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
+São 82 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
 desbloqueio de módulo) e integração (auth, catálogo, progresso, rate limiting)
 contra um Postgres real. Cada classe de teste cria um banco próprio e o remove ao
 final.
@@ -497,7 +509,7 @@ Na API, os comandos ficam no `dotnet` (rode dentro de `apps/api`):
 | --- | --- |
 | `dotnet run --project src/DialoGame.Api` | Sobe a API em `http://localhost:5099`. |
 | `dotnet build DialoGame.slnx` | Compila a solução inteira. |
-| `dotnet test DialoGame.slnx` | Executa os 78 testes de unidade e integração. |
+| `dotnet test DialoGame.slnx` | Executa os 82 testes de unidade e integração. |
 | `dotnet format --verify-no-changes` | Confere a formatação (o CI reprova se falhar). |
 
 ## Estrutura do projeto
@@ -675,11 +687,11 @@ atividade concluída é registrada em `PUT /progress/activities/{slug}` e o
 progresso de convidado é importado ao entrar na conta. Sem conta, ou sem rede, o
 jogo segue funcionando e guarda o progresso no navegador.
 
-O que falta é conteúdo. Os módulos 02 (sons) e 03 (sílabas) já jogam de ponta a
-ponta pela tela genérica, e a trilha vai do 01 ao 03 sem beco sem saída. O que
-resta da Fase 4 são os módulos 04 (formar palavras), 05 (ler frases) e 06
-(escrever). O bloqueio real é comum a todos: as atividades precisam ser definidas
-e revisadas por um educador antes de virarem conteúdo de sala de aula.
+O que falta é conteúdo. Os módulos 02 (sons), 03 (sílabas) e 04 (formar palavras)
+já jogam de ponta a ponta pela tela genérica, e a trilha vai do 01 ao 04 sem beco
+sem saída. O que resta da Fase 4 são os módulos 05 (ler frases) e 06 (escrever).
+O bloqueio real é comum a todos: as atividades precisam ser definidas e revisadas
+por um educador antes de virarem conteúdo de sala de aula.
 
 O detalhamento está em **[ROADMAP.md](./ROADMAP.md)**, com as issues abertas no
 GitHub. O histórico de auditoria e refatorações fica em

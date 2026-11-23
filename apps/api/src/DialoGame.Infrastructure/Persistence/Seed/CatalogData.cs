@@ -265,6 +265,106 @@ public static class CatalogData
                     }),
             ],
         },
+
+        new Module
+        {
+            Slug = "modulo-04",
+            Order = 4,
+            Title = "Formar palavras",
+            Description = "Completar a palavra com a sílaba que falta.",
+            Concept = "Síntese silábica",
+            // Módulo 04 da Fase 4 (#31). O módulo 03 monta a palavra inteira a
+            // partir das sílabas; repetir isso aqui não acrescentaria nada. A
+            // atividade é a inversa: a palavra aparece com um buraco e a criança
+            // escolhe a sílaba que o fecha. As opções erradas diferem só na
+            // vogal — é a discriminação fina que a síntese exige, e é o que
+            // separa esta atividade de um simples "qual sílaba combina".
+            //
+            // Nenhuma palavra se repete em relação aos módulos 02 e 03: repetir
+            // o mesmo item faria a criança decorar a resposta em vez de ler.
+            Activities =
+            [
+                Activity(
+                    slug: "modulo-04-atividade-01",
+                    order: 1,
+                    title: "A primeira sílaba",
+                    type: ActivityType.CompleteWord,
+                    config: new
+                    {
+                        prompt = "QUAL SÍLABA FALTA?",
+                        emoji = "🪟",
+                        word = "JANELA",
+                        syllables = new[] { "JA", "NE", "LA" },
+                        missingIndex = 0,
+                        answer = "JA",
+                        options = new[] { "JA", "JE", "JO" },
+                    }),
+                Activity(
+                    slug: "modulo-04-atividade-02",
+                    order: 2,
+                    title: "A sílaba do meio",
+                    type: ActivityType.CompleteWord,
+                    config: new
+                    {
+                        prompt = "QUAL SÍLABA FALTA?",
+                        emoji = "👟",
+                        word = "SAPATO",
+                        syllables = new[] { "SA", "PA", "TO" },
+                        missingIndex = 1,
+                        answer = "PA",
+                        options = new[] { "PA", "PO", "PE" },
+                    }),
+                Activity(
+                    slug: "modulo-04-atividade-03",
+                    order: 3,
+                    title: "A última sílaba",
+                    type: ActivityType.CompleteWord,
+                    config: new
+                    {
+                        prompt = "QUAL SÍLABA FALTA?",
+                        emoji = "🐴",
+                        word = "CAVALO",
+                        syllables = new[] { "CA", "VA", "LO" },
+                        missingIndex = 2,
+                        answer = "LO",
+                        options = new[] { "LO", "LA", "LE" },
+                    }),
+                // A partir daqui a dificuldade sobe pela extensão da palavra, não
+                // por repetir a mesma posição: uma palavra de duas sílabas esconde
+                // metade dela, e a de quatro sílabas esconde uma sílaba do meio
+                // com mais material em volta para a criança segurar.
+                Activity(
+                    slug: "modulo-04-atividade-04",
+                    order: 4,
+                    title: "Palavra de duas sílabas",
+                    type: ActivityType.CompleteWord,
+                    config: new
+                    {
+                        prompt = "QUAL SÍLABA FALTA?",
+                        emoji = "🕯️",
+                        word = "VELA",
+                        syllables = new[] { "VE", "LA" },
+                        missingIndex = 0,
+                        answer = "VE",
+                        options = new[] { "VE", "VA", "VO" },
+                    }),
+                Activity(
+                    slug: "modulo-04-atividade-05",
+                    order: 5,
+                    title: "Palavra de quatro sílabas",
+                    type: ActivityType.CompleteWord,
+                    config: new
+                    {
+                        prompt = "QUAL SÍLABA FALTA?",
+                        emoji = "🐢",
+                        word = "TARTARUGA",
+                        syllables = new[] { "TAR", "TA", "RU", "GA" },
+                        missingIndex = 2,
+                        answer = "RU",
+                        options = new[] { "RU", "RA", "RO" },
+                    }),
+            ],
+        },
     ];
 
     private static Activity Activity(

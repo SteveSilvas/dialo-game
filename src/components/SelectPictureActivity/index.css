@@ -11,29 +11,6 @@
   color: var(--ink);
 }
 
-.listen-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.2rem;
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  background: var(--paper, #fff);
-  color: var(--ink);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.listen-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.listen-button__icon {
-  font-size: 1.5rem;
-}
-
 .select-picture-note,
 .select-picture-feedback {
   text-align: center;

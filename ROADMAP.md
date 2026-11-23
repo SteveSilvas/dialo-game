@@ -251,12 +251,12 @@ o que está bloqueado, mas quem valida é a API — caso contrário, basta edita
 | 01 | Reconhecer símbolos ✅ | Princípio alfabético | Achar letras, números, vogais, consoantes |
 | 02 | Sons das letras ✅ | Consciência fonológica | "Com que som começa *bola*?"; rimas |
 | 03 | Sílabas ✅ | Consciência silábica | Contar sílabas; juntar `ba` + `la` = `bala` |
-| 04 | Formar palavras | Síntese | Montar palavra a partir de sílabas/imagem |
+| 04 | Formar palavras ✅ | Síntese | Completar a sílaba que falta (`JA`_`NELA`), com distratores que diferem só na vogal |
 | 05 | Ler frases | Fluência e compreensão | Associar frase a imagem; ordem da frase |
 | 06 | Escrever | Produção escrita | Completar palavra; escrever o que vê |
 
-Os módulos 01, 02 e 03 estão jogáveis; o conteúdo de 02 e 03 ainda aguarda revisão
-de educador. Os módulos 04, 05 e 06 são o escopo restante deste roadmap.
+Os módulos 01 a 04 estão jogáveis; o conteúdo de 02, 03 e 04 ainda aguarda revisão
+de educador. Os módulos 05 e 06 são o escopo restante deste roadmap.
 
 ---
 
@@ -343,13 +343,14 @@ conclusão de módulo e o mapa de progresso na home existem. As fases 4 e 5 segu
 | Página do módulo com atividades | Escolha livre dentro do módulo |
 | Conclusão de módulo ✅ | Tela de parabéns, estrelas e "próximo módulo" |
 | Mapa de progresso na home ✅ | Visão geral e retomada |
-### Fase 4 — Conteúdo pedagógico (P1)
+
+### Fase 4 — Conteúdo pedagógico (P1) — parcial
 
 | Issue | Entrega |
 | --- | --- |
-| Módulo 02 — sons das letras | Consciência fonológica |
-| Módulo 03 — sílabas | Consciência silábica |
-| Módulo 04 — formar palavras | Síntese silábica |
+| Módulo 02 — sons das letras ✅ | Consciência fonológica |
+| Módulo 03 — sílabas ✅ | Consciência silábica |
+| Módulo 04 — formar palavras ✅ | Síntese silábica |
 | Módulo 05 — ler frases | Fluência e compreensão |
 | Módulo 06 — escrever | Produção escrita |
 

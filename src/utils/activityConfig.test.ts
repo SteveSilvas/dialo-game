@@ -180,3 +180,93 @@ describe('parseActivityConfig — selectPicture', () => {
     expect(config.kind).toBe('unsupported');
   });
 });
+
+describe('parseActivityConfig — completeWord', () => {
+  const valid = {
+    prompt: 'QUAL SÍLABA FALTA?',
+    word: 'BALA',
+    syllables: ['BA', 'LA'],
+    missingIndex: 0,
+    answer: 'BA',
+    options: ['BA', 'PA', 'MA'],
+    emoji: '🍬',
+  };
+
+  const complete = (overrides: Record<string, unknown> = {}) =>
+    parseActivityConfig(activity('completeWord', { ...valid, ...overrides }));
+
+  it('lê a config de completar palavra', () => {
+    const config = complete();
+
+    expect(config).toEqual({
+      kind: 'completeWord',
+      prompt: 'QUAL SÍLABA FALTA?',
+      word: 'BALA',
+      syllables: ['BA', 'LA'],
+      missingIndex: 0,
+      answer: 'BA',
+      options: ['BA', 'PA', 'MA'],
+      speak: 'BALA',
+      emoji: '🍬',
+    });
+    expect(canRenderConfig(config)).toBe(true);
+  });
+
+  it('normaliza sílabas, resposta e opções em maiúsculas', () => {
+    const config = complete({
+      word: 'bala',
+      syllables: ['ba', 'la'],
+      answer: 'ba',
+      options: ['ba', 'pa', 'ma'],
+    });
+
+    expect(config.kind).toBe('completeWord');
+    if (config.kind !== 'completeWord') return;
+    expect(config.syllables).toEqual(['BA', 'LA']);
+    expect(config.answer).toBe('BA');
+    expect(config.options).toEqual(['BA', 'PA', 'MA']);
+  });
+
+  it('usa a palavra como enunciado falado quando não há speak', () => {
+    const config = complete({ speak: undefined });
+
+    expect(config.kind).toBe('completeWord');
+    if (config.kind !== 'completeWord') return;
+    expect(config.speak).toBe('BALA');
+  });
+
+  it('recusa sílabas que não formam a palavra', () => {
+    expect(complete({ syllables: ['BA', 'LO'] }).kind).toBe('unsupported');
+  });
+
+  it('recusa posição fora do intervalo das sílabas', () => {
+    expect(complete({ missingIndex: 2 }).kind).toBe('unsupported');
+    expect(complete({ missingIndex: -1 }).kind).toBe('unsupported');
+  });
+
+  it('recusa posição que não é inteiro', () => {
+    expect(complete({ missingIndex: 0.5 }).kind).toBe('unsupported');
+    expect(complete({ missingIndex: '0' }).kind).toBe('unsupported');
+  });
+
+  it('recusa resposta fora das opções', () => {
+    const config = complete({ options: ['PA', 'MA'] });
+
+    expect(config.kind).toBe('unsupported');
+    expect(canRenderConfig(config)).toBe(false);
+  });
+
+  it('recusa resposta diferente da sílaba que falta', () => {
+    // "LA" está entre as opções, mas a posição escondida é a primeira ("BA"):
+    // a tela mostraria um buraco que a opção certa não fecha.
+    expect(complete({ answer: 'LA' }).kind).toBe('unsupported');
+  });
+
+  it('recusa config com menos de duas opções', () => {
+    expect(complete({ options: ['BA'] }).kind).toBe('unsupported');
+  });
+
+  it('recusa config sem sílabas', () => {
+    expect(complete({ syllables: undefined }).kind).toBe('unsupported');
+  });
+});

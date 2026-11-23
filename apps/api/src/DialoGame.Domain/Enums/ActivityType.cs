@@ -19,4 +19,7 @@ public enum ActivityType
 
     /// <summary>Ouvir uma palavra e escolher a figura que corresponde ao som.</summary>
     SelectPicture = 4,
+
+    /// <summary>Completar a sílaba que falta em uma palavra.</summary>
+    CompleteWord = 5,
 }

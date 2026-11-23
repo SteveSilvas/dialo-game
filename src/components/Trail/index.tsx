@@ -9,7 +9,7 @@ import {
 import type { Module } from '../../api/types';
 import TrailNode from '../TrailNode';
 import TrailActivityNode from '../TrailActivityNode';
-import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { activityPath, modulePath } from '../../utils/paths';
 import { buildTrailPath, type TrailBox, type TrailSegment } from './path';
 import './index.css';
@@ -54,7 +54,7 @@ const Trail = ({
 }: TrailProps) => {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const currentRef = useRef<HTMLDivElement | null>(null);
-  const reducedMotion = usePrefersReducedMotion();
+  const reducedMotion = useReducedMotion();
 
   const [geometry, setGeometry] = useState({ d: '', width: 0, height: 0 });
 

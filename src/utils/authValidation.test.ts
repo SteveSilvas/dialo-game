@@ -70,6 +70,15 @@ describe('validação de senha', () => {
     );
   });
 
+  it('recusa senha comum, a mesma lista que a API barra', () => {
+    expect(validatePassword('password1')).toBe(
+      'Essa senha é comum demais. Escolha outra.',
+    );
+    expect(validatePassword('SENHA123')).toBe(
+      'Essa senha é comum demais. Escolha outra.',
+    );
+  });
+
   it('aceita senha forte', () => {
     expect(validatePassword('SenhaForte123')).toBeNull();
   });

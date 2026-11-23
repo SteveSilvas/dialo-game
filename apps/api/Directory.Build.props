@@ -12,7 +12,7 @@
 
   <PropertyGroup>
     <EfCoreVersion>10.0.15</EfCoreVersion>
-    <NpgsqlVersion>10.0.3</NpgsqlVersion>
+    <NpgsqlVersion>10.0.4</NpgsqlVersion>
     <JwtVersion>10.0.15</JwtVersion>
     <GoogleAuthVersion>1.78.0</GoogleAuthVersion>
     <SerilogAspNetCoreVersion>11.0.0</SerilogAspNetCoreVersion>

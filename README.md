@@ -203,7 +203,8 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 - **[PostgreSQL 17](https://www.postgresql.org/)** — banco relacional, com `jsonb` para o conteúdo das atividades.
 - **[Npgsql](https://www.npgsql.org/)** — driver e provider EF Core para PostgreSQL.
 - **JWT + Argon2id** — access token curto e refresh rotativo; senhas com Argon2id (`Konscious.Security.Cryptography`).
-- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 82 testes de unidade e integração.
+- **[Serilog](https://serilog.net/)** — log estruturado em JSON compacto, com resumo por requisição e máscara de dados sensíveis.
+- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 96 testes de unidade e integração.
 - **[Playwright](https://playwright.dev/)** + **[axe-core](https://github.com/dequelabs/axe-core)** — E2E da trilha e acessibilidade.
 - **Google Identity Services** — login com Google validado no servidor (`Google.Apis.Auth`).
 
@@ -211,13 +212,13 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 
 ### Para rodar o jogo (front-end)
 
-- **[Node.js](https://nodejs.org/) 24 LTS ou 26 LTS** — recomendado Node 26 LTS
-- **npm** 11+
+- **[Node.js](https://nodejs.org/) 26 LTS** (Lithium, hoje `26.13.1`) — Node 24 também
+  funciona: todas as dependências declaram `>=24`
+- **npm** 11+ — o npm que vem com o Node 26 já serve; o `12.x` também funciona
 
-O repositório traz um `.nvmrc` com a versão recomendada. Com
-[nvm](https://github.com/nvm-sh/nvm) instalado, basta rodar `nvm use` na raiz do
-projeto. O CI e o `Dockerfile` usam a mesma versão, então o que passa localmente
-passa no build.
+O repositório traz um `.nvmrc` com `26`. Com [nvm](https://github.com/nvm-sh/nvm)
+instalado, basta rodar `nvm use` na raiz do projeto. O CI lê o mesmo `.nvmrc` e o
+`Dockerfile` usa `node:26-alpine`, então o que passa localmente passa no build.
 
 ### Para rodar a API (`apps/api`)
 
@@ -306,7 +307,7 @@ npm run lint
 npm test
 ```
 
-São 329 testes com Jest e Testing Library, cobrindo validações, sorteio, som
+São 330 testes com Jest e Testing Library, cobrindo validações, sorteio, som
 (inclusive o mudo), navegação, o fluxo completo de cada atividade (acerto, erro,
 reinício e conclusão), o parser de `configJson` (incluindo config inconsistente)
 e a integração com a API: cliente HTTP com renovação de token, contratos do
@@ -400,9 +401,10 @@ cd apps/api
 dotnet test DialoGame.slnx
 ```
 
-São 82 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
-desbloqueio de módulo) e integração (auth, catálogo, progresso, rate limiting)
-contra um Postgres real. Cada classe de teste cria um banco próprio e o remove ao
+São 96 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
+desbloqueio de módulo e a máscara de dados sensíveis do log) e integração
+(auth, catálogo, progresso, rate limiting e o log estruturado) contra um
+Postgres real. Cada classe de teste cria um banco próprio e o remove ao
 final.
 
 ### CI
@@ -483,8 +485,23 @@ Todas seguem o formato `Secao__Chave` do ASP.NET Core.
 | `ApplyMigrationsOnStartup` | não | `true` aplica migrations e seed no boot |
 | `Auth__RefreshCookieSecure` | não | `true` exige HTTPS no cookie de refresh |
 | `RateLimiting__Enabled` | não | `false` desliga o limite de login/cadastro |
+| `Logging__Structured__Enabled` | não | `false` desliga o log JSON e o resumo por requisição |
+| `Serilog__MinimumLevel__Default` | não | Nível mínimo do log (`Information` por padrão) |
 
 Copie `apps/api/.env.example` para começar. Nunca comite o `.env` real.
+
+### Log
+
+Com `Logging__Structured__Enabled` ligado (o padrão), cada linha sai em JSON
+compacto com `@t`, `@mt` e as propriedades da mensagem, e cada requisição deixa
+um resumo com método, rota, status, duração e `RequestId`. Exceção não tratada
+vira uma linha com rota, status 500 e o `RequestId` da requisição, para casar o
+erro com o resumo dela.
+
+O nível se configura em **`Serilog__MinimumLevel__*`**, não em
+`Logging__LogLevel__*`: o Serilog substitui o provider padrão, então a seção
+`Logging:LogLevel` não tem efeito. `SensitiveDataDestructuringPolicy` mascara
+senha, token e e-mail antes de qualquer objeto chegar ao sink.
 
 ## Scripts disponíveis
 
@@ -509,7 +526,7 @@ Na API, os comandos ficam no `dotnet` (rode dentro de `apps/api`):
 | --- | --- |
 | `dotnet run --project src/DialoGame.Api` | Sobe a API em `http://localhost:5099`. |
 | `dotnet build DialoGame.slnx` | Compila a solução inteira. |
-| `dotnet test DialoGame.slnx` | Executa os 82 testes de unidade e integração. |
+| `dotnet test DialoGame.slnx` | Executa os 96 testes de unidade e integração. |
 | `dotnet format --verify-no-changes` | Confere a formatação (o CI reprova se falhar). |
 
 ## Estrutura do projeto
@@ -540,8 +557,9 @@ src/
 ├── assets/               # Imagens, logos e efeitos sonoros curtos
 ├── components/           # Componentes reutilizáveis (Button, BoxRow, PanelPoints, ActivityGrid,
 │                         #   BuildWordActivity — montagem de palavra dirigida por config)
-├── Context/              # Estado global com Jotai
-├── hooks/                # Hooks (useActivityProgress, useCatalog, useModuleCompletion, useSession)
+├── Context/              # Átomos Jotai de som (SoundAtom)
+├── hooks/                # Hooks (useActivityProgress, useCatalog, useModuleCompletion,
+│                         #   useProgressHydration, useProgressSync, useSession, usePrefersReducedMotion)
 ├── pages/                # Telas e atividades do jogo
 │   ├── atividade/        # Atividade genérica: escolhe o componente pelo type da API
 │   ├── entrar/           # Login e cadastro
@@ -550,7 +568,7 @@ src/
 │   ├── trilha/           # Trilha com a progressão entre módulos
 │   └── NotFound/         # Página para rotas não encontradas
 ├── routes/               # Definição das rotas da aplicação
-├── state/                # Sessão e progresso de convidado (localStorage)
+├── state/                # Sessão, progresso (átomos Jotai) e fila de convidado no localStorage
 ├── utils/                # Funções auxiliares (validações, sons, pontuação, rotas)
 │   ├── activityConfig.ts # Parser do configJson e checagem do que o front desenha
 │   ├── paths.ts          # URLs da trilha (fonte única das rotas)
@@ -573,8 +591,8 @@ estático de `public/audio/`, baixado só depois do clique em **INICIAR**.
 | Item | Antes | Depois |
 | --- | --- | --- |
 | Música de fundo | `soudMr.mp3` — 2.347.680 B (160 kbps, estéreo, 24 kHz) | Opus 653.932 B / MP3 587.396 B (mono, 40 kbps) |
-| JS | 284,62 kB (92,73 kB gzip) | 316,79 kB (102,96 kB gzip) |
-| CSS | 13,82 kB (3,52 kB gzip) | 22,36 kB (5,24 kB gzip) |
+| JS | 284,62 kB (92,73 kB gzip) | 338,14 kB (108,08 kB gzip) |
+| CSS | 13,82 kB (3,52 kB gzip) | 27,74 kB (6,04 kB gzip) |
 | Baixado na home antes do gesto | 2,24 MB de áudio | 0 B de áudio |
 
 O navegador só pede um dos dois arquivos: ~654 kB no Opus, ~587 kB no MP3.
@@ -672,8 +690,10 @@ A API é um container .NET e precisa de um PostgreSQL gerenciado. O checklist m�
    ambiente (nunca no `appsettings.json`).
 3. Rode `dotnet ef database update` no pipeline, com
    `ApplyMigrationsOnStartup=false`.
-4. Libere o domínio do front em `Cors__AllowedOrigins__0` — o cookie de refresh é
-   `SameSite=None`, então CORS com credenciais e HTTPS são obrigatórios.
+4. Libere o domínio do front em `Cors__AllowedOrigins__0` — com
+   `Auth__RefreshCookieSecure=true` (o padrão) o cookie de refresh sai como
+   `SameSite=None; Secure`, então CORS com credenciais e HTTPS são obrigatórios.
+   Em HTTP local a flag vai para `false` e o cookie vira `SameSite=Lax`.
 5. Aponte o healthcheck do orquestrador para `GET /health`.
 
 Sem `Jwt__SigningKey` com pelo menos 32 caracteres a API **não sobe**: a validação
@@ -700,6 +720,21 @@ GitHub. O histórico de auditoria e refatorações fica em
 O raciocínio da escolha de backend — alternativas avaliadas, versão escolhida e
 consequências aceitas — está em
 [docs/adr/0001-stack-backend.md](./docs/adr/0001-stack-backend.md).
+
+### Dependências presas de propósito
+
+`npm outdated` e `dotnet list package --outdated` mostram atualizações que **não
+devem** ser aplicadas ainda. Cada uma tem um motivo verificado:
+
+| Pacote | Versão usada | Versão "mais nova" | Por que não |
+| --- | --- | --- | --- |
+| TypeScript | `6.0.3` | `7.0.2` | `typescript-eslint` 8 exige `<6.1.0` e `ts-jest` exige `<7`; subir o TS quebra lint e testes |
+| FluentAssertions | `7.2.2` | `8.11.0` | a 8.x passou a ser licenciada pela Xceed (comercial); a 7.2.2 é Apache-2.0 |
+| EF Core, Npgsql, JwtBearer, `Microsoft.Extensions.*` | `10.0.x` | `11.0.0` | os pacotes 11.0.0 miram `net11.0` e não restauram em `net10.0` |
+
+O Npgsql sobe dentro da linha 10 (`10.0.4`), assim como os patches da Microsoft
+(`10.0.15`). Node 26.13.1 é o LTS atual; o `.nvmrc`, o CI e o `Dockerfile` estão
+na mesma versão.
 
 ## Autor
 

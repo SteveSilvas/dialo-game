@@ -102,7 +102,7 @@
   }
 
   /* A pulsação é só reforço: o estado já aparece na cor, no ícone e no texto.
-     Quem pediu menos movimento não recebe a classe (ver `usePrefersReducedMotion`),
+     Quem pediu menos movimento não recebe a classe (ver `useReducedMotion`),
      e o `prefers-reduced-motion` global também zera a animação. */
   .trail-node--pulse::after {
     content: '';

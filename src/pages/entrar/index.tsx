@@ -1,13 +1,30 @@
-import { useState, type FormEvent } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TiArrowLeftThick } from 'react-icons/ti';
 import CustomButton from '../../components/Button';
-import { login, register } from '../../api/auth';
+import GoogleSignInButton from '../../components/GoogleSignInButton';
+import { login, loginWithGoogle, register } from '../../api/auth';
 import { ApiError } from '../../api/client';
 import { useSession } from '../../hooks/useSession';
+import type { User } from '../../api/types';
+import {
+  validateEmail,
+  validateIdentifier,
+  validateLoginPassword,
+  validatePassword,
+  validateUsername,
+  type FieldError,
+} from '../../utils/authValidation';
 import './index.css';
 
 type Mode = 'login' | 'register';
+
+type Errors = {
+  identifier?: FieldError;
+  username?: FieldError;
+  email?: FieldError;
+  password?: FieldError;
+};
 
 /**
  * Entrada e cadastro na mesma tela: a criança pode jogar sem conta, então esta
@@ -22,16 +39,77 @@ const Entrar = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<Errors>({});
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const isRegister = mode === 'register';
+
+  /** Valida um campo isolado; campo vazio só é cobrado no envio. */
+  const validateField = useCallback(
+    (field: keyof Errors, value: string): FieldError => {
+      switch (field) {
+        case 'identifier':
+          return validateIdentifier(value);
+        case 'username':
+          return validateUsername(value);
+        case 'email':
+          return validateEmail(value);
+        case 'password':
+          return isRegister ? validatePassword(value) : validateLoginPassword(value);
+      }
+    },
+    [isRegister],
+  );
+
+  const handleBlur = (field: keyof Errors, value: string) => {
+    if (!value) return;
+    setErrors((current) => ({ ...current, [field]: validateField(field, value) }));
+  };
+
+  const handleChange = (field: keyof Errors, value: string) => {
+    // Depois de um erro visível, a correção aparece enquanto a criança digita.
+    if (errors[field]) {
+      setErrors((current) => ({ ...current, [field]: validateField(field, value) }));
+    }
+  };
+
+  const validateAll = (): Errors =>
+    isRegister
+      ? {
+          username: validateUsername(username),
+          email: validateEmail(email),
+          password: validatePassword(password),
+        }
+      : {
+          identifier: validateIdentifier(identifier),
+          password: validateLoginPassword(password),
+        };
+
+  const applySession = async (user: User) => {
+    await signIn(user);
+    navigate('/trilha', { replace: true });
+  };
+
+  const describeFailure = (caught: unknown): string => {
+    if (caught instanceof ApiError) {
+      return caught.isOffline
+        ? 'Não foi possível falar com o servidor. Verifique sua conexão.'
+        : caught.message;
+    }
+    return 'Algo deu errado. Tente novamente.';
+  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (submitting) return;
 
     setError(null);
+
+    const found = validateAll();
+    setErrors(found);
+    if (Object.values(found).some(Boolean)) return;
+
     setSubmitting(true);
 
     try {
@@ -39,21 +117,34 @@ const Entrar = () => {
         ? await register({ username, email, password })
         : await login({ identifier, password });
 
-      await signIn(data.user);
-      navigate('/trilha', { replace: true });
+      await applySession(data.user);
     } catch (caught) {
-      if (caught instanceof ApiError) {
-        setError(
-          caught.isOffline
-            ? 'Não foi possível falar com o servidor. Verifique sua conexão.'
-            : caught.message,
-        );
-      } else {
-        setError('Algo deu errado. Tente novamente.');
-      }
+      setError(describeFailure(caught));
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleGoogleCredential = async (idToken: string) => {
+    if (submitting) return;
+
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      const data = await loginWithGoogle(idToken);
+      await applySession(data.user);
+    } catch (caught) {
+      setError(describeFailure(caught));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const switchMode = () => {
+    setMode(isRegister ? 'login' : 'register');
+    setError(null);
+    setErrors({});
   };
 
   return (
@@ -76,12 +167,22 @@ const Entrar = () => {
               name="username"
               autoComplete="username"
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              onChange={(event) => {
+                setUsername(event.target.value);
+                handleChange('username', event.target.value);
+              }}
+              onBlur={(event) => handleBlur('username', event.target.value)}
               minLength={3}
               maxLength={20}
-              pattern="[a-zA-Z0-9_]+"
+              aria-invalid={errors.username ? true : undefined}
+              aria-describedby={errors.username ? 'username-error' : undefined}
               required
             />
+            {errors.username && (
+              <p className="login-error" id="username-error">
+                {errors.username}
+              </p>
+            )}
 
             <label htmlFor="email">Email (opcional)</label>
             <input
@@ -90,8 +191,19 @@ const Entrar = () => {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                handleChange('email', event.target.value);
+              }}
+              onBlur={(event) => handleBlur('email', event.target.value)}
+              aria-invalid={errors.email ? true : undefined}
+              aria-describedby={errors.email ? 'email-error' : undefined}
             />
+            {errors.email && (
+              <p className="login-error" id="email-error">
+                {errors.email}
+              </p>
+            )}
           </>
         ) : (
           <>
@@ -101,9 +213,20 @@ const Entrar = () => {
               name="identifier"
               autoComplete="username"
               value={identifier}
-              onChange={(event) => setIdentifier(event.target.value)}
+              onChange={(event) => {
+                setIdentifier(event.target.value);
+                handleChange('identifier', event.target.value);
+              }}
+              onBlur={(event) => handleBlur('identifier', event.target.value)}
+              aria-invalid={errors.identifier ? true : undefined}
+              aria-describedby={errors.identifier ? 'identifier-error' : undefined}
               required
             />
+            {errors.identifier && (
+              <p className="login-error" id="identifier-error">
+                {errors.identifier}
+              </p>
+            )}
           </>
         )}
 
@@ -114,9 +237,20 @@ const Entrar = () => {
           type="password"
           autoComplete={isRegister ? 'new-password' : 'current-password'}
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => {
+            setPassword(event.target.value);
+            handleChange('password', event.target.value);
+          }}
+          onBlur={(event) => handleBlur('password', event.target.value)}
+          aria-invalid={errors.password ? true : undefined}
+          aria-describedby={errors.password ? 'password-error' : undefined}
           required
         />
+        {errors.password && (
+          <p className="login-error" id="password-error">
+            {errors.password}
+          </p>
+        )}
 
         {isRegister && (
           <p className="login-hint">
@@ -135,13 +269,9 @@ const Entrar = () => {
         </button>
       </form>
 
-      <button
-        type="button"
-        className="login-switch"
-        onClick={() => {
-          setMode(isRegister ? 'login' : 'register');
-          setError(null);
-        }}>
+      <GoogleSignInButton onCredential={handleGoogleCredential} disabled={submitting} />
+
+      <button type="button" className="login-switch" onClick={switchMode}>
         {isRegister ? 'Já tenho conta' : 'Criar uma conta'}
       </button>
 

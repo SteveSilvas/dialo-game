@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { soundAtom } from "../../Context/SoundAtom";
 import SoundPlayer from "../SoundPlayer";
 import { BACKGROUND_MUSIC_SOURCES } from "../../utils/backgroundMusic";
-import { useSessionRestore } from "../../hooks/useSession";
+import { useSessionExpiry, useSessionRestore } from "../../hooks/useSession";
 import { useProgressHydration } from "../../hooks/useProgressHydration";
 import { useProgressSync } from "../../hooks/useProgressSync";
 import SyncIndicator from "../SyncIndicator";
@@ -12,6 +12,9 @@ import SyncIndicator from "../SyncIndicator";
 const Layout = () => {
   // Restaura o login uma única vez, aqui: todas as páginas ficam dentro dele.
   useSessionRestore();
+  // Token recusado no meio do jogo derruba a sessão para visitante, sem tirar
+  // a criança da atividade em que ela está.
+  useSessionExpiry();
   // Traz o progresso do aparelho para o átomo e sobe a fila em segundo plano,
   // com retry: nenhuma tela espera a rede para deixar a criança jogar.
   useProgressHydration();

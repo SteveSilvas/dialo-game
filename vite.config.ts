@@ -35,6 +35,9 @@ export default defineConfig(({ mode }) => {
     define: {
       __DIALO_API_URL__: JSON.stringify(env.VITE_API_URL ?? ''),
       __DIALO_IS_DEV__: JSON.stringify(mode !== 'production'),
+      // Vazio esconde o botão do Google: sem client id o script do Google não
+      // inicializa e o login falharia só no clique.
+      __DIALO_GOOGLE_CLIENT_ID__: JSON.stringify(env.VITE_GOOGLE_CLIENT_ID ?? ''),
     },
   }
 })

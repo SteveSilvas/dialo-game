@@ -86,30 +86,48 @@ de módulos — a lista antiga precisava ser lembrada a cada módulo novo.
   - Atividade 03 — Selecionar as vogais
   - Atividade 04 — Selecionar as consoantes
   - Atividade 05 — Desafio das consoantes (arrastar-e-soltar)
-- **Módulo 03 — Sílabas** (tela genérica pronta; **ainda bloqueado**, veja abaixo)
+- **Módulo 02 — Sons das letras** (tela genérica, com fala)
+  - Atividade 01 — Mesmo som inicial (`BOLA` → `BALA`)
+  - Atividade 02 — Outro som inicial (`SAPO` → `SINO`)
+  - Atividade 03 — Qual rima? (`GATO` → `PATO`)
+  - Atividade 04 — Outra rima (`RATO` → `GATO`)
+  - Atividade 05 — Mesmo som final (`CASA` → `ROSA`)
+- **Módulo 03 — Sílabas** (tela genérica)
   - Atividade 01 — Junte as sílabas (`BA` + `LA` = `BALA`)
   - Atividade 02 — Três sílabas (`BANANA`)
   - Atividade 03 — Palavra de quatro sílabas (`BORBOLETA`)
   - Atividade 04 — Sílabas com acento (`PÁSSARO`)
   - Atividade 05 — Palavra comprida (`JACARÉ`)
 
-O módulo **02 — Sons das letras** já está no catálogo, com uma atividade de som
-inicial, mas ainda aparece como **EM BREVE**: reconhecer som exige áudio das
-palavras, e o projeto só tem efeitos curtos em `src/assets/`. Publicar o módulo sem
-áudio daria um exercício que não pode ser resolvido por quem não sabe ler.
+### O áudio do módulo 02
 
-> **Limitação conhecida (bug aberto).** O desbloqueio é sequencial: o módulo 03 só
-> abre depois do 02. Como o 02 não é jogável, o módulo 03 — mesmo com as cinco
-> atividades prontas — **fica inalcançável** em qualquer conta e também no modo
-> convidado. Verificado contra a API: completar as cinco atividades do módulo 01
-> deixa `modulo-02: current` e `modulo-03: locked`. Isso contraria o princípio
-> "nada de becos sem saída" do [ROADMAP.md](./ROADMAP.md). As saídas são dar áudio
-> ao módulo 02, trocar a ordem dos dois no catálogo (sílabas antes de sons) ou
-> ensinar a trilha a pular módulo sem atividade jogável — a decisão é pedagógica e
-> não foi tomada aqui.
+O módulo depende de som para existir: quem ainda não lê não consegue resolver
+"qual figura começa com o mesmo som" a partir de texto. A solução foi a **Web
+Speech API** (`src/utils/speech.ts`), que pronuncia a palavra-alvo com a voz do
+próprio sistema — não há gravação nem serviço externo.
 
-> As atividades do módulo 03 ainda **não foram revisadas por educador** — é o
-> pré-requisito registrado na issue #30 antes de usar o módulo em sala de aula. O
+O que isso resolve e o que não resolve:
+
+- **Resolve** a dependência de infraestrutura. Nenhum arquivo de áudio para gravar,
+  hospedar ou versionar, e o catálogo não precisa de um campo de mídia.
+- **Não resolve** a revisão de pronúncia. A voz varia por sistema operacional, e
+  uma palavra pode sair com sotaque ou entonação estranha. Por isso o enunciado
+  **também aparece escrito** e a atividade nunca depende só do som.
+- **Degrada com honestidade.** Sem `speechSynthesis` no navegador, o botão de ouvir
+  fica desabilitado com o aviso "este aparelho não tem voz instalada" e a criança
+  segue pelo texto — em vez de um botão que não faz nada.
+- **Respeita o botão de som.** O controle do cabeçalho vale para todo o áudio:
+  com ele desligado, a fala automática não acontece. Tocar em ouvir religa o som
+  em vez de ficar inerte, porque aqui a palavra falada é o exercício — não
+  ambiência. O mesmo vale para os efeitos de clique, acerto e erro.
+
+> **Ponto de atenção para educador.** O TTS foi escolhido para destravar o módulo,
+> não como substituto de gravação revisada. Se a pronúncia de alguma palavra sair
+> ruim no aparelho usado em sala, trocar por áudio gravado é a correção — o
+> componente isola a chamada de fala justamente para permitir essa troca.
+
+> As atividades dos módulos 02 e 03 ainda **não foram revisadas por educador** — é
+> o pré-requisito registrado nas issues #29 e #30 antes de usar em sala de aula. O
 > código está pronto e testado; o conteúdo é um ponto de partida.
 
 ## Como uma atividade é montada
@@ -278,11 +296,11 @@ npm run lint
 npm test
 ```
 
-São 254 testes com Jest e Testing Library, cobrindo validações, sorteio, som,
-navegação, o fluxo completo de cada atividade (acerto, erro, reinício e conclusão),
-o parser de `configJson` (incluindo config inconsistente) e a integração com a
-API: cliente HTTP com renovação de token, contratos do catálogo, progresso de
-convidado, fim de módulo e a tela de entrada.
+São 286 testes com Jest e Testing Library, cobrindo validações, sorteio, som
+(inclusive o mudo), navegação, o fluxo completo de cada atividade (acerto, erro,
+reinício e conclusão), o parser de `configJson` (incluindo config inconsistente)
+e a integração com a API: cliente HTTP com renovação de token, contratos do
+catálogo, progresso de convidado, fim de módulo e a tela de entrada.
 
 ### Rode os testes de ponta a ponta
 
@@ -645,11 +663,11 @@ atividade concluída é registrada em `PUT /progress/activities/{slug}` e o
 progresso de convidado é importado ao entrar na conta. Sem conta, ou sem rede, o
 jogo segue funcionando e guarda o progresso no navegador.
 
-O que falta é conteúdo. O módulo 03 já joga de ponta a ponta pela tela genérica;
-o que resta da Fase 4 são os módulos 02 (sons), 04 (formar palavras), 05 (ler
-frases) e 06 (escrever). Os dois bloqueios reais são conhecidos: o módulo 02 precisa
-de áudio das palavras, e todos precisam das atividades definidas com um educador
-antes de virarem conteúdo de sala de aula.
+O que falta é conteúdo. Os módulos 02 (sons) e 03 (sílabas) já jogam de ponta a
+ponta pela tela genérica, e a trilha vai do 01 ao 03 sem beco sem saída. O que
+resta da Fase 4 são os módulos 04 (formar palavras), 05 (ler frases) e 06
+(escrever). O bloqueio real é comum a todos: as atividades precisam ser definidas
+e revisadas por um educador antes de virarem conteúdo de sala de aula.
 
 O detalhamento está em **[ROADMAP.md](./ROADMAP.md)**, com as issues abertas no
 GitHub. O histórico de auditoria e refatorações fica em

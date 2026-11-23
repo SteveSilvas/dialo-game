@@ -92,10 +92,9 @@ public static class CatalogData
             ],
         },
 
-        // Módulos 02 e 03 entram com o conteúdo mínimo para a progressão ser
-        // verificável de ponta a ponta: sem um segundo e um terceiro módulo não
-        // existe "desbloqueou" nem "segue bloqueado" para testar. As atividades
-        // pedagógicas completas são a Fase 4 (issues #29 e #30).
+        // Módulos 02 e 03 (Fase 4, issues #29 e #30). O conteúdo ainda não foi
+        // revisado por educador: é um ponto de partida que cobre os conceitos de
+        // cada módulo, não um currículo validado.
         new Module
         {
             Slug = "modulo-02",
@@ -105,18 +104,93 @@ public static class CatalogData
             Concept = "Consciência fonológica",
             Activities =
             [
+                // A palavra falada nunca está entre as opções: se estivesse, a
+                // criança só parearia o som com o rótulo igual e a atividade
+                // não mediria consciência fonológica nenhuma.
                 Activity(
                     slug: "modulo-02-atividade-01",
                     order: 1,
-                    title: "Com que som começa?",
-                    type: ActivityType.SelectSymbols,
+                    title: "Mesmo som inicial",
+                    type: ActivityType.SelectPicture,
                     config: new
                     {
-                        predicate = "initialSound",
-                        prompt = "BOLA",
-                        answer = "b",
-                        distractors = new[] { "d", "p", "t" },
-                        targetCount = 1,
+                        prompt = "QUAL FIGURA COMEÇA COM O MESMO SOM?",
+                        speak = "Bola",
+                        answer = "Bala",
+                        options = new[]
+                        {
+                            new { label = "Bala", emoji = "🍬" },
+                            new { label = "Dado", emoji = "🎲" },
+                            new { label = "Pato", emoji = "🦆" },
+                        },
+                    }),
+                Activity(
+                    slug: "modulo-02-atividade-02",
+                    order: 2,
+                    title: "Outro som inicial",
+                    type: ActivityType.SelectPicture,
+                    config: new
+                    {
+                        prompt = "QUAL FIGURA COMEÇA COM O MESMO SOM?",
+                        speak = "Sapo",
+                        answer = "Sino",
+                        options = new[]
+                        {
+                            new { label = "Sino", emoji = "🔔" },
+                            new { label = "Bola", emoji = "⚽" },
+                            new { label = "Dado", emoji = "🎲" },
+                        },
+                    }),
+                Activity(
+                    slug: "modulo-02-atividade-03",
+                    order: 3,
+                    title: "Qual rima?",
+                    type: ActivityType.SelectPicture,
+                    config: new
+                    {
+                        prompt = "QUAL FIGURA RIMA COM A PALAVRA OUVIDA?",
+                        speak = "Gato",
+                        answer = "Pato",
+                        options = new[]
+                        {
+                            new { label = "Pato", emoji = "🦆" },
+                            new { label = "Bola", emoji = "⚽" },
+                            new { label = "Casa", emoji = "🏠" },
+                        },
+                    }),
+                Activity(
+                    slug: "modulo-02-atividade-04",
+                    order: 4,
+                    title: "Outra rima",
+                    type: ActivityType.SelectPicture,
+                    config: new
+                    {
+                        prompt = "QUAL FIGURA RIMA COM A PALAVRA OUVIDA?",
+                        speak = "Rato",
+                        answer = "Gato",
+                        options = new[]
+                        {
+                            new { label = "Gato", emoji = "🐱" },
+                            new { label = "Dado", emoji = "🎲" },
+                            new { label = "Casa", emoji = "🏠" },
+                        },
+                    }),
+                Activity(
+                    slug: "modulo-02-atividade-05",
+                    order: 5,
+                    title: "Mesmo som final",
+                    type: ActivityType.SelectPicture,
+                    config: new
+                    {
+                        prompt = "QUAL FIGURA TERMINA COM O MESMO SOM?",
+                        speak = "Casa",
+                        answer = "Rosa",
+                        options = new[]
+                        {
+                            new { label = "Rosa", emoji = "🌹" },
+                            new { label = "Pato", emoji = "🦆" },
+                            new { label = "Dado", emoji = "🎲" },
+                        },
                     }),
             ],
         },

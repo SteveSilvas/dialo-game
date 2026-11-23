@@ -28,9 +28,26 @@ export type BuildWordConfig = {
 
 export type UnsupportedConfig = { kind: 'unsupported'; reason: string };
 
+export type SelectPictureOption = {
+  /** Rótulo mostrado e comparado com a resposta. */
+  label: string;
+  /** Figura da opção, quando houver. Sem ela a opção fica só com o rótulo. */
+  emoji: string | null;
+};
+
+export type SelectPictureConfig = {
+  kind: 'selectPicture';
+  prompt: string;
+  /** Enunciado falado pelo TTS. É o som que a criança precisa ouvir. */
+  speak: string;
+  answer: string;
+  options: SelectPictureOption[];
+};
+
 export type ActivityConfig =
   | SelectSymbolsConfig
   | BuildWordConfig
+  | SelectPictureConfig
   | UnsupportedConfig;
 
 const isStringArray = (value: unknown): value is string[] =>
@@ -92,9 +109,42 @@ const parseBuildWord = (raw: Record<string, unknown>): ActivityConfig => {
   };
 };
 
+const parseSelectPicture = (raw: Record<string, unknown>): ActivityConfig => {
+  const prompt = readString(raw, 'prompt');
+  const speak = readString(raw, 'speak');
+  const answer = readString(raw, 'answer');
+  const rawOptions = raw.options;
+
+  if (!prompt) return { kind: 'unsupported', reason: 'selectPicture sem prompt' };
+  if (!answer) return { kind: 'unsupported', reason: 'selectPicture sem resposta' };
+  if (!Array.isArray(rawOptions) || rawOptions.length < 2) {
+    return { kind: 'unsupported', reason: 'selectPicture precisa de ao menos duas opções' };
+  }
+
+  const options: SelectPictureOption[] = [];
+  for (const item of rawOptions) {
+    const record = asRecord(item);
+    const label = record ? readString(record, 'label') : null;
+    if (!record || !label) {
+      return { kind: 'unsupported', reason: 'selectPicture com opção sem rótulo' };
+    }
+    options.push({ label, emoji: readString(record, 'emoji') });
+  }
+
+  // A resposta precisa estar entre as opções: fora delas a atividade fica
+  // impossível de concluir, e é melhor dizer isso agora do que deixar a criança
+  // tocando em tudo até desistir.
+  if (!options.some((option) => option.label === answer)) {
+    return { kind: 'unsupported', reason: 'selectPicture com resposta fora das opções' };
+  }
+
+  return { kind: 'selectPicture', prompt, speak: speak ?? answer, answer, options };
+};
+
 const PARSERS: Record<ActivityType, (raw: Record<string, unknown>) => ActivityConfig> = {
   selectSymbols: parseSelectSymbols,
   buildWord: parseBuildWord,
+  selectPicture: parseSelectPicture,
   // Tipos ainda sem componente no front. O catálogo pode anunciá-los antes de a
   // tela existir; a atividade aparece como indisponível em vez de quebrar.
   dragSymbols: () => ({ kind: 'unsupported', reason: 'dragSymbols sem componente' }),
@@ -121,7 +171,7 @@ export const parseActivityConfig = (activity: Activity): ActivityConfig => {
 /** `true` quando o `configJson` está bem formado e o tipo é conhecido. */
 export const isSupportedConfig = (
   config: ActivityConfig,
-): config is SelectSymbolsConfig | BuildWordConfig =>
+): config is SelectSymbolsConfig | BuildWordConfig | SelectPictureConfig =>
   config.kind !== 'unsupported';
 
 /**
@@ -130,7 +180,10 @@ export const isSupportedConfig = (
  * desenhar, e prometer uma atividade que renderiza vazio é pior que dizer que
  * ela ainda não está pronta.
  */
-const RENDERABLE_KINDS: ReadonlySet<ActivityConfig['kind']> = new Set(['buildWord']);
+const RENDERABLE_KINDS: ReadonlySet<ActivityConfig['kind']> = new Set([
+  'buildWord',
+  'selectPicture',
+]);
 
 export const canRenderConfig = (config: ActivityConfig): boolean =>
   RENDERABLE_KINDS.has(config.kind);

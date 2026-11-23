@@ -46,6 +46,23 @@ sudo docker run -d --name ci-dotnet --network host -v "$PWD/apps/api:/src" \
 de teste: `postgres:17-alpine` com `POSTGRES_USER=dialo`,
 `POSTGRES_PASSWORD=dialo_dev`.
 
+### `dotnet test` pode sair 0 sem rodar nada
+
+No sandbox, `dotnet test DialoGame.slnx` (mesmo com `--no-build -c Release`)
+terminou com código 0 e **nenhuma saída**, sem executar teste algum — o mesmo
+comando que o CI usa. Não confie no código de saída aqui. Rode o DLL direto,
+que imprime o resultado de verdade:
+
+```sh
+sudo docker run --rm --network host -v "$PWD/apps/api:/src" -w /src \
+  -e ConnectionStrings__Default="Host=127.0.0.1;Port=5432;Database=dialo;Username=dialo;Password=dialo_dev" \
+  mcr.microsoft.com/dotnet/sdk:10.0 \
+  dotnet vstest tests/DialoGame.Tests/bin/Release/net10.0/DialoGame.Tests.dll
+```
+
+Os testes de integração criam um banco por classe (`ApiFactory`), então o
+Postgres precisa aceitar conexões antes de rodar.
+
 ## Branch protection
 
 O token de automação recebe `403` na API de branch protection (exige admin).

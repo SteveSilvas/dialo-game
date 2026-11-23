@@ -8,7 +8,8 @@ export type ActivityType =
   | 'selectSymbols'
   | 'dragSymbols'
   | 'buildWord'
-  | 'readSentence';
+  | 'readSentence'
+  | 'selectPicture';
 
 export type ModuleStatus = 'locked' | 'current' | 'completed';
 

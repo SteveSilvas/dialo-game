@@ -51,6 +51,9 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("ApplyMigrationsOnStartup", "false");
         builder.UseSetting("Google:ClientId", "client-id-de-teste");
         builder.UseSetting("RateLimiting:Enabled", "false");
+        // Métricas fora por padrão pelo mesmo motivo do rate limit: teste que não
+        // mede observabilidade não deve depender dela.
+        builder.UseSetting("Metrics:Enabled", "false");
         builder.UseSetting("Auth:RefreshCookieSecure", "false");
     }
 

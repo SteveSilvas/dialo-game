@@ -438,6 +438,7 @@ regra precisa ser criada no painel.
 | Método | Rota | Autenticação | Descrição |
 | --- | --- | --- | --- |
 | `GET` | `/health` | — | Liveness/readiness, inclui o banco |
+| `GET` | `/metrics` | Bearer (token de scrape) | Latência por rota, taxa de erro e logins, em formato Prometheus |
 | `GET` | `/catalog` | opcional | Módulos e atividades; com token, inclui o progresso |
 | `POST` | `/auth/register` | — | Cria conta com username, email opcional e senha |
 | `POST` | `/auth/login` | — | Login por username **ou** email |
@@ -486,6 +487,9 @@ Todas seguem o formato `Secao__Chave` do ASP.NET Core.
 | `Auth__RefreshCookieSecure` | não | `true` exige HTTPS no cookie de refresh |
 | `RateLimiting__Enabled` | não | `false` desliga o limite de login/cadastro |
 | `Logging__Structured__Enabled` | não | `false` desliga o log JSON e o resumo por requisição |
+| `Metrics__Enabled` | não | `false` desliga a coleta e o `/metrics` |
+| `Metrics__Token` | não | Token do scrape; **sem ele o `/metrics` não é publicado** |
+| `Metrics__Path` | não | Rota do scrape (padrão: `/metrics`) |
 | `Serilog__MinimumLevel__Default` | não | Nível mínimo do log (`Information` por padrão) |
 
 Copie `apps/api/.env.example` para começar. Nunca comite o `.env` real.
@@ -502,6 +506,46 @@ O nível se configura em **`Serilog__MinimumLevel__*`**, não em
 `Logging__LogLevel__*`: o Serilog substitui o provider padrão, então a seção
 `Logging:LogLevel` não tem efeito. `SensitiveDataDestructuringPolicy` mascara
 senha, token e e-mail antes de qualquer objeto chegar ao sink.
+
+### Métricas
+
+Com `Metrics__Enabled` ligado (o padrão) e `Metrics__Token` definido, o
+`GET /metrics` responde no formato Prometheus/OpenMetrics. São três medições:
+
+| Métrica | Tipo | Rótulos | Responde |
+| --- | --- | --- | --- |
+| `http_server_request_duration_seconds` | histograma | `http_route`, `http_response_status_code` | Latência por rota e por status |
+| `dialo_http_errors_total` | contador | `route`, `status_code` | Taxa de erro 5xx |
+| `dialo_auth_logins_total` | contador | `method`, `result` | Logins por senha e por Google |
+
+O rótulo de rota é sempre o **template** (`/progress/activities/{slug}`), nunca o
+caminho concreto: caminho bruto criaria uma série por URL inventada, que é
+cardinalidade sem limite. O histograma de latência vem da instrumentação oficial
+do ASP.NET Core; os dois contadores são do `Meter` próprio `DialoGame`.
+
+```sh
+curl -H "Authorization: Bearer $Metrics__Token" http://localhost:5099/metrics
+```
+
+**Logins por dia** saem da consulta, não de um rótulo de data — uma série por dia
+cresceria para sempre:
+
+```promql
+# Sucessos nas últimas 24 h, por método
+sum by (method) (increase(dialo_auth_logins_total{result="success"}[24h]))
+```
+
+O endpoint **não é publicado** sem `Metrics__Token`: aberto, ele entregaria o mapa
+do tráfego (rotas, volume, taxa de erro) para qualquer um que o encontrasse. A
+rota é servida antes da autenticação JWT, então o scrape não gera uma verificação
+de token falha a cada coleta.
+
+**O alerta não mora na API.** O código só publica números; quem decide que
+"1% de erro por 10 min é ruim" é o coletor. As regras de exemplo (erro, p95 de
+latência e API fora do ar) e o raciocínio completo estão no
+[ADR 0002](./docs/adr/0002-metricas-e-alerta.md). A consequência é direta: sem
+subir um Prometheus (ou VictoriaMetrics, ou Grafana Cloud) apontado para
+`/metrics`, os números existem e ninguém é avisado.
 
 ## Scripts disponíveis
 
@@ -695,6 +739,10 @@ A API é um container .NET e precisa de um PostgreSQL gerenciado. O checklist m�
    `SameSite=None; Secure`, então CORS com credenciais e HTTPS são obrigatórios.
    Em HTTP local a flag vai para `false` e o cookie vira `SameSite=Lax`.
 5. Aponte o healthcheck do orquestrador para `GET /health`.
+6. Para métricas, defina `Metrics__Token` e aponte o coletor para `GET /metrics`
+   com `Authorization: Bearer <token>`. Sem o token o endpoint não é publicado;
+   sem coletor, os números existem e ninguém é avisado — as regras de alerta de
+   exemplo estão no [ADR 0002](./docs/adr/0002-metricas-e-alerta.md).
 
 Sem `Jwt__SigningKey` com pelo menos 32 caracteres a API **não sobe**: a validação
 acontece no startup, e não na primeira requisição.
@@ -731,6 +779,7 @@ devem** ser aplicadas ainda. Cada uma tem um motivo verificado:
 | TypeScript | `6.0.3` | `7.0.2` | `typescript-eslint` 8 exige `<6.1.0` e `ts-jest` exige `<7`; subir o TS quebra lint e testes |
 | FluentAssertions | `7.2.2` | `8.11.0` | a 8.x passou a ser licenciada pela Xceed (comercial); a 7.2.2 é Apache-2.0 |
 | EF Core, Npgsql, JwtBearer, `Microsoft.Extensions.*` | `10.0.x` | `11.0.0` | os pacotes 11.0.0 miram `net11.0` e não restauram em `net10.0` |
+| `OpenTelemetry.Exporter.Prometheus.AspNetCore` | `1.21.0-beta.1` | — | nunca houve versão estável: todas as 39 publicadas são `-alpha`, `-beta` ou `-rc`. É o pacote oficial do projeto OpenTelemetry e a alternativa seria escrever o formato Prometheus à mão |
 
 O Npgsql sobe dentro da linha 10 (`10.0.4`), assim como os patches da Microsoft
 (`10.0.15`). Node 26.13.1 é o LTS atual; o `.nvmrc`, o CI e o `Dockerfile` estão

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using DialoGame.Api.Logging;
+using DialoGame.Api.Metrics;
 using DialoGame.Infrastructure.Options;
 using DialoGame.Infrastructure.Persistence;
 using DialoGame.Infrastructure.Persistence.Seed;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Metrics;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -40,6 +42,14 @@ var rateLimitOptions = builder.Configuration.GetSection(RateLimitingOptions.Sect
 
 var loggingOptions = builder.Configuration.GetSection(LoggingOptions.SectionName)
     .Get<LoggingOptions>() ?? new LoggingOptions();
+
+builder.Services.AddOptions<MetricsOptions>()
+    .Bind(builder.Configuration.GetSection(MetricsOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+var metricsOptions = builder.Configuration.GetSection(MetricsOptions.SectionName)
+    .Get<MetricsOptions>() ?? new MetricsOptions();
 
 if (loggingOptions.Enabled)
 {
@@ -153,6 +163,20 @@ builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<DialoGameDbContext>("database");
 
+// Registrado sempre: sem listener o Meter não custa nada, e o controller pode
+// injetá-lo sem checar configuração. Quem decide se os números saem é o
+// `AddMeter` abaixo, que só roda com Metrics:Enabled.
+builder.Services.AddSingleton<DialoMetrics>();
+
+if (metricsOptions.Enabled)
+{
+    builder.Services.AddOpenTelemetry()
+        .WithMetrics(metrics => metrics
+            .AddAspNetCoreInstrumentation()
+            .AddMeter(DialoMetrics.MeterName)
+            .AddPrometheusExporter());
+}
+
 if (loggingOptions.Enabled)
 {
     builder.Services.AddExceptionHandler<LoggingExceptionHandler>();
@@ -189,8 +213,40 @@ if (app.Configuration.GetValue("ApplyMigrationsOnStartup", false))
 
 app.UseCors("web");
 app.UseRateLimiter();
+
+if (metricsOptions.Enabled)
+{
+    if (string.IsNullOrWhiteSpace(metricsOptions.Token))
+    {
+        // Sem token o endpoint não sobe. Uma rota de métrica aberta entrega o mapa
+        // do tráfego (rotas, volume, taxa de erro) para qualquer um que a encontre.
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Metrics");
+        logger.LogWarning(
+            "Metrics:Token não configurado; {Path} não será publicado.", metricsOptions.Path);
+    }
+    else
+    {
+        // Antes de UseAuthentication: o scrape não tem JWT e não deve gastar uma
+        // verificação de token falha a cada coleta. A ramificação por caminho
+        // resolve a rota e para o pipeline ali — os controllers nem são avaliados.
+        app.UseOpenTelemetryPrometheusScrapingEndpoint(
+            meterProvider: null,
+            predicate: context => ScrapeEndpoint.Matches(context, metricsOptions),
+            path: null,
+            configureBranchedPipeline: branch => branch.UseMiddleware<MetricsTokenMiddleware>(),
+            optionsName: null);
+    }
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+if (metricsOptions.Enabled)
+{
+    // Depois da autorização: a rota já foi resolvida, e é dela que sai o template
+    // usado como rótulo — nunca o caminho concreto, que teria cardinalidade aberta.
+    app.UseMiddleware<MetricsMiddleware>();
+}
 
 app.MapControllers();
 app.MapHealthChecks("/health");

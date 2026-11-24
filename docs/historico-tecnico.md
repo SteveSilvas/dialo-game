@@ -228,6 +228,33 @@ registram o que foi feito e o que restou de manutenção pontual.
       travados), progresso de convidado, hooks e tela de entrada. O front passou de 64
       para 112 testes.
 
+### 4.3 Observabilidade da API
+
+- [x] **Log estruturado** (issue #56) — Serilog com `CompactJsonFormatter`, um resumo
+      por requisição com método, rota, status, duração e `RequestId`, e
+      `SensitiveDataDestructuringPolicy` mascarando senha, token e e-mail antes de
+      qualquer objeto chegar ao sink. Exceção não tratada vira uma linha com rota,
+      status 500 e o `RequestId` da requisição, para casar o erro com o resumo dela.
+- [x] **Métricas em `/metrics`** (issue #57) — `System.Diagnostics.Metrics` com o
+      histograma `http_server_request_duration_seconds` da instrumentação oficial do
+      ASP.NET Core (latência por rota e status) mais dois contadores próprios:
+      `dialo_http_errors_total` (5xx por rota) e `dialo_auth_logins_total`
+      (`method=password|google`, `result=success|failure`). O rótulo de rota é sempre
+      o template, nunca o caminho concreto — caminho bruto geraria uma série por URL
+      inventada. O endpoint exige `Authorization: Bearer` e **não é publicado** sem
+      `Metrics__Token`; é ramificado antes de `UseAuthentication`, então o scrape não
+      gasta uma verificação de JWT falha nem polui as métricas de autenticação.
+- [x] **Destino do alerta registrado** — as regras (erro acima de 1%, p95 acima de
+      1,5 s e API fora do ar) ficam no coletor, não no código. Raciocínio, regras de
+      exemplo e alternativas descartadas em
+      [adr/0002-metricas-e-alerta.md](./adr/0002-metricas-e-alerta.md). Coberto por
+      `MetricsTests.cs` (instrumentos, middleware e comparação de caminho) e
+      `MetricsEndpointTests.cs` (401 sem token, formato do scrape, contagem de login e
+      ausência de autenticação JWT no scrape).
+- [x] **`Metrics__Enabled`** — como `RateLimiting__Enabled` e
+      `Logging__Structured__Enabled`, o `ApiFactory` dos testes desliga métricas por
+      padrão, para nenhum teste depender de configuração de observabilidade.
+
 ### 5. UX e produto
 
 - [x] Persistir o progresso (acertos, atividades concluídas) — na conta via API e, sem

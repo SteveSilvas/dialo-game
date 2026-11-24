@@ -204,7 +204,7 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 - **[Npgsql](https://www.npgsql.org/)** — driver e provider EF Core para PostgreSQL.
 - **JWT + Argon2id** — access token curto e refresh rotativo; senhas com Argon2id (`Konscious.Security.Cryptography`).
 - **[Serilog](https://serilog.net/)** — log estruturado em JSON compacto, com resumo por requisição e máscara de dados sensíveis.
-- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 96 testes de unidade e integração.
+- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 124 testes de unidade e integração.
 - **[Playwright](https://playwright.dev/)** + **[axe-core](https://github.com/dequelabs/axe-core)** — E2E da trilha e acessibilidade.
 - **Google Identity Services** — login com Google validado no servidor (`Google.Apis.Auth`).
 
@@ -213,7 +213,8 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 ### Para rodar o jogo (front-end)
 
 - **[Node.js](https://nodejs.org/) 26 LTS** (Lithium, hoje `26.13.1`) — Node 24 também
-  funciona: todas as dependências declaram `>=24`
+  funciona: nenhuma dependência exige mais que 24, e o `package.json` aceita
+  `^24.0.0 || >=26.0.0` (a 25, que não é LTS e já saiu de suporte, fica de fora)
 - **npm** 11+ — o npm que vem com o Node 26 já serve; o `12.x` também funciona
 
 O repositório traz um `.nvmrc` com `26`. Com [nvm](https://github.com/nvm-sh/nvm)
@@ -401,11 +402,11 @@ cd apps/api
 dotnet test DialoGame.slnx
 ```
 
-São 96 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
-desbloqueio de módulo e a máscara de dados sensíveis do log) e integração
-(auth, catálogo, progresso, rate limiting e o log estruturado) contra um
-Postgres real. Cada classe de teste cria um banco próprio e o remove ao
-final.
+São 124 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
+desbloqueio de módulo, a máscara de dados sensíveis do log e a contagem de
+métricas) e integração (auth, catálogo, progresso, rate limiting, o log
+estruturado e o scrape de `/metrics`) contra um Postgres real. Cada classe de
+teste cria um banco próprio e o remove ao final.
 
 ### CI
 
@@ -524,7 +525,8 @@ cardinalidade sem limite. O histograma de latência vem da instrumentação ofic
 do ASP.NET Core; os dois contadores são do `Meter` próprio `DialoGame`.
 
 ```sh
-curl -H "Authorization: Bearer $Metrics__Token" http://localhost:5099/metrics
+export METRICS_TOKEN='<valor definido em Metrics__Token>'
+curl -H "Authorization: Bearer $METRICS_TOKEN" http://localhost:5099/metrics
 ```
 
 **Logins por dia** saem da consulta, não de um rótulo de data — uma série por dia
@@ -570,7 +572,7 @@ Na API, os comandos ficam no `dotnet` (rode dentro de `apps/api`):
 | --- | --- |
 | `dotnet run --project src/DialoGame.Api` | Sobe a API em `http://localhost:5099`. |
 | `dotnet build DialoGame.slnx` | Compila a solução inteira. |
-| `dotnet test DialoGame.slnx` | Executa os 96 testes de unidade e integração. |
+| `dotnet test DialoGame.slnx` | Executa os 124 testes de unidade e integração. |
 | `dotnet format --verify-no-changes` | Confere a formatação (o CI reprova se falhar). |
 
 ## Estrutura do projeto
@@ -778,7 +780,8 @@ devem** ser aplicadas ainda. Cada uma tem um motivo verificado:
 | --- | --- | --- | --- |
 | TypeScript | `6.0.3` | `7.0.2` | `typescript-eslint` 8 exige `<6.1.0` e `ts-jest` exige `<7`; subir o TS quebra lint e testes |
 | FluentAssertions | `7.2.2` | `8.11.0` | a 8.x passou a ser licenciada pela Xceed (comercial); a 7.2.2 é Apache-2.0 |
-| EF Core, Npgsql, JwtBearer, `Microsoft.Extensions.*` | `10.0.x` | `11.0.0` | os pacotes 11.0.0 miram `net11.0` e não restauram em `net10.0` |
+| EF Core, Npgsql, JwtBearer, `Microsoft.AspNetCore.*` | `10.0.x` | `11.0.0` | os 11.0.0 miram só `net11.0`, então não restauram em `net10.0` |
+| `Microsoft.Extensions.*` (Options e afins) | `10.0.15` | `11.0.0` | restauram, mas puxariam a linha 11 junto de um EF Core 10 — duas versões do mesmo assembly em runtime |
 | `OpenTelemetry.Exporter.Prometheus.AspNetCore` | `1.21.0-beta.1` | — | nunca houve versão estável: todas as 39 publicadas são `-alpha`, `-beta` ou `-rc`. É o pacote oficial do projeto OpenTelemetry e a alternativa seria escrever o formato Prometheus à mão |
 
 O Npgsql sobe dentro da linha 10 (`10.0.4`), assim como os patches da Microsoft
@@ -797,7 +800,7 @@ front e API no mesmo repositório.
 Boa parte dos meus projetos é de ferramentas educacionais, e o DIALO GAME é o
 que mais junta essas duas frentes: pedagogia de verdade no conteúdo e engenharia
 no que sustenta a criança jogando (progresso que não se perde, acessibilidade,
-funcionar offline).
+jogar sem cadastro).
 
 - GitHub: [@SteveSilvas](https://github.com/SteveSilvas)
 - Outros projetos: [github.com/SteveSilvas?tab=repositories](https://github.com/SteveSilvas?tab=repositories)

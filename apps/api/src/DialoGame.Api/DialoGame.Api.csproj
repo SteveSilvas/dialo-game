@@ -13,6 +13,14 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(JwtVersion)" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="$(EfCoreVersion)" />
     <PackageReference Include="Serilog.AspNetCore" Version="$(SerilogAspNetCoreVersion)" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OpenTelemetryVersion)" />
+    <!--
+      O exporter do Prometheus nunca saiu de pre-release (todas as 39 versões são
+      -alpha/-beta/-rc). Fixar a beta é intencional: é o pacote oficial do projeto
+      OpenTelemetry, e a alternativa seria escrever o formato à mão.
+    -->
+    <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="$(OpenTelemetryVersion)-beta.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -16,6 +16,7 @@
     <JwtVersion>10.0.15</JwtVersion>
     <GoogleAuthVersion>1.78.0</GoogleAuthVersion>
     <SerilogAspNetCoreVersion>11.0.0</SerilogAspNetCoreVersion>
+    <OpenTelemetryVersion>1.21.0</OpenTelemetryVersion>
   </PropertyGroup>
 
 </Project>

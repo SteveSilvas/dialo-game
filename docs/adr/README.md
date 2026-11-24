@@ -9,6 +9,7 @@ decisão em si.
 | # | Decisão | Status | Data |
 | --- | --- | --- | --- |
 | [0001](0001-stack-backend.md) | Stack do backend: .NET 10 + EF Core | Aceito | 2026-11-19 |
+| [0002](0002-metricas-e-alerta.md) | Métricas em `/metrics` e destino do alerta | Aceito | 2026-11-18 |
 
 ## Quando criar um ADR
 

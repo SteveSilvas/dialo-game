@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using DialoGame.Api.Contracts;
+using DialoGame.Api.Metrics;
 using DialoGame.Domain.Entities;
 using DialoGame.Infrastructure.Options;
 using DialoGame.Infrastructure.Services;
@@ -14,7 +15,8 @@ namespace DialoGame.Api.Controllers;
 [Route("auth")]
 public class AuthController(
     IAuthService authService,
-    IOptions<AuthOptions> authOptions) : ControllerBase
+    IOptions<AuthOptions> authOptions,
+    DialoMetrics metrics) : ControllerBase
 {
     private const string RefreshCookieName = "dialo_refresh";
     private readonly AuthOptions _auth = authOptions.Value;
@@ -50,6 +52,8 @@ public class AuthController(
             new LoginRequest(body.Identifier, body.Password, Request.Headers.UserAgent.ToString()),
             ct);
 
+        metrics.RecordLogin("password", outcome.Succeeded);
+
         if (!outcome.Succeeded)
         {
             return Failure(outcome.Failure);
@@ -68,6 +72,8 @@ public class AuthController(
         var (outcome, user) = await authService.LoginWithGoogleAsync(
             new GoogleLoginRequest(body.IdToken, Request.Headers.UserAgent.ToString()),
             ct);
+
+        metrics.RecordLogin("google", outcome.Succeeded);
 
         if (!outcome.Succeeded)
         {

@@ -62,6 +62,21 @@ registram o que foi feito e o que restou de manutenção pontual.
 - [x] **Validação de JWT duplicada** — depois do `ValidateOnStart`, o `if` manual sobre
       `SigningKey` no `Program.cs` repetia a mesma regra. Removido: o boot continua falhando
       com mensagem clara quando a chave é curta, verificado na prática.
+- [x] **`Logging:LogLevel` não tinha efeito** — com o Serilog no lugar do provider padrão,
+      a seção `Logging:LogLevel` do `appsettings.json` era lida pelo logger do ASP.NET e
+      ignorada na prática: `Logging__LogLevel__Default=Warning` continuava imprimindo
+      `Information`. Verificado subindo a API nos dois formatos. O nível passou a ser
+      configurado só em `Serilog:MinimumLevel`, e a seção morta saiu do `appsettings.json`
+      e do `appsettings.Development.json`.
+- [x] **Senha comum passava na validação da tela** — a API recusa `password1`, `senha123` e
+      outras senhas de vazamento (`PasswordPolicy.CommonPasswords`), mas o front só checava
+      tamanho, "só números" e "caractere repetido". A criança preenchia tudo, enviava e
+      recebia o erro genérico de política vindo do servidor. A lista foi espelhada em
+      `src/utils/authValidation.ts`, com o campo apontando o problema antes do envio.
+- [x] **Dois hooks idênticos de movimento reduzido** — `usePrefersReducedMotion` e
+      `useReducedMotion` eram a mesma implementação de `useSyncExternalStore`, cada uma
+      usada por uma tela. Consolidado em `useReducedMotion`, com o CSS que citava o nome
+      antigo atualizado.
 
 ---
 

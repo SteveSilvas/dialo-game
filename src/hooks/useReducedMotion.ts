@@ -1,12 +1,12 @@
 import { useSyncExternalStore } from 'react';
 
-export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+const QUERY = '(prefers-reduced-motion: reduce)';
 
 const mediaQuery = (): MediaQueryList | null => {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return null;
   }
-  return window.matchMedia(REDUCED_MOTION_QUERY);
+  return window.matchMedia(QUERY);
 };
 
 const subscribe = (onChange: () => void) => {
@@ -20,10 +20,10 @@ const subscribe = (onChange: () => void) => {
 const getSnapshot = () => mediaQuery()?.matches ?? false;
 
 /**
- * `true` quando a criança pediu menos movimento no sistema. A celebração só
- * anima quando isto é `false`: quem tem sensibilidade a movimento recebe a
- * mesma tela, estática. `useSyncExternalStore` evita estado duplicado e já
- * acompanha a troca da preferência com a tela aberta.
+ * `true` quando a criança pediu menos movimento no sistema. O CSS já zera as
+ * animações nesse modo, mas a trilha e a celebração também usam o valor em
+ * JavaScript: sem ele, a pulsação seria montada e a rolagem deslizaria mesmo
+ * com a preferência ligada.
  */
 export const useReducedMotion = (): boolean =>
   useSyncExternalStore(subscribe, getSnapshot, () => false);

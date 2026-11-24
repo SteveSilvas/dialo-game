@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using DialoGame.Api.Logging;
 using DialoGame.Infrastructure.Options;
 using DialoGame.Infrastructure.Persistence;
 using DialoGame.Infrastructure.Persistence.Seed;
@@ -11,6 +12,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +37,21 @@ builder.Services.AddOptions<RateLimitingOptions>()
 
 var rateLimitOptions = builder.Configuration.GetSection(RateLimitingOptions.SectionName)
     .Get<RateLimitingOptions>() ?? new RateLimitingOptions();
+
+var loggingOptions = builder.Configuration.GetSection(LoggingOptions.SectionName)
+    .Get<LoggingOptions>() ?? new LoggingOptions();
+
+if (loggingOptions.Enabled)
+{
+    // A política de destructuring é registrada aqui, e não em cada chamada de log,
+    // para que um `Log.Information("{Body}", body)` novo não vaze senha ou token.
+    builder.Services.AddSerilog((services, loggerConfiguration) => loggerConfiguration
+        .ReadFrom.Configuration(builder.Configuration)
+        .ReadFrom.Services(services)
+        .Destructure.With<SensitiveDataDestructuringPolicy>()
+        .Enrich.FromLogContext()
+        .WriteTo.Console(new CompactJsonFormatter()));
+}
 
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
 
@@ -135,7 +153,27 @@ builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<DialoGameDbContext>("database");
 
+if (loggingOptions.Enabled)
+{
+    builder.Services.AddExceptionHandler<LoggingExceptionHandler>();
+}
+
 var app = builder.Build();
+
+if (loggingOptions.Enabled)
+{
+    // Uma linha por requisição, com método, rota, status e duração. É o resumo que
+    // a issue pede; o corpo e os headers não entram para não arrastar credencial.
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.MessageTemplate =
+            "{RequestMethod} {RequestPath} respondeu {StatusCode} em {Elapsed:0.0}ms";
+        options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        {
+            diagnosticContext.Set("RequestId", httpContext.TraceIdentifier);
+        };
+    });
+}
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();

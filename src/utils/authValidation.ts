@@ -12,6 +12,18 @@ export const PASSWORD_MAX = 128;
 const USERNAME_PATTERN = /^[a-zA-Z0-9_]+$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Mesma lista de `PasswordPolicy.CommonPasswords` na API. Sem ela, uma senha
+ * comum passava na validação da tela e só era recusada no servidor, com a
+ * mensagem genérica de política em vez do campo apontando o problema.
+ */
+const COMMON_PASSWORDS = new Set([
+  '12345678', '123456789', '1234567890', 'senha123', 'password', 'password1',
+  'qwertyui', 'qwerty123', 'abc12345', '11111111', '00000000', 'iloveyou',
+  'admin123', 'letmein1', 'welcome1', 'monkey12', 'dragon12', 'football',
+  'brasil123', 'flamengo', 'corinthians', 'palmeiras', 'aaaaaaaa', 'asdfghjk',
+]);
+
 export type FieldError = string | null;
 
 export const validateUsername = (value: string): FieldError => {
@@ -46,6 +58,8 @@ export const validatePassword = (value: string): FieldError => {
     return `A senha pode ter no máximo ${PASSWORD_MAX} caracteres.`;
   if (/^\d+$/.test(value)) return 'A senha não pode ser só números.';
   if (new Set(value).size === 1) return 'A senha não pode ser um caractere repetido.';
+  if (COMMON_PASSWORDS.has(value.toLowerCase()))
+    return 'Essa senha é comum demais. Escolha outra.';
   return null;
 };
 

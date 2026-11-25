@@ -25,6 +25,9 @@ services:
       Jwt__Audience: dialo-game-web
       Google__ClientId: ${Google__ClientId:-}
       Cors__AllowedOrigins__0: ${Cors__AllowedOrigins__0:-http://localhost:5173}
+      # Migrations rodam no pipeline, nunca no boot: duas réplicas subindo juntas
+      # aplicariam a mesma migration ao mesmo tempo. O compose é a exceção local
+      # porque não existe pipeline aqui — em produção o padrão é `false`.
       ApplyMigrationsOnStartup: ${ApplyMigrationsOnStartup:-true}
       Auth__RefreshCookieSecure: ${Auth__RefreshCookieSecure:-false}
       ASPNETCORE_ENVIRONMENT: Production
@@ -34,6 +37,14 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+    # Liveness, não readiness: o `depends_on` já espera o banco subir, e um
+    # healthcheck no container não deve reiniciá-lo quando só o banco caiu.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 volumes:
   dialo_pgdata:

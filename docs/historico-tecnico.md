@@ -254,6 +254,18 @@ registram o que foi feito e o que restou de manutenção pontual.
 - [x] **`Metrics__Enabled`** — como `RateLimiting__Enabled` e
       `Logging__Structured__Enabled`, o `ApiFactory` dos testes desliga métricas por
       padrão, para nenhum teste depender de configuração de observabilidade.
+- [x] **Probes separados** (issue #35) — `/health` fazia o check do banco e era usado
+      como liveness e readiness ao mesmo tempo. Com o Postgres fora, o orquestrador
+      reiniciava a API: ação que não conserta o banco e ainda derruba quem estava
+      saudável. Agora `/health/live` não toca no banco, `/health/ready` toca, e
+      `/health` continua com o check completo para quem já apontava para ele.
+      Coberto por `HealthEndpointsTests.cs`, que sobe uma API apontando para uma
+      porta sem ninguém escutando e confere 200 no liveness e 503 no readiness.
+- [x] **CORS validado no boot** (issue #35) — `CorsOptions` valida a lista de origens
+      no startup: `*` é recusado (com `AllowCredentials` o curinga lança em runtime,
+      não é uma opção mais frouxa), e origem relativa ou com barra final também,
+      porque o header `Origin` nunca traz barra e o preflight passaria a falhar sem
+      erro visível no servidor. Coberto por `CorsOptionsTests.cs`.
 
 ### 5. UX e produto
 

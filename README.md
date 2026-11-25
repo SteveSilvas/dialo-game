@@ -204,7 +204,7 @@ Front-end enxuto, focado em performance e experiência de uso, com um back-end .
 - **[Npgsql](https://www.npgsql.org/)** — driver e provider EF Core para PostgreSQL.
 - **JWT + Argon2id** — access token curto e refresh rotativo; senhas com Argon2id (`Konscious.Security.Cryptography`).
 - **[Serilog](https://serilog.net/)** — log estruturado em JSON compacto, com resumo por requisição e máscara de dados sensíveis.
-- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 124 testes de unidade e integração.
+- **[xUnit](https://xunit.net/)** + **[FluentAssertions](https://fluentassertions.com/)** — 139 testes de unidade e integração.
 - **[Playwright](https://playwright.dev/)** + **[axe-core](https://github.com/dequelabs/axe-core)** — E2E da trilha e acessibilidade.
 - **Google Identity Services** — login com Google validado no servidor (`Google.Apis.Auth`).
 
@@ -402,7 +402,7 @@ cd apps/api
 dotnet test DialoGame.slnx
 ```
 
-São 124 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
+São 139 testes: unidade (cálculo de estrelas, política de senha, Argon2, JWT,
 desbloqueio de módulo, a máscara de dados sensíveis do log e a contagem de
 métricas) e integração (auth, catálogo, progresso, rate limiting, o log
 estruturado e o scrape de `/metrics`) contra um Postgres real. Cada classe de
@@ -438,7 +438,9 @@ regra precisa ser criada no painel.
 
 | Método | Rota | Autenticação | Descrição |
 | --- | --- | --- | --- |
-| `GET` | `/health` | — | Liveness/readiness, inclui o banco |
+| `GET` | `/health` | — | Check completo, inclui o banco |
+| `GET` | `/health/live` | — | Liveness: só prova que o processo responde, sem tocar no banco |
+| `GET` | `/health/ready` | — | Readiness: inclui o banco; 503 quando o Postgres está fora |
 | `GET` | `/metrics` | Bearer (token de scrape) | Latência por rota, taxa de erro e logins, em formato Prometheus |
 | `GET` | `/catalog` | opcional | Módulos e atividades; com token, inclui o progresso |
 | `POST` | `/auth/register` | — | Cria conta com username, email opcional e senha |
@@ -572,7 +574,7 @@ Na API, os comandos ficam no `dotnet` (rode dentro de `apps/api`):
 | --- | --- |
 | `dotnet run --project src/DialoGame.Api` | Sobe a API em `http://localhost:5099`. |
 | `dotnet build DialoGame.slnx` | Compila a solução inteira. |
-| `dotnet test DialoGame.slnx` | Executa os 124 testes de unidade e integração. |
+| `dotnet test DialoGame.slnx` | Executa os 139 testes de unidade e integração. |
 | `dotnet format --verify-no-changes` | Confere a formatação (o CI reprova se falhar). |
 
 ## Estrutura do projeto
@@ -740,14 +742,19 @@ A API é um container .NET e precisa de um PostgreSQL gerenciado. O checklist m�
    `Auth__RefreshCookieSecure=true` (o padrão) o cookie de refresh sai como
    `SameSite=None; Secure`, então CORS com credenciais e HTTPS são obrigatórios.
    Em HTTP local a flag vai para `false` e o cookie vira `SameSite=Lax`.
-5. Aponte o healthcheck do orquestrador para `GET /health`.
+   A lista é fechada e validada no boot: `*`, entrada relativa ou com barra
+   final derrubam a API na subida, com a origem problemática na mensagem.
+5. Aponte os probes do orquestrador para `GET /health/live` (liveness) e
+   `GET /health/ready` (readiness). O `/health` continua existindo com o check
+   completo, para healthcheck simples que não separa os dois.
 6. Para métricas, defina `Metrics__Token` e aponte o coletor para `GET /metrics`
    com `Authorization: Bearer <token>`. Sem o token o endpoint não é publicado;
    sem coletor, os números existem e ninguém é avisado — as regras de alerta de
    exemplo estão no [ADR 0002](./docs/adr/0002-metricas-e-alerta.md).
 
 Sem `Jwt__SigningKey` com pelo menos 32 caracteres a API **não sobe**: a validação
-acontece no startup, e não na primeira requisição.
+acontece no startup, e não na primeira requisição. O mesmo vale para `Cors:*`. O
+`.env.example` lista todas as variáveis da API, com o formato de cada uma.
 
 ## Roadmap
 

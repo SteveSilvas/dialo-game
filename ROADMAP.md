@@ -236,7 +236,9 @@ referência para o front e o back. Os tipos TypeScript correspondentes vivem em
 | `GET` | `/progress` | progresso consolidado do usuário |
 | `PUT` | `/progress/activities/:slug` | registra resultado de uma atividade |
 | `POST` | `/progress/import` | mescla progresso local do convidado |
-| `GET` | `/health` | liveness/readiness |
+| `GET` | `/health` | check completo, inclui o banco |
+| `GET` | `/health/live` | liveness, sem tocar no banco |
+| `GET` | `/health/ready` | readiness, 503 com o Postgres fora |
 
 Regra de ouro: **o servidor decide o desbloqueio**, nunca o cliente. O front esconde
 o que está bloqueado, mas quem valida é a API — caso contrário, basta editar o

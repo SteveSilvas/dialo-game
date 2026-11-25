@@ -10,6 +10,7 @@ using DialoGame.Infrastructure.Persistence.Seed;
 using DialoGame.Infrastructure.Security;
 using DialoGame.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -39,6 +40,14 @@ builder.Services.AddOptions<RateLimitingOptions>()
 
 var rateLimitOptions = builder.Configuration.GetSection(RateLimitingOptions.SectionName)
     .Get<RateLimitingOptions>() ?? new RateLimitingOptions();
+
+builder.Services.AddOptions<CorsOptions>()
+    .Bind(builder.Configuration.GetSection(CorsOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+var corsOptions = builder.Configuration.GetSection(CorsOptions.SectionName)
+    .Get<CorsOptions>() ?? new CorsOptions();
 
 var loggingOptions = builder.Configuration.GetSection(LoggingOptions.SectionName)
     .Get<LoggingOptions>() ?? new LoggingOptions();
@@ -102,7 +111,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("web", policy =>
     {
-        var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        var origins = corsOptions.AllowedOrigins;
         if (origins.Length > 0)
         {
             policy.WithOrigins(origins)
@@ -160,8 +169,11 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddProblemDetails();
+// Liveness não olha o banco: reiniciar o container não conserta um Postgres fora
+// do ar, e um probe de liveness que depende do banco derruba a API em cascata
+// quando a falha é só do banco. Quem checa a dependência é o readiness.
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<DialoGameDbContext>("database");
+    .AddDbContextCheck<DialoGameDbContext>("database", tags: ["ready"]);
 
 // Registrado sempre: sem listener o Meter não custa nada, e o controller pode
 // injetá-lo sem checar configuração. Quem decide se os números saem é o
@@ -249,7 +261,18 @@ if (metricsOptions.Enabled)
 }
 
 app.MapControllers();
+// `/health` continua sendo o check completo (com o banco) para não quebrar quem já
+// aponta o healthcheck para ele; `/health/live` e `/health/ready` são os probes
+// separados, que é o que um orquestrador precisa.
 app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false,
+});
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+});
 
 await app.RunAsync();
 

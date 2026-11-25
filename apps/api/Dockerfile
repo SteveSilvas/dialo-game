@@ -16,6 +16,12 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app ./
 
+# A imagem Debian slim não traz cliente HTTP, e o healthcheck do compose precisa
+# de um. Instalado só no estágio final para não inchar a imagem de build.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Usuário sem privilégios: a imagem base já traz o usuário "app".
 USER app
 

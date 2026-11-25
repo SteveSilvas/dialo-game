@@ -41,7 +41,7 @@ export default defineConfig({
   webServer: [
     {
       command: 'node e2e/scripts/start-api.mjs',
-      url: `${API_URL}/health`,
+      url: `${API_URL}/health/live`,
       reuseExistingServer: !process.env.CI,
       timeout: 300_000,
       env: { DIALO_E2E_WEB_ORIGIN: WEB_URL, DIALO_E2E_API_PORT: String(API_PORT) },
